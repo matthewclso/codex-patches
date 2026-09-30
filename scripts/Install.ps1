@@ -120,7 +120,7 @@ print('Existing relay route preserved; capability was not displayed.')
     $passNames = @('CODEX_PATCHES_RUNTIME_CONFIG','CODEX_HOME')
     $kept = @($env:WSLENV -split ':' | Where-Object { $_ -and (($_ -split '/',2)[0]) -notin $passNames })
     $environment.WSLENV = (@($kept) + @($passNames | ForEach-Object { "$_/u" })) -join ':'
-    $install = [ordered]@{schemaVersion=1;id=$id;deployment=$deployment;distro=$script:SelectedDistro;runtimeConfig=$runtimeConfigPath;stateRoot=$stateRoot;environment=$environment;ownedJunctions=$ownedJunctions;proxy=@{link='/usr/local/bin/codex-patches-proxy';target=$proxy};receiptSha256=(Get-FileHash (Join-Path $deployment 'receipt.json') -Algorithm SHA256).Hash.ToLowerInvariant();nativeProxySha256=$inspection.build.cliWindowsSha256}
+    $install = [ordered]@{schemaVersion=1;id=$id;deployment=$deployment;distro=$script:SelectedDistro;runtimeConfig=$runtimeConfigPath;stateRoot=$stateRoot;environment=$environment;ownedJunctions=$ownedJunctions;proxy=@{link='/usr/local/bin/codex-patches-proxy';target=$proxy};receiptSha256=(Get-Sha256File (Join-Path $deployment 'receipt.json'));nativeProxySha256=$inspection.build.cliWindowsSha256}
     Write-JsonFile (Join-Path $deployment 'install.json') $install
     # Validate the full generated copy before any account routing or activation.
     Invoke-Native $node @((Join-Path $deployment 'toolkit\bin\toolkit.cjs'),'verify',"--directory=$deployment",'--full=true') | Write-Host
@@ -166,6 +166,12 @@ else:p.unlink();owner.unlink(missing_ok=True)
 param([string]$InstallRoot = $PSScriptRoot)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+function Get-BootstrapHash([string]$Path) {
+    $stream = [IO.File]::OpenRead($Path)
+    $algorithm = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($algorithm.ComputeHash($stream)).Replace('-', '').ToLowerInvariant() }
+    finally { $algorithm.Dispose(); $stream.Dispose() }
+}
 $active = [IO.File]::ReadAllText((Join-Path $InstallRoot 'active.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
 if ($active.schemaVersion -ne 1) { throw 'Unsupported active installation.' }
 $deployment = [IO.Path]::GetFullPath($active.deployment)
@@ -173,7 +179,7 @@ $versions = [IO.Path]::GetFullPath((Join-Path $InstallRoot 'versions')) + '\'
 if (-not $deployment.StartsWith($versions, [StringComparison]::OrdinalIgnoreCase)) { throw 'Active deployment is outside the install directory.' }
 $install = [IO.File]::ReadAllText((Join-Path $deployment 'install.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
 $receiptPath = Join-Path $deployment 'receipt.json'
-if ((Get-FileHash -LiteralPath $receiptPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $install.receiptSha256) { throw 'Installation receipt changed.' }
+if ((Get-BootstrapHash $receiptPath) -ne $install.receiptSha256) { throw 'Installation receipt changed.' }
 $receipt = [IO.File]::ReadAllText($receiptPath, [Text.Encoding]::UTF8) | ConvertFrom-Json
 if ($receipt.schemaVersion -ne 1) { throw 'Unsupported installation receipt.' }
 $toolkit = Join-Path $deployment 'toolkit'
@@ -194,7 +200,7 @@ while ($pending.Count -gt 0) {
 }
 if (-not $actual.SetEquals($expected)) { throw 'Runtime source file set changed.' }
 foreach ($entry in $receipt.toolkitFiles) {
-    if ((Get-FileHash -LiteralPath (Join-Path $toolkit $entry.path) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry.outputSha256) { throw "Runtime source changed: $($entry.path)" }
+    if ((Get-BootstrapHash (Join-Path $toolkit $entry.path)) -ne $entry.outputSha256) { throw "Runtime source changed: $($entry.path)" }
 }
 # The bootstrap performs these checks itself, before executing snapshot code.
 & (Join-Path $toolkit 'codex-patches.ps1') launch -InstallRoot $InstallRoot

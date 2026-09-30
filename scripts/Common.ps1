@@ -71,8 +71,14 @@ function Set-PrivateDirectory([string]$Path) {
     }
     [IO.Directory]::SetAccessControl($Path, $acl)
 }
+function Get-Sha256File([string]$Path) {
+    $stream = [IO.File]::OpenRead($Path)
+    $algorithm = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($algorithm.ComputeHash($stream)).Replace('-', '').ToLowerInvariant() }
+    finally { $algorithm.Dispose(); $stream.Dispose() }
+}
 function Assert-Hash([string]$Path,[string]$Expected) {
-    if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Expected) { throw "Hash changed: $Path" }
+    if ((Get-Sha256File $Path) -ne $Expected) { throw "Hash changed: $Path" }
 }
 
 function Assert-ToolkitSnapshot([string]$Deployment, $Receipt) {

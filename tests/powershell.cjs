@@ -8,9 +8,9 @@ const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const windows = process.platform === 'win32', root = path.resolve(__dirname, '..');
 const literal = text => "'" + text.replaceAll("'", "''") + "'";
-function powershell(code) {
+function powershell(code, environment = process.env) {
   const executable = path.join(process.env.WINDIR, 'System32/WindowsPowerShell/v1.0/powershell.exe');
-  const result = spawnSync(executable, ['-NoLogo','-NoProfile','-EncodedCommand',Buffer.from("$ErrorActionPreference='Stop';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);" + code, 'utf16le').toString('base64')], { encoding: 'utf8', timeout: 30000 });
+  const result = spawnSync(executable, ['-NoLogo','-NoProfile','-EncodedCommand',Buffer.from("$ErrorActionPreference='Stop';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);" + code, 'utf16le').toString('base64')], { encoding: 'utf8', timeout: 30000, env: environment });
   assert.equal(result.status, 0, result.error?.message ?? result.stderr);
   return JSON.parse(result.stdout.trim());
 }
@@ -44,7 +44,7 @@ test('private directory setup is repeatable without requiring audit-policy privi
   } finally { fs.rmSync(directory, {recursive:true,force:true}); }
 });
 
-test('installed bootstrap checks the complete snapshot before executing its launcher or Launch.ps1', { skip: !windows }, () => {
+test('installed bootstrap checks the complete snapshot before execution without module discovery', { skip: !windows }, () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-patches-bootstrap-资料-'));
   const deployment = path.join(directory, 'versions', 'fixture'), toolkit = path.join(deployment, 'toolkit');
   const bootstrap = path.join(directory, 'launch.ps1'), rootMarker = path.join(directory, 'root-executed'), launchMarker = path.join(directory, 'launch-executed'), tripwire = path.join(directory, 'tripwire');
@@ -56,7 +56,14 @@ test('installed bootstrap checks the complete snapshot before executing its laun
   const launchScript = "[IO.File]::WriteAllText((Join-Path $InstallRoot 'launch-executed'),'executed')\n";
   const files = { 'codex-patches.ps1': rootScript, 'scripts/Launch.ps1': launchScript };
   const receipt = JSON.stringify({ schemaVersion: 1, toolkitFiles: Object.entries(files).map(([name, content]) => ({path: name, outputSha256: hash(content)})) });
-  const invoke = () => powershell(`try { & ${literal(bootstrap)} -InstallRoot ${literal(directory)};@{success=$true} | ConvertTo-Json -Compress } catch { @{success=$false;error=$_.Exception.Message} | ConvertTo-Json -Compress }`);
+  const absentModules = {...process.env};
+  for (const key of Object.keys(absentModules)) if (key.toLowerCase() === 'psmodulepath') delete absentModules[key];
+  const ps7Modules = path.join(directory, 'PowerShell', '7', 'Modules');
+  const ps7Only = {...absentModules, PSModulePath: ps7Modules};
+  // PS5 can rebuild a missing inherited module path. Also remove the script
+  // function explicitly after core cmdlets load, then prohibit rediscovery.
+  const noDiscovery = "Get-Command ConvertFrom-Json,ConvertTo-Json,Get-Item,Get-ChildItem,Join-Path,Where-Object,Remove-Item | Out-Null;Remove-Item Function:\\Get-FileHash -Force -ErrorAction SilentlyContinue;$PSModuleAutoLoadingPreference='None';";
+  const invoke = (environment = process.env, prefix = '') => powershell(`${prefix}try { & ${literal(bootstrap)} -InstallRoot ${literal(directory)};@{success=$true} | ConvertTo-Json -Compress } catch { @{success=$false;error=$_.Exception.Message} | ConvertTo-Json -Compress }`, environment);
   const reset = () => {
     for (const marker of [rootMarker, launchMarker, tripwire]) fs.rmSync(marker, {force:true});
     for (const [name, content] of Object.entries(files)) fs.writeFileSync(path.join(toolkit, name), content);
@@ -70,11 +77,22 @@ test('installed bootstrap checks the complete snapshot before executing its laun
     reset();
     assert.deepEqual(invoke(), {success:true});
     assert(fs.existsSync(rootMarker)); assert(fs.existsSync(launchMarker));
+    for (const environment of [absentModules, ps7Only]) {
+      reset();
+      assert.deepEqual(invoke(environment), {success:true});
+      assert(fs.existsSync(rootMarker)); assert(fs.existsSync(launchMarker));
+      reset();
+      assert.deepEqual(invoke(environment, noDiscovery), {success:true});
+      assert(fs.existsSync(rootMarker)); assert(fs.existsSync(launchMarker));
+      const checks = powershell(`${noDiscovery}. ${literal(path.join(root, 'scripts/Common.ps1'))};$digest=Get-Sha256File ${literal(path.join(deployment, 'receipt.json'))};Assert-Hash ${literal(path.join(deployment, 'receipt.json'))} ${literal(hash(receipt))};$rejected=$false;try { Assert-Hash ${literal(path.join(deployment, 'receipt.json'))} '${'0'.repeat(64)}' } catch { $rejected=$true };@{hash=$digest;rejected=$rejected;fileHashAvailable=[bool](Get-Command Get-FileHash -ErrorAction SilentlyContinue)} | ConvertTo-Json -Compress`, environment);
+      assert.equal(checks.hash, hash(receipt)); assert.equal(checks.rejected, true);
+      assert.equal(checks.fileHashAvailable, false, 'The restricted fixture must not provide Get-FileHash');
+    }
     for (const name of Object.keys(files)) {
       reset();
       const injection = "[IO.File]::WriteAllText((Join-Path $InstallRoot 'tripwire'),'unsafe execution')\n";
       fs.writeFileSync(path.join(toolkit, name), name === 'codex-patches.ps1' ? rootScript.replace('\n', '\n' + injection) : injection + launchScript);
-      const result = invoke();
+      const result = invoke(ps7Only, noDiscovery);
       assert.equal(result.success, false, name); assert.match(result.error, /Runtime source changed/, name);
       assert(!fs.existsSync(tripwire), name); assert(!fs.existsSync(rootMarker), name); assert(!fs.existsSync(launchMarker), name);
     }
