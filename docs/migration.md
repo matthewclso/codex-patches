@@ -12,6 +12,8 @@ Review the legacy removal plan from Windows PowerShell:
 
 If an extra wrapper script launches the historical toolkit, provide its absolute path using `-LegacyWrapper`. The plan records recognized shortcut references, home junctions, the old Linux supervisor and the historical `%USERPROFILE%\.codex-wsl-launcher` tree. `-LegacyRoot` can select that same-named directory under a different profile location. Plan output is private to your installation.
 
+The wrapper must be a regular file. OneDrive cloud placeholders are accepted only when Windows reports a documented `IO_REPARSE_TAG_CLOUD` tag (including `CLOUD_1` through `CLOUD_F`). Cleanup inspects the wrapper and its ancestor directories without following each entry's reparse point; symbolic links, junctions and unknown tags are refused before reading the wrapper. This exception applies only to the wrapper path; linked entries in the historical launcher tree still require manual review.
+
 After completing the interactive checks and switching away from the old launcher:
 
 ```powershell

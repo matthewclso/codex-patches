@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot 'Legacy-Wrapper.ps1')
+
 function Get-LegacyAuditInventory([string]$Root) {
     $Root = [IO.Path]::GetFullPath($Root).TrimEnd([char[]]@('\','/'))
     $rootItem = Get-Item -LiteralPath $Root -Force
@@ -60,8 +62,8 @@ function Remove-LegacyPatches {
     $rootItem = Get-Item -LiteralPath $LegacyRoot -Force
     if ($rootItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Legacy launcher root cannot be a link.' }
     if (-not (Test-Path (Join-Path $LegacyRoot 'Start-Codex-Wsl-Alias.ps1'))) { throw 'The historical launcher marker is absent; manual review is required.' }
-    if ($LegacyWrapper -and (Test-Path -LiteralPath $LegacyWrapper) -and ((Get-Item -LiteralPath $LegacyWrapper -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'The supplied wrapper cannot be a link.' }
-    $wrapperValid = $LegacyWrapper -and (Test-Path -LiteralPath $LegacyWrapper) -and ([IO.File]::ReadAllText($LegacyWrapper,[Text.Encoding]::UTF8).Contains('.codex-wsl-launcher'))
+    $wrapperText = if ($LegacyWrapper) { Get-LegacyWrapperText $LegacyWrapper } else { $null }
+    $wrapperValid = $LegacyWrapper -and $wrapperText.Contains('.codex-wsl-launcher')
     if ($LegacyWrapper -and -not $wrapperValid) { throw 'The supplied wrapper does not reference the historical launcher.' }
     $codexHomeWindows = Get-WindowsPath $state.runtime.codexHome
     $legacyProfile = Split-Path $LegacyRoot -Parent
@@ -126,6 +128,7 @@ p=pathlib.Path(expected)
 if p.exists() or p.is_symlink():
  if p.is_symlink() or p.stat().st_uid!=os.getuid() or 'CODEX_PROJECT_PATH_PROXY_REAL_CLI' not in p.read_text():raise SystemExit('Historical proxy content/ownership changed')
 '@ @($oldProxy) | Out-Null
+    if ($wrapperValid -and (Get-LegacyWrapperText $LegacyWrapper) -cne $wrapperText) { throw 'The historical wrapper changed; no cleanup performed.' }
     # Recheck the full no-follow inventory after the process/link preflight.
     $current = @(Get-LegacyAuditInventory $LegacyRoot)
     if ((ConvertTo-Json -InputObject $current -Depth 6 -Compress) -ne (ConvertTo-Json -InputObject $auditFiles -Depth 6 -Compress)) { throw 'Legacy audit inventory changed; no cleanup performed.' }
@@ -164,7 +167,10 @@ if p.exists():
  if p.is_symlink() or p.stat().st_uid!=os.getuid() or 'CODEX_PROJECT_PATH_PROXY_REAL_CLI' not in p.read_text():raise SystemExit('Historical proxy content/ownership changed')
  p.unlink()
 '@ @($oldProxy) | Out-Null
-    if ($wrapperValid) { Remove-Item -LiteralPath $LegacyWrapper -Force }
+    if ($wrapperValid) {
+        if ((Get-LegacyWrapperText $LegacyWrapper) -cne $wrapperText) { throw 'The historical wrapper changed; wrapper removal refused.' }
+        Remove-Item -LiteralPath $LegacyWrapper -Force
+    }
     Remove-Item -LiteralPath $LegacyRoot -Recurse -Force
     $plan.applied = $true; $plan.preservedDiagnostics = $preserved; $plan.sourceCleanup = $sourceResult
     Write-JsonFile (Join-Path $InstallRoot 'legacy-cleanup-plan.json') $plan

@@ -110,3 +110,47 @@ test('Windows cleanup refuses links inside excluded app directories',{skip:!wind
     assert.equal(result.refused,true);assert.equal(fs.readFileSync(path.join(outside,'keep.json'),'utf8'),'external');
   } finally {fs.rmSync(directory,{recursive:true,force:true});}
 });
+test('Windows wrapper inspection reads regular files and rejects directories',{skip:!windows},()=>{
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'codex-legacy-wrapper-'));
+  const wrapper=path.join(directory,'wrapper.ps1'),content='& "$env:USERPROFILE/.codex-wsl-launcher/Start-Codex-Wsl-Alias.ps1"\r\n';
+  try {
+    fs.writeFileSync(wrapper,content);
+    const result=powershell(`Set-StrictMode -Version Latest;. ${literal(path.join(root,'scripts/Legacy-Wrapper.ps1'))};$text=Get-LegacyWrapperText ${literal(wrapper)};$info=Get-LegacyWrapperMetadata ${literal(wrapper)};$errorText=$null;try{Get-LegacyWrapperText ${literal(directory)}|Out-Null}catch{$errorText=$_.Exception.Message};@{text=$text;tag=$info.ReparseTag;directoryError=$errorText}|ConvertTo-Json -Compress`);
+    assert.equal(result.text,content);assert.equal(result.tag,0);assert.match(result.directoryError,/must be a regular file/);
+    assert.equal(fs.readFileSync(wrapper,'utf8'),content);
+  } finally {fs.rmSync(directory,{recursive:true,force:true});}
+});
+test('Windows wrapper cloud allowlist excludes redirecting and unknown reparse tags',{skip:!windows},()=>{
+  const cloud=Array.from({length:16},(_,i)=>0x9000001a+i*0x1000);
+  const refused=[0,0xa0000003,0xa000000c,0xa000001d,0x80000021,0x9000001c,0x9001001a,0xb000001a];
+  const result=powershell(`. ${literal(path.join(root,'scripts/Legacy-Wrapper.ps1'))};@{cloud=@(${cloud.join(',')}|ForEach-Object{Test-LegacyCloudReparseTag $_});refused=@(${refused.join(',')}|ForEach-Object{Test-LegacyCloudReparseTag $_})}|ConvertTo-Json -Compress`);
+  assert.deepEqual(result.cloud,cloud.map(()=>true));assert.deepEqual(result.refused,refused.map(()=>false));
+});
+test('Windows wrapper inspection refuses junction entries and ancestors before reading descendants',{skip:!windows},()=>{
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'codex-legacy-wrapper-links-'));
+  const outside=path.join(directory,'outside'),target=path.join(outside,'wrapper.ps1');
+  const junction=path.join(directory,'junction');
+  try {
+    fs.mkdirSync(outside);fs.writeFileSync(target,'.codex-wsl-launcher');
+    fs.symlinkSync(outside,junction,'junction');
+    const paths=[junction,path.join(junction,'wrapper.ps1'),path.join(junction,'missing.ps1')];
+    const result=powershell(`Set-StrictMode -Version Latest;. ${literal(path.join(root,'scripts/Legacy-Wrapper.ps1'))};@{errors=@(${paths.map(literal).join(',')}|ForEach-Object{try{Get-LegacyWrapperText $_|Out-Null;'accepted'}catch{$_.Exception.Message}})}|ConvertTo-Json -Compress`);
+    assert.equal(result.errors.length,3);for(const message of result.errors)assert.match(message,/cannot contain links or unrecognized reparse points/);
+    assert.equal(fs.readFileSync(target,'utf8'),'.codex-wsl-launcher');assert.equal(fs.existsSync(path.join(outside,'missing.ps1')),false);
+  } finally {fs.rmSync(directory,{recursive:true,force:true});}
+});
+test('Windows wrapper inspection refuses live and dangling file symlinks',{skip:!windows},t=>{
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'codex-legacy-wrapper-symlink-'));
+  const target=path.join(directory,'target.ps1'),live=path.join(directory,'live.ps1'),dangling=path.join(directory,'dangling.ps1');
+  try {
+    fs.writeFileSync(target,'.codex-wsl-launcher');
+    try {fs.symlinkSync(target,live,'file');} catch(error) {
+      if(error.code!=='EPERM')throw error;
+      t.skip('Windows file symlink creation needs Developer Mode or SeCreateSymbolicLinkPrivilege');return;
+    }
+    fs.symlinkSync(path.join(directory,'missing.ps1'),dangling,'file');
+    const result=powershell(`Set-StrictMode -Version Latest;. ${literal(path.join(root,'scripts/Legacy-Wrapper.ps1'))};@{errors=@(${[live,dangling].map(literal).join(',')}|ForEach-Object{try{Get-LegacyWrapperText $_|Out-Null;'accepted'}catch{$_.Exception.Message}})}|ConvertTo-Json -Compress`);
+    assert.equal(result.errors.length,2);for(const message of result.errors)assert.match(message,/cannot contain links or unrecognized reparse points/);
+    assert.equal(fs.readFileSync(target,'utf8'),'.codex-wsl-launcher');assert.equal(fs.existsSync(path.join(directory,'missing.ps1')),false);
+  } finally {fs.rmSync(directory,{recursive:true,force:true});}
+});
