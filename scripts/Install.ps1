@@ -164,9 +164,40 @@ else:p.unlink();owner.unlink(missing_ok=True)
     }
     $bootstrap = @'
 param([string]$InstallRoot = $PSScriptRoot)
+Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $active = [IO.File]::ReadAllText((Join-Path $InstallRoot 'active.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
-& (Join-Path $active.deployment 'toolkit\codex-patches.ps1') launch -InstallRoot $InstallRoot
+if ($active.schemaVersion -ne 1) { throw 'Unsupported active installation.' }
+$deployment = [IO.Path]::GetFullPath($active.deployment)
+$versions = [IO.Path]::GetFullPath((Join-Path $InstallRoot 'versions')) + '\'
+if (-not $deployment.StartsWith($versions, [StringComparison]::OrdinalIgnoreCase)) { throw 'Active deployment is outside the install directory.' }
+$install = [IO.File]::ReadAllText((Join-Path $deployment 'install.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
+$receiptPath = Join-Path $deployment 'receipt.json'
+if ((Get-FileHash -LiteralPath $receiptPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $install.receiptSha256) { throw 'Installation receipt changed.' }
+$receipt = [IO.File]::ReadAllText($receiptPath, [Text.Encoding]::UTF8) | ConvertFrom-Json
+if ($receipt.schemaVersion -ne 1) { throw 'Unsupported installation receipt.' }
+$toolkit = Join-Path $deployment 'toolkit'
+$expected = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+foreach ($entry in $receipt.toolkitFiles) {
+    if ($entry.path -isnot [string] -or [IO.Path]::IsPathRooted($entry.path) -or $entry.path.Contains('\') -or $entry.path.Contains(':') -or @($entry.path.Split('/') | Where-Object { $_ -in @('', '.', '..') }).Count -gt 0 -or -not $expected.Add($entry.path)) { throw 'Unsafe or duplicate toolkit receipt paths.' }
+}
+$actual = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+$pending = [Collections.Generic.Stack[string]]::new(); $pending.Push($toolkit)
+while ($pending.Count -gt 0) {
+    $directory = $pending.Pop()
+    if ((Get-Item -LiteralPath $directory -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Runtime source contains a link.' }
+    foreach ($entry in Get-ChildItem -LiteralPath $directory -Force) {
+        if ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Runtime source contains a link.' }
+        if ($entry.PSIsContainer) { $pending.Push($entry.FullName) }
+        else { [void]$actual.Add($entry.FullName.Substring($toolkit.Length + 1).Replace('\', '/')) }
+    }
+}
+if (-not $actual.SetEquals($expected)) { throw 'Runtime source file set changed.' }
+foreach ($entry in $receipt.toolkitFiles) {
+    if ((Get-FileHash -LiteralPath (Join-Path $toolkit $entry.path) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry.outputSha256) { throw "Runtime source changed: $($entry.path)" }
+}
+# The bootstrap performs these checks itself, before executing snapshot code.
+& (Join-Path $toolkit 'codex-patches.ps1') launch -InstallRoot $InstallRoot
 '@
     [IO.File]::WriteAllText((Join-Path $InstallRoot 'launch.ps1'), $bootstrap, [Text.UTF8Encoding]::new($false))
     if (-not $NoShortcut) {

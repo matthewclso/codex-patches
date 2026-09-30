@@ -8,6 +8,16 @@ const { sha256, updateExecutableIntegrity } = require('../../lib/asar.cjs');
 const { readJson } = require('./evidence.cjs');
 const compatibility = require('../../compatibility/current.json');
 function argument(name) { const index = process.argv.indexOf(name); if (index < 0 || !process.argv[index + 1]) throw new Error('Missing argument: ' + name); return process.argv[index + 1]; }
+function matchesReviewedPackage(build, packageReport) {
+  if (!build || build.packageVersion !== packageReport.identity.packageVersion ||
+      build.appVersion !== packageReport.versions.appVersion || build.cliVersion !== packageReport.versions.cliVersion ||
+      build.executableRelativePath !== packageReport.files.executableRelativePath.replaceAll('\\', '/')) return false;
+  // These are the same runtime binaries required by the installer. Archive
+  // composition alone must not accept changed stock executables or runtimes.
+  return ['archiveSha256', 'executableSha256', 'cliLinuxSha256', 'cliWindowsSha256',
+    'codeModeLinuxSha256', 'codeModeWindowsSha256', 'nodeWindowsSha256']
+    .every(key => build[key] && build[key] === packageReport.hashes[key]);
+}
 function validate(appDirectory, packageReport, outDirectory) {
   fs.mkdirSync(outDirectory, { recursive: true });
   const report = { schemaVersion: 1, status: 'failed', reviewRequired: true,
@@ -31,6 +41,7 @@ function validate(appDirectory, packageReport, outDirectory) {
       assert.equal(sha256(fs.readFileSync(path.join(appDirectory, 'resources', filename))), packageReport.hashes[key]);
     const audit = auditArchive(archive, listPatches().map(p => p.id));
     report.audit = audit.report;
+    report.reviewedPackage = matchesReviewedPackage(audit.report.build, packageReport);
     if (!audit.buffer) {
       report.status = 'needs-review';
       report.checks.push({ name: 'compose-existing-patches', status: 'blocked', reason: 'Target source modules changed or are missing. Existing implementations cannot be assumed correct.' });
@@ -49,15 +60,7 @@ function validate(appDirectory, packageReport, outDirectory) {
     assert.equal(tests.status, 0, 'Actual downloaded stock/patched source behavior tests failed.');
     assert(!tests.error, 'Source behavior test process failed or timed out.');
     const known = audit.report.build;
-    const supported = Boolean(known && known.packageVersion === packageReport.identity.packageVersion &&
-      known.cliVersion === packageReport.versions.cliVersion &&
-      known.appVersion === packageReport.versions.appVersion &&
-      known.executableSha256 === packageReport.hashes.executableSha256 &&
-      known.cliLinuxSha256 === packageReport.hashes.cliLinuxSha256 &&
-      known.cliWindowsSha256 === packageReport.hashes.cliWindowsSha256 &&
-      known.codeModeLinuxSha256 === packageReport.hashes.codeModeLinuxSha256 &&
-      known.codeModeWindowsSha256 === packageReport.hashes.codeModeWindowsSha256 &&
-      known.nodeWindowsSha256 === packageReport.hashes.nodeWindowsSha256);
+    const supported = report.reviewedPackage;
     report.status = supported ? 'passed' : 'needs-review';
     report.reviewRequired = !supported;
     if (report.checks.some(check => check.status === 'failed')) {
@@ -91,4 +94,4 @@ if (require.main === module) {
     if (report.status === 'failed') process.exitCode = 1;
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }
-module.exports = { validate };
+module.exports = { validate, matchesReviewedPackage };

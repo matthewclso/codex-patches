@@ -47,6 +47,7 @@ jobs:
         run: node scripts/ci/validate-package.cjs --app-dir "$env:CODEX_APP_DIRECTORY" --package-report "$env:CODEX_PACKAGE_REPORT" --out "$env:RUNNER_TEMP/codex-reports"
       - name: Initialize and test Ubuntu 26.04 WSL2 on this Windows runner
         id: wsl
+        if: always() && steps.package.outcome == 'success'
         shell: pwsh
         env:
           STOCK_LINUX_CLI: ${{ steps.package.outputs.linux_cli }}

@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const windows = process.platform === 'win32', root = path.resolve(__dirname, '..');
 const literal = text => "'" + text.replaceAll("'", "''") + "'";
@@ -40,5 +41,50 @@ test('private directory setup is repeatable without requiring audit-policy privi
     assert(result.rules.includes('S-1-5-18'));
     assert(result.rules.includes('S-1-5-32-544'));
     assert(!result.rules.includes('S-1-1-0'));
+  } finally { fs.rmSync(directory, {recursive:true,force:true}); }
+});
+
+test('installed bootstrap checks the complete snapshot before executing its launcher or Launch.ps1', { skip: !windows }, () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-patches-bootstrap-资料-'));
+  const deployment = path.join(directory, 'versions', 'fixture'), toolkit = path.join(deployment, 'toolkit');
+  const bootstrap = path.join(directory, 'launch.ps1'), rootMarker = path.join(directory, 'root-executed'), launchMarker = path.join(directory, 'launch-executed'), tripwire = path.join(directory, 'tripwire');
+  const source = fs.readFileSync(path.join(root, 'scripts', 'Install.ps1'), 'utf8');
+  const body = source.match(/\$bootstrap = @'\r?\n([\s\S]*?)\r?\n'@/);
+  assert(body, 'Install.ps1 must define the exact installed bootstrap');
+  const hash = content => crypto.createHash('sha256').update(content).digest('hex');
+  const rootScript = "param([string]$Command,[string]$InstallRoot)\n[IO.File]::WriteAllText((Join-Path $InstallRoot 'root-executed'),'executed')\n. (Join-Path $PSScriptRoot 'scripts\\Launch.ps1')\n";
+  const launchScript = "[IO.File]::WriteAllText((Join-Path $InstallRoot 'launch-executed'),'executed')\n";
+  const files = { 'codex-patches.ps1': rootScript, 'scripts/Launch.ps1': launchScript };
+  const receipt = JSON.stringify({ schemaVersion: 1, toolkitFiles: Object.entries(files).map(([name, content]) => ({path: name, outputSha256: hash(content)})) });
+  const invoke = () => powershell(`try { & ${literal(bootstrap)} -InstallRoot ${literal(directory)};@{success=$true} | ConvertTo-Json -Compress } catch { @{success=$false;error=$_.Exception.Message} | ConvertTo-Json -Compress }`);
+  const reset = () => {
+    for (const marker of [rootMarker, launchMarker, tripwire]) fs.rmSync(marker, {force:true});
+    for (const [name, content] of Object.entries(files)) fs.writeFileSync(path.join(toolkit, name), content);
+    fs.writeFileSync(path.join(deployment, 'receipt.json'), receipt);
+  };
+  try {
+    fs.mkdirSync(path.join(toolkit, 'scripts'), {recursive:true});
+    fs.writeFileSync(bootstrap, body[1]);
+    fs.writeFileSync(path.join(directory, 'active.json'), JSON.stringify({schemaVersion:1,deployment}));
+    fs.writeFileSync(path.join(deployment, 'install.json'), JSON.stringify({receiptSha256:hash(receipt)}));
+    reset();
+    assert.deepEqual(invoke(), {success:true});
+    assert(fs.existsSync(rootMarker)); assert(fs.existsSync(launchMarker));
+    for (const name of Object.keys(files)) {
+      reset();
+      const injection = "[IO.File]::WriteAllText((Join-Path $InstallRoot 'tripwire'),'unsafe execution')\n";
+      fs.writeFileSync(path.join(toolkit, name), name === 'codex-patches.ps1' ? rootScript.replace('\n', '\n' + injection) : injection + launchScript);
+      const result = invoke();
+      assert.equal(result.success, false, name); assert.match(result.error, /Runtime source changed/, name);
+      assert(!fs.existsSync(tripwire), name); assert(!fs.existsSync(rootMarker), name); assert(!fs.existsSync(launchMarker), name);
+    }
+    reset();
+    fs.writeFileSync(path.join(toolkit, 'extra.ps1'), "[IO.File]::WriteAllText((Join-Path $InstallRoot 'tripwire'),'unsafe execution')");
+    assert.match(invoke().error, /Runtime source file set changed/);
+    assert(!fs.existsSync(rootMarker)); assert(!fs.existsSync(launchMarker)); assert(!fs.existsSync(tripwire));
+    fs.rmSync(path.join(toolkit, 'extra.ps1')); reset();
+    fs.appendFileSync(path.join(deployment, 'receipt.json'), ' ');
+    assert.match(invoke().error, /Installation receipt changed/);
+    assert(!fs.existsSync(rootMarker)); assert(!fs.existsSync(launchMarker));
   } finally { fs.rmSync(directory, {recursive:true,force:true}); }
 });

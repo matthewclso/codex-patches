@@ -28,9 +28,14 @@ function buildProposal(validation, wsl, runUrl) {
   return { branch, filename: `compatibility/candidates/${version}-${pkg.hashes.archiveSha256.slice(0, 12)}.json`,
     title: `Review Codex Windows ${version} compatibility`, body, proposal };
 }
+function shouldPropose(validation) {
+  // A regression in tests for a reviewed package is a failed CI run, not a
+  // newly released app. Do not open a misleading compatibility update PR.
+  return validation.reviewedPackage !== true && !(validation.status === 'passed' && !validation.reviewRequired);
+}
 function propose(validationPath, wslPath, outDirectory) {
   const validation = readJson(validationPath);
-  if (validation.status === 'passed' && !validation.reviewRequired) { console.log('Official package is already supported; no proposal needed.'); return; }
+  if (!shouldPropose(validation)) { console.log('Official package is already reviewed; no new package proposal needed.'); return; }
   const runUrl = `${process.env.GITHUB_SERVER_URL || 'https://github.com'}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
   const wsl = fs.existsSync(wslPath) ? readJson(wslPath) : null;
   const proposal = buildProposal(validation, wsl, runUrl);
@@ -56,4 +61,4 @@ if (require.main === module) {
     propose(process.argv[2], process.argv[3], process.argv[4]);
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }
-module.exports = { buildProposal };
+module.exports = { buildProposal, shouldPropose };

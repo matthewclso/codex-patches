@@ -22,11 +22,17 @@ The report distinguishes `passed`, `failed`, `unsupported`, and `not-run`. A fea
 
 GitHub does not guarantee nested virtualization. The current hosted feasibility result is in each workflow run's `wsl.json`, rather than encoded as an assumption in the installer. A green toolkit/unit workflow and successful archive transformation are separate evidence from WSL acceptance. Browser UI, pet rendering, and authenticated phone reconnect remain local acceptance checks.
 
+[The September 30 hosted acceptance run](https://github.com/matthewclso/codex-patches/actions/runs/36691787377) passed both package and WSL2 gates for the official signed Codex package `26.928.2636.0`, app `26.928.21956`, and CLI `0.159.2`. Ubuntu 26.04.1 booted with kernel `6.18.40.1-microsoft-standard-WSL2`. Inside the guest, 42 repository tests passed and four Windows-only tests were skipped; the stock app-server RPC probe and bundled Windows Node → WSL GraphQL argument probe also passed. The public `codex-compatibility-reports` artifact contains `validation.json`, `wsl.json`, `app-server.json`, and `graphql-windows-boundary.json`. The proposing job recognized the reviewed package and created no PR.
+
+The WSL stage took about 13 minutes, primarily downloading/importing the official image; the guest tests and probes took about 80 seconds. An earlier run caught CRLF conversion in a Python shebang, so the repository now declares LF for text files on Windows and WSL checkouts.
+
 ## New package proposals
 
 The scheduled workflow uses ordinary scripts and `GITHUB_TOKEN`; no agent, OpenAI API key, or model calls are involved. Manual dispatch defaults to evidence only; enable **propose_update** to create a proposal.
 
 For an already supported package, it exits without creating a PR. For a new package, it creates one draft PR per package/archive pair under `automation/codex-<version>-<hash>`. The PR contains public evidence and a candidate under `compatibility/candidates/`, even when changed code or unavailable WSL prevents acceptance. It never silently adds an unknown build to `compatibility/current.json`, enables a patch, or interprets a missing anchor as an upstream fix.
+
+Test failures on an already reviewed package remain failed CI evidence; they do not create a misleading new-package proposal.
 
 The maintainer reviews the report, fixes changed modules when necessary, reproduces the stock-versus-patched scenarios, and adds the build to the supported registry with the actual acceptance evidence. A candidate PR can be used to collect that work; merging candidate metadata alone does not support installation. The registry is the install authority. The next scheduled run recognizes a reviewed supported build without generating another proposal.
 
