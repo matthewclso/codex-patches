@@ -6,6 +6,7 @@ const { spawnSync } = require('node:child_process');
 const { auditArchive, listPatches } = require('../../lib/app-patches.cjs');
 const { sha256, updateExecutableIntegrity } = require('../../lib/asar.cjs');
 const { readJson } = require('./evidence.cjs');
+const compatibility = require('../../compatibility/current.json');
 function argument(name) { const index = process.argv.indexOf(name); if (index < 0 || !process.argv[index + 1]) throw new Error('Missing argument: ' + name); return process.argv[index + 1]; }
 function validate(appDirectory, packageReport, outDirectory) {
   fs.mkdirSync(outDirectory, { recursive: true });
@@ -50,6 +51,7 @@ function validate(appDirectory, packageReport, outDirectory) {
     const known = audit.report.build;
     const supported = Boolean(known && known.packageVersion === packageReport.identity.packageVersion &&
       known.cliVersion === packageReport.versions.cliVersion &&
+      known.appVersion === packageReport.versions.appVersion &&
       known.executableSha256 === packageReport.hashes.executableSha256 &&
       known.cliLinuxSha256 === packageReport.hashes.cliLinuxSha256 &&
       known.cliWindowsSha256 === packageReport.hashes.cliWindowsSha256 &&
@@ -70,6 +72,9 @@ function validate(appDirectory, packageReport, outDirectory) {
       codeModeLinuxSha256: packageReport.hashes.codeModeLinuxSha256,
       codeModeWindowsSha256: packageReport.hashes.codeModeWindowsSha256,
       acceptance: 'candidate; source behavior checked; desktop and WSL acceptance require review',
+      runtimePatches: known?.runtimePatches ? structuredClone(known.runtimePatches) :
+        Object.fromEntries(Object.keys(compatibility.builds[0]?.runtimePatches || {}).map(id => [id, {
+          status: 'review-required', evidence: 'Bundled runtime changed; current native stock-versus-patched behavior must be audited.' }])),
       patches: Object.fromEntries(audit.report.patches.map(p => [p.id, { status: 'candidate', sourceSha256: p.beforeHash, targetPath: p.targetPath }])),
     };
     return report;

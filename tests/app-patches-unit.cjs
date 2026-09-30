@@ -56,5 +56,5 @@ test('unknown archive cannot be installed, and audit remains review required', (
   assert.equal(report.supported, false); assert.equal(report.reviewRequired, true);
   assert.equal(auditArchive(original, ['custom-pets']).buffer, null);
   assert.throws(() => inspectArchive(original, ['unknown'], { allowUnknownForAudit: true }), /Unknown app patch/);
-  assert.throws(() => inspectArchive(original, ['browser-service-path'], { allowUnknownForAudit: true }), /requires browser-wsl/);
+  assert.equal(inspectArchive(original, ['browser-service-path'], { allowUnknownForAudit: true }).patches[0].status, 'review-required');
 });

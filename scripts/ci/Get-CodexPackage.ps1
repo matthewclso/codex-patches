@@ -51,6 +51,8 @@ foreach ($runtimeFile in @($windowsCli, $linuxCli, $linuxCodeMode, $windowsCodeM
 $cliOutput = (& $windowsCli --version 2>&1 | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or $cliOutput -notmatch '(?<version>\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)') { throw 'Unable to establish bundled stock CLI version.' }
 $cliVersion = $Matches.version
+$appVersion = (& node (Join-Path $PSScriptRoot 'inspect-app-version.cjs') $archivePaths[0].FullName | Out-String).Trim()
+if ($LASTEXITCODE -ne 0 -or $appVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'Unable to establish internal Codex app version from its archive.' }
 $report = [ordered]@{
     schemaVersion = 1
     observedAt = [DateTime]::UtcNow.ToString('o')
@@ -65,7 +67,7 @@ $report = [ordered]@{
         codeModeLinuxSha256 = (Get-FileHash $linuxCodeMode -Algorithm SHA256).Hash.ToLowerInvariant()
         codeModeWindowsSha256 = (Get-FileHash $windowsCodeMode -Algorithm SHA256).Hash.ToLowerInvariant()
     }
-    versions = [ordered]@{ cliVersion = $cliVersion; appVersion = [string](Get-Item $executable).VersionInfo.ProductVersion }
+    versions = [ordered]@{ cliVersion = $cliVersion; appVersion = $appVersion }
     files = [ordered]@{ executableRelativePath = [IO.Path]::GetRelativePath($appDirectory, $executable) }
     verification = [ordered]@{ msixSignature = 'valid'; executableSignature = 'valid'; identity = 'verified'; publisher = 'matched-pin'; architecture = 'x64' }
 }

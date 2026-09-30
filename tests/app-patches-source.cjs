@@ -26,9 +26,10 @@ function compose(bytes, selected) {
   }
   return { ...result, changes: result.report.changes, build: result.report.build };
 }
-let original, archive;
+let original, archive, sourcePlan;
+function modulePath(patch) { return sourcePlan.patches.find(p => p.id === patch.id).targetPath; }
 function packed(name) { return asar.readEntry(archive, name).toString('utf8'); }
-function setup() { if (!original) { original = fs.readFileSync(sourcePath); archive = asar.parseArchive(original); } }
+function setup() { if (!original) { original = fs.readFileSync(sourcePath); archive = asar.parseArchive(original); sourcePlan = app.inspectArchive(original, app.listPatches().map(p => p.id), { allowUnknownForAudit: true }); } }
 function between(source, first, last) {
   const start = source.indexOf(first), end = source.indexOf(last, start + first.length);
   assert(start >= 0 && end > start, 'Missing source boundaries: ' + first);
@@ -49,7 +50,7 @@ function pathHelpers() {
 async function petCase(loader, home, unix) {
   const o = { rt: () => home }, sandbox = { Buffer, Response, n: packedRequire('.vite/build/zod-ClKgiFhi.js'), o, Vn: () => 'Ubuntu', eB: { default: () => 'probe-pet' } };
   vm.createContext(sandbox);
-  const bootstrap = packed(petPatch.targetPath), fsUtils = 'let ' + between(bootstrap, 'W={async readFile(', 'async function $a(');
+  const bootstrap = packed(modulePath(petPatch)), fsUtils = 'let ' + between(bootstrap, 'W={async readFile(', 'async function $a(');
   vm.runInContext(pathHelpers() + ';Object.assign(o,{zt:ge});' + fsUtils + loader + ';globalThis.api={load:oB,loadAvatar:sB,install:lB};', sandbox);
   const platform = unix ? path.posix : path.win32, normalizedHome = unix ? o.zt(home) : home, petRoot = platform.join(normalizedHome, 'pets'), legacyRoot = platform.join(normalizedHome, 'avatars');
   // Minimal valid PNG header for the actual stock dimension checker.
@@ -81,7 +82,7 @@ async function petCase(loader, home, unix) {
   return { ids, installCalls, expectedInstall: [ ['mkdir', petRoot], ['mkdir', platform.join(petRoot, 'probe-pet')], ['write', platform.join(petRoot, 'probe-pet', 'spritesheet.png')], ['write', platform.join(petRoot, 'probe-pet', 'pet.json')] ] };
 }
 sourceTest('actual pet loader: stock fails Windows home under POSIX; patch fixes all three paths and retains traversal checks', async () => {
-  const bootstrap = packed(petPatch.targetPath), loader = 'let ' + between(bootstrap, 'tB=1536,', 'function vB('), patched = petPatch.apply(loader, app.replaceExactlyOnce);
+  const bootstrap = packed(modulePath(petPatch)), loader = 'let ' + between(bootstrap, 'tB=1536,', 'function vB('), patched = petPatch.apply(loader, app.replaceExactlyOnce);
   const windows = 'D:\\Profiles\\Example User\\.codex';
   const stock = await petCase(loader, windows, true);
   assert.deepEqual(stock.ids, []); assert.notDeepEqual(stock.installCalls, stock.expectedInstall);
@@ -93,7 +94,7 @@ sourceTest('actual pet loader: stock fails Windows home under POSIX; patch fixes
   assert.deepEqual((await petCase(loader, windows, false)).ids, ['custom:legacy-pet', 'custom:probe-pet']);
 });
 sourceTest('actual in-app eligibility preserves all prerequisites across 256 cases and external browser gate', () => {
-  const source = packed(browserPatch.targetPath), patched = browserPatch.apply(source, app.replaceExactlyOnce);
+  const source = packed(modulePath(browserPatch)), patched = browserPatch.apply(source, app.replaceExactlyOnce);
   const stockFn = vm.runInNewContext('(' + browserPatch.before + ')'), patchedFn = vm.runInNewContext('(' + browserPatch.after + ')');
   const names = ['areRequirementsPending', 'isBrowserAgentGateEnabled', 'isBrowserAndComputerUseAllowed', 'isBrowserEnabled', 'isBrowserUseEnabled', 'isLoading', 'runCodexInWsl'];
   let changed = 0;
@@ -118,7 +119,7 @@ function generator(source, platform, useWsl, servicePath, backends) {
   return code({ appVersion: 'version', codexHome: 'home', marketplaceName: 'market', availableBrowserUseBackends: backends, browserUseTinysky: false, computerUse: false, enforceModelCheck: true, computerUseNativePipePath: null, computerUsePaths: {}, hostServicesPipePath: null, includePrivateProcessEnv: false, runtimePaths: { platform, nodePath: 'node', nodeReplPath: 'repl', codexCliPath: 'cli', nodeModuleDirs: [] }, shouldUseWslPaths: useWsl });
 }
 sourceTest('actual trusted-service generator fixes native Windows mount paths only under WSL and retains all other generated fields', () => {
-  const source = packed(servicePatch.targetPath), patched = servicePatch.apply(source, app.replaceExactlyOnce);
+  const source = packed(modulePath(servicePatch)), patched = servicePatch.apply(source, app.replaceExactlyOnce);
   let changed = 0, cases = 0;
   for (const platform of ['win32', 'linux', 'darwin']) for (const useWsl of [false, true]) for (const root of ['/mnt/c/Profile User/.codex', '/mnt/d/Other/.codex', 'C:\\Profile User\\.codex', '/home/user/.codex', '\\\\wsl.localhost\\Ubuntu\\home\\user\\.codex']) for (const backends of [[], ['iab'], ['chrome']]) {
     const servicePath = root + '/scripts/browser-service.mjs', before = generator(source, platform, useWsl, servicePath, backends), after = generator(patched, platform, useWsl, servicePath, backends); cases++;
@@ -132,7 +133,7 @@ sourceTest('actual trusted-service generator fixes native Windows mount paths on
   assert.equal(JSON.parse(regression.extraEnv['trusted-services']).browser, '/mnt/c/User/.codex/scripts/browser-service.mjs');
 });
 sourceTest('all valid app-patch combinations are deterministic, source-gated and preserve unrelated entries', () => {
-  const combinations = [[], ['custom-pets'], ['browser-wsl'], ['custom-pets', 'browser-wsl'], ['browser-wsl', 'browser-service-path'], ['custom-pets', 'browser-wsl', 'browser-service-path']];
+  const combinations = [[], ['custom-pets'], ['browser-wsl'], ['browser-service-path'], ['custom-pets', 'browser-wsl'], ['custom-pets', 'browser-service-path'], ['browser-wsl', 'browser-service-path'], ['custom-pets', 'browser-wsl', 'browser-service-path']];
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-patch-syntax-'));
   try {
     for (const selected of combinations) {

@@ -79,12 +79,14 @@ jobs:
             ${{ runner.temp }}/codex-reports/validation.json
             ${{ runner.temp }}/codex-reports/wsl.json
             ${{ runner.temp }}/codex-reports/app-server.json
+            ${{ runner.temp }}/codex-reports/graphql-windows-boundary.json
             ${{ runner.temp }}/codex-reports/app-source-tests.txt
             ${{ runner.temp }}/codex-package/package.json
             ${{ runner.temp }}/codex-package/msix-signature.txt
       - name: Require reviewed package and successful toolkit validation
         run: node scripts/ci/evidence.cjs package-gate "${{ runner.temp }}/codex-reports/validation.json"
       - name: Require actual WSL2 acceptance
+        if: always()
         # A successful diagnostic/report step cannot make unsupported WSL appear green.
         run: node scripts/ci/evidence.cjs gate "${{ runner.temp }}/codex-reports/wsl.json"
   propose:

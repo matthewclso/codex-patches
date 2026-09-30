@@ -59,14 +59,86 @@
       "runtimePatches": {
         "wsl-project-paths": {
           "status": "needed",
-          "evidence": "Stock CLI 0.159.0 rejects a matching WSL UNC project/create root; the portable Python adapter plus supervised relay returns the canonical POSIX root in an isolated home/database."
+          "evidence": "Stock CLI 0.159.0 rejects matching WSL UNC project/create roots. The portable proxy + relay + stock CLI returns the canonical POSIX root in an isolated home/database; EOF and SIGTERM cleanup release the relay port."
         },
         "remote-fast-list": {
           "status": "needed",
-          "evidence": "Stock CLI 0.159.0 ordinary thread/list omits projection-only SQLite witnesses while useStateDbOnly includes them. Native mock upstream tests verify relay-filtered project membership, pagination, native auth/enrollment reuse and cursor reconnection; live phone acceptance remains pending."
+          "evidence": "Direct unmodified CLI 0.159.0 native mock Remote Control returns project-filtered SQLite witnesses, but unfiltered incoming thread/list with useStateDbOnly:false and omitted useStateDbOnly both omit all 2 witnesses. Relay returns them, preserving project filters, pagination, native pairing reuse and cursor reconnect. Full phone UI acceptance remains pending.",
+          "nativeMockWitnesses": {
+            "stateDbWitnesses": 2,
+            "stockProjectFiltered": 1,
+            "stockUnfiltered": 0,
+            "relayedUnfiltered": 2
+          }
         }
       },
       "codeModeWindowsSha256": "e38a4550664c2021f5f63484367558563612f892821712ddb7b13e27a01eba59"
+    },
+    {
+      "packageVersion": "26.928.2636.0",
+      "appVersion": "26.928.21956",
+      "cliVersion": "0.159.2",
+      "archiveSha256": "fb7b2ee791bcbdb3c4a6375e9fec8fb404f3eaff995f0d293227354b298aff49",
+      "headerSha256": "d7da3129304d1f77bb8e4825709942bc7573786b67a21da1e9ee96f3370777a8",
+      "executableSha256": "709a4d9b88cafc7f78e43aab7965b0de9f6279884036e909c47c00a89b48c463",
+      "executableRelativePath": "ChatGPT.exe",
+      "auditedAt": "2026-09-30",
+      "acceptance": "source-behavior-verified; full desktop acceptance pending",
+      "patches": {
+        "custom-pets": {
+          "status": "needed",
+          "targetPath": ".vite/build/bootstrap-DvSEn4qy.js",
+          "sourceSha256": "3632ac2605be436c271d27d68c657919b186840319dee9917f397ad8b5fb63cf",
+          "evidence": "Actual stock pet loader uses Windows home with POSIX joins. Isolated patched loader discovers, selects and installs using the backend path format.",
+          "outputSha256": "7a5d2a62042a1c20d695936c3a4eb6fbbcd8e8c2342f811f31b43c3149548d23"
+        },
+        "browser-wsl": {
+          "status": "needed",
+          "targetPath": "webview/assets/app-shared-a906948d8868.js",
+          "sourceSha256": "50c38d92886db2b9832ec21932ca80fd0d997e4c3cc716c4139e9085c4f15d25",
+          "evidence": "Actual stock in-app eligibility function returns wsl-disabled. Exhaustive source-function cases retain every other prerequisite.",
+          "outputSha256": "320ba937be52a805f5d527eeaa3e2949a8042a134e5872b1bffb8daa811488e8"
+        },
+        "browser-service-path": {
+          "status": "needed",
+          "targetPath": ".vite/build/main-DkWgQSQe.js",
+          "sourceSha256": "febce65087ab1c20c53e6da4c1f17baf720a57e8fa5cedc9b9b84fc82223e811",
+          "evidence": "Actual stock cc generator registers a POSIX browser path for a Windows worker. Corrected generator uses its existing native converter only with WSL paths on win32.",
+          "outputSha256": "2625c1fea14956a66e43d750da28ce80a463274636661ec074fd408a50256d27"
+        }
+      },
+      "verifiedPackedEntries": 20660,
+      "cliWindowsSha256": "cbafb6422bca005b94c12d105b1a16a0474219e24ea4893f85846409c464f5a1",
+      "cliLinuxSha256": "1748767b230ebfc3d4ab7e4e254920d0c0ad9691fd8c11f190e7d44511a4a92e",
+      "codeModeLinuxSha256": "5b2c075ac2380fa04d76d7313fbc044d29c8d0a0d0b9138415acd4610211ca03",
+      "codeModeWindowsSha256": "3ac107b101374edea0437c6b5696830f37755f2f1d75e3bffd48e5fbcc8bdd97",
+      "nodeWindowsSha256": "5fa21ef674d9b5f65ed2c2c204c943186f33def128e8901ce4cd9add9592763e",
+      "composedApp": {
+        "selectedIds": [
+          "custom-pets",
+          "browser-wsl",
+          "browser-service-path"
+        ],
+        "archiveSha256": "87a44f87f59d9a2410c14b1fc32628659d3e67298c511d12832592373df74b8d",
+        "headerSha256": "ed3141cfe431a57841df6d492cc9294d8cc92a3e442c9c4bfdd13cd5ceb04e95",
+        "executableSha256": "a71919c15b10af2ceface5a5c62ed17ab918d03773177de345e0d19ea5ade376"
+      },
+      "runtimePatches": {
+        "wsl-project-paths": {
+          "status": "needed",
+          "evidence": "Stock CLI 0.159.2 rejects matching WSL UNC project/create roots. The portable proxy + relay + stock CLI returns the canonical POSIX root in an isolated home/database; EOF and SIGTERM cleanup release the relay port."
+        },
+        "remote-fast-list": {
+          "status": "needed",
+          "evidence": "Direct unmodified CLI 0.159.2 native mock Remote Control returns project-filtered SQLite witnesses, but unfiltered incoming thread/list with useStateDbOnly:false and omitted useStateDbOnly both omit all 2 witnesses. Relay returns them, preserving project filters, pagination, native pairing reuse and cursor reconnect. Full phone UI acceptance remains pending.",
+          "nativeMockWitnesses": {
+            "stateDbWitnesses": 2,
+            "stockProjectFiltered": 1,
+            "stockUnfiltered": 0,
+            "relayedUnfiltered": 2
+          }
+        }
+      }
     }
   ],
   "retired": [
@@ -83,14 +155,26 @@
     {
       "id": "graphql-shell",
       "status": "fixed",
-      "reason": "Current worker GitHub and WSL generators single-quote arguments at both layers. Exact stock source functions through Windows Node and wsl.exe preserve GraphQL variables and apostrophe-bearing fixture arguments without BASH_ENV guards. No external request was sent.",
+      "reason": "Both supported stock workers preserve GraphQL variables and apostrophe-bearing fixture arguments through exact GitHub/WSL generator functions, Windows Node and wsl.exe, without BASH_ENV guards. No external request was sent.",
       "sourceFile": ".vite/build/worker.js",
-      "sourceSha256": "99d12495c2a50e2a55b888ff0a5785563480614b345455ef56e1b100b5df7490"
+      "sourceSha256": "99d12495c2a50e2a55b888ff0a5785563480614b345455ef56e1b100b5df7490",
+      "verifiedPackageVersions": [
+        "26.928.1915.0",
+        "26.928.2636.0"
+      ],
+      "sourceSha256ByPackageVersion": {
+        "26.928.1915.0": "99d12495c2a50e2a55b888ff0a5785563480614b345455ef56e1b100b5df7490",
+        "26.928.2636.0": "355dd7dbc03aa6b1ae32fee2a6a35b66d8b0a096f7d4e068888706cf2c65b1b1"
+      }
     },
     {
       "id": "wsl-home-alias",
       "status": "superseded",
-      "reason": "The composed custom-pets module converts canonical Windows home to POSIX after choosing backend path semantics. The proxy supplies canonical POSIX CODEX_HOME to Linux. Historical pet-specific junctions are excluded; full desktop startup remains separate acceptance."
+      "reason": "The composed custom-pets module converts canonical Windows home to POSIX after choosing backend path semantics. The proxy supplies canonical POSIX CODEX_HOME to Linux. Historical pet-specific junctions are excluded; full desktop startup remains separate acceptance.",
+      "verifiedPackageVersions": [
+        "26.928.1915.0",
+        "26.928.2636.0"
+      ]
     }
   ]
 }

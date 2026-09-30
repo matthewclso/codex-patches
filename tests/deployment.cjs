@@ -23,15 +23,23 @@ function fixture() {
   compatibility.builds.push(build);
   return { root, source, toolkit, destination, build, cleanup() { compatibility.builds.splice(compatibility.builds.indexOf(build), 1); fs.rmSync(root, { recursive: true, force: true }); } };
 }
-test('selection honors auto/disabled, rejects unsupported explicit requests and dependencies', () => {
+test('selection honors independent auto/disabled states and rejects unsupported explicit requests', () => {
   const build = { patches: { 'custom-pets': { status: 'needed' }, 'browser-wsl': { status: 'needed' }, 'browser-service-path': { status: 'needed' } }, runtimePatches: { 'wsl-project-paths': { status: 'needed' }, 'remote-fast-list': { status: 'retired' } } };
   const selected = resolveSelection(config({ 'custom-pets': 'disabled' }), build);
   assert.deepEqual(selected.selected, ['browser-wsl', 'browser-service-path', 'wsl-project-paths']);
   assert.deepEqual(selected.appPatches, ['browser-wsl', 'browser-service-path']);
   assert.throws(() => resolveSelection(config({ 'remote-fast-list': 'enabled' }), build), /no reviewed implementation/);
-  assert.throws(() => resolveSelection(config({ 'browser-wsl': 'disabled' }), build), /requires browser-wsl/);
+  assert.deepEqual(resolveSelection(config({ 'browser-wsl': 'disabled' }), build).appPatches, ['custom-pets', 'browser-service-path']);
   assert.throws(() => resolveSelection(config({ unknown: 'enabled' }), build), /Unknown patch/);
   assert.throws(() => resolveSelection(config({ 'custom-pets': 'sometimes' }), build), /Invalid mode/);
+});
+test('generic declared dependencies remain enforced', () => {
+  const module = require('../patches/custom-pets/index.cjs');
+  module.dependencies = ['browser-wsl'];
+  try {
+    const build = { patches: { 'custom-pets': { status: 'needed' }, 'browser-wsl': { status: 'needed' } } };
+    assert.throws(() => resolveSelection(config({ 'browser-wsl': 'disabled' }), build), /custom-pets requires browser-wsl/);
+  } finally { delete module.dependencies; }
 });
 test('build rejects unsupported source, modified runtime binaries and output beneath source', () => {
   const f = fixture();

@@ -23,7 +23,7 @@ public static class CodexPatchesIdentity {
     $name = [Text.StringBuilder]::new([int]$length)
     if ([CodexPatchesIdentity]::GetCurrentPackageFullName([ref]$length,$name) -ne 0 -or $name.ToString() -ne $receipt.packageFullName) { throw 'Unexpected desktop package context.' }
     $result.packageFullName = $name.ToString()
-    $allowed = @('CODEX_HOME','CODEX_PATCHES_RUNTIME_CONFIG','CODEX_CLI_PATH','PATH','WSLENV')
+    $allowed = @('CODEX_HOME','CODEX_PATCHES_RUNTIME_CONFIG','CODEX_CLI_PATH','PATH','WSLENV','BASH_ENV','CODEX_PROJECT_PATH_PROXY_REAL_CLI','CODEX_PROJECT_PATH_PROXY_REWRITE_ENABLED','CODEX_REMOTE_CONTROL_RELAY_ENABLED','CODEX_PATCHES_REAL_CLI')
     foreach ($entry in $request.environment) {
         if ($allowed -notcontains $entry.name) { throw "Unexpected process environment key: $($entry.name)" }
         [Environment]::SetEnvironmentVariable($entry.name,$entry.value,'Process')

@@ -37,7 +37,7 @@ Copy-Item config.example.json config.local.json
 .\codex-patches.ps1 install -Config .\config.local.json
 ```
 
-`auto` includes only fixes reviewed as needed for the installed build. `enabled` still requires an audited implementation and known hashes; it cannot force a patch onto an unknown build. `disabled` rebuilds from pristine files with that module omitted. `browser-service-path` requires `browser-wsl`.
+`auto` includes only fixes reviewed as needed for the installed build. `enabled` still requires an audited implementation and known hashes; it cannot force a patch onto an unknown build. `disabled` rebuilds from pristine files with that module omitted. Each module can be toggled independently.
 
 | Module | Behavior |
 | --- | --- |
@@ -64,7 +64,7 @@ git pull --ff-only
 
 The saved configuration is reused. The installer snapshots its runtime and launcher, verifies the source and generated hashes, then replaces its active pointer. Pulling the repository alone does not change the running deployment. Existing snapshots are retained until cleanup checks that they are not in use.
 
-Private relay state survives rebuilds so updates retain the same local route and existing server identities. Installation adds missing route mappings with a SQLite backup; startup never migrates account state. To migrate an existing installation, pass `-ImportRelayState /absolute/linux/path/runtime.json`; the import preserves its port and capability without displaying the capability. Stop the old launcher before switching. Keep the old files until the new workflow's interactive checks pass.
+Private relay state survives rebuilds so updates retain the same local route and existing server identities. Installation adds missing route mappings with a SQLite backup; startup never migrates account state. To migrate an existing installation, pass `-ImportRelayState /absolute/linux/path/runtime.json`; the import preserves its port and capability without displaying the capability. Stop the old launcher before switching. Keep the old files until the new workflow's interactive checks pass. [Migration cleanup](docs/migration.md) provides a reviewable plan and removes recognized legacy code only after those checks.
 
 ## Maintenance and removal
 
@@ -77,7 +77,7 @@ Project membership repair is explicit, uses recorded project identity rather tha
 .\codex-patches.ps1 uninstall -Apply
 ```
 
-Close Codex before applying a membership repair or uninstalling. Removal deletes only recorded toolkit outputs and conditionally removes its own shortcut/link; it preserves Codex data and private relay/pairing backups. [Runtime documentation](patches/remote-fast-list/README.md) describes conditional enrollment rollback. Restoring the signed app requires only using its normal shortcut or the `stock` command.
+Close Codex before applying a membership repair or uninstalling. Removal deletes only recorded toolkit outputs and conditionally removes its own shortcut/link; it preserves Codex data and private relay/pairing backups. [Runtime documentation](docs/runtime.md) describes conditional enrollment rollback. Restoring the signed app requires only using its normal shortcut or the `stock` command.
 
 ## CI and contributing
 

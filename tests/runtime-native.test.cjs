@@ -14,7 +14,8 @@ const { createRelay } = require("../patches/remote-fast-list/relay.cjs");
 const { pairing, SOURCE, prepare } = require("../patches/remote-fast-list/runtime.cjs");
 const BINARY = process.env.CODEX_RELAY_TEST_BINARY;
 
-for(const reuse of [false,true])test(`unmodified CLI native flow, ${reuse ? "preserving an existing paired server" : "fresh isolated enrollment"}`, {timeout:30000,skip:!BINARY || process.platform === "win32"}, async () => {
+for(const mode of ["stock", "fresh", "reuse"])test(`unmodified CLI native flow, ${mode === "stock" ? "stock native unfiltered-list regression" : mode === "reuse" ? "preserving an existing paired server" : "fresh isolated enrollment"}`, {timeout:30000,skip:!BINARY || process.platform === "win32"}, async () => {
+  const reuse = mode === "reuse", stock = mode === "stock";
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),"codex-relay-native-"));
   const home=path.join(dir,"home"),sqlite=path.join(dir,"sqlite");
   fs.mkdirSync(home,{mode:0o700});fs.mkdirSync(sqlite,{mode:0o700});
@@ -32,7 +33,7 @@ for(const reuse of [false,true])test(`unmodified CLI native flow, ${reuse ? "pre
       res.writeHead(200,{"content-type":"application/json"}).end(JSON.stringify({server_id:"srv_e_fixture",
         environment_id:"env_fixture",remote_control_token:"fake-server-token",expires_at:"3026-05-22T12:34:56Z"}));
     } else if(req.url.endsWith("/wham/accounts/check"))res.writeHead(200,{"content-type":"application/json"}).end(JSON.stringify({
-      accounts:[{id:"fixture",plan_type:"pro",workspace_backend_origin:"NO_CONSTRAINT",account_routing_override:"NO_CONSTRAINT"}],
+      accounts:[{id:"fixture",plan_type:"pro",workspace_backend_origin:stock ? "https://chatgpt.com" : "NO_CONSTRAINT",account_routing_override:"NO_CONSTRAINT"}],
       account_ordering:["fixture"],default_account_id:"fixture"}));
     else res.writeHead(200,{"content-type":"application/json"}).end("{}");
   });
@@ -55,7 +56,9 @@ for(const reuse of [false,true])test(`unmodified CLI native flow, ${reuse ? "pre
     connectedResolve();
   });
   await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
-  const relay=await createRelay({testLoopback:true,upstreamBase:`http://127.0.0.1:${server.address().port}/backend-api/`});
+  const upstreamBase = `http://127.0.0.1:${server.address().port}/backend-api/`;
+  const relay=stock ? { baseUrl: upstreamBase, close: async () => {} }
+    : await createRelay({testLoopback:true,upstreamBase});
   const rpc=new AppServerRpc(BINARY,home,sqlite,["-c",`chatgpt_base_url=${JSON.stringify(relay.baseUrl)}`,
     "-c",'cli_auth_credentials_store="file"'],{isolatedRemoteControl:true});
   let seq=0;
@@ -77,7 +80,7 @@ for(const reuse of [false,true])test(`unmodified CLI native flow, ${reuse ? "pre
   try {
     await rpc.initialize();
     const account=await rpc.request("account/read",{});
-    assert.equal(account.workspaceRouting.backendOrigin,"https://chatgpt.com");
+    if (!stock) assert.equal(account.workspaceRouting.backendOrigin,"https://chatgpt.com");
     assert.equal(account.workspaceRouting.accountRoutingOverride,"NO_CONSTRAINT");
     const projects=[];
     for(const name of ["Research","AI"]) projects.push((await rpc.request("project/create",{
@@ -125,21 +128,25 @@ for(const reuse of [false,true])test(`unmodified CLI native flow, ${reuse ? "pre
       const list=await remote({id:102+i,method:"thread/list",params:{useStateDbOnly:false,projectId:projects[i].id,limit:10}},
         {chunked:i===1});
       assert.ok(!list.error,JSON.stringify(list.error));
-      assert.deepEqual(list.result.data.map(t=>t.id),[ids[i]]);
+      assert.deepEqual(list.result.data.map(t=>t.id),[ids[i]],
+        stock ? "Stock native project-filtered listing already selects the SQLite path" : "Relay must return the requested project's SQLite witnesses");
       assert.equal(list.result.data[0].projectId,projects[i].id);
     }
     const names=await remote({id:104,method:"project/list",params:{}});
     assert.deepEqual(names.result.data.map(p=>p.name).sort(),["AI","Research"]);
     const page=await remote({id:106,method:"thread/list",params:{useStateDbOnly:false,limit:1}});
-    assert.equal(page.result.data.length,1);
-    assert.ok(page.result.nextCursor);
-    const next=await remote({id:107,method:"thread/list",params:{cursor:page.result.nextCursor,limit:1}});
-    assert.equal(next.result.data.length,1);
-    assert.deepEqual(new Set([page.result.data[0].id,next.result.data[0].id]),new Set(ids));
+    assert.equal(page.result.data.length, stock ? 0 : 1,
+      "Unfiltered native listing must still differ from the SQLite path before this patch is classified needed");
+    if (!stock) {
+      assert.ok(page.result.nextCursor);
+      const next=await remote({id:107,method:"thread/list",params:{cursor:page.result.nextCursor,limit:1}});
+      assert.equal(next.result.data.length,1);
+      assert.deepEqual(new Set([page.result.data[0].id,next.result.data[0].id]),new Set(ids));
+    }
     const denied=await remote({id:105,method:"userVerification/enroll",params:{}});
     assert.equal(denied.error.data.type,"unavailable");
     assert.equal(denied.error.data.reason,"providerUnavailable");
-    assert.equal(relay.counters.rewrites,4);
+    if (!stock) assert.equal(relay.counters.rewrites,4);
     assert.equal(observed.length,1,"Remote requests use native socket, not stdio forwarding");
     const reconnect=once(wss,"connection");
     backend.close(1000,"fixture reconnect");
@@ -150,9 +157,11 @@ for(const reuse of [false,true])test(`unmodified CLI native flow, ${reuse ? "pre
     assert.equal(observed[1].headers["x-codex-subscribe-cursor"],`fixture-cursor-${seq}`);
     assert.equal(enrollmentRequests.length,reuse ? 0 : 1,"Reconnection must reuse enrollment");
     const resumed=await remote({id:108,method:"thread/list",params:{limit:10}});
-    assert.deepEqual(new Set(resumed.result.data.map(t=>t.id)),new Set(ids));
-    assert.equal(relay.counters.rewrites,5);
-    assert.ok(relay.counters.routingNormalizations>=1);
+    assert.deepEqual(new Set(resumed.result.data.map(t=>t.id)),new Set(stock ? [] : ids));
+    if (!stock) {
+      assert.equal(relay.counters.rewrites,5);
+      assert.ok(relay.counters.routingNormalizations>=1);
+    }
     await rpc.request("remoteControl/disable",{ephemeral:true});
   } finally {
     for(const p of pending.values())clearTimeout(p.timer);

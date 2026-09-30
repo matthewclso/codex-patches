@@ -3,10 +3,12 @@ function Install-CodexPatches {
     $node = Get-CodexNode $package
     $selectionPath = Get-SelectionPath $Config $InstallRoot
     $inspection = Invoke-Native $node @((Join-Path $PSScriptRoot '..\bin\toolkit.cjs'),'inspect',"--source=$(Join-Path $package.InstallLocation 'app')","--config=$selectionPath") | ConvertFrom-Json
+    $defaultDistro = Invoke-Native (Join-Path $env:WINDIR 'System32\wsl.exe') @('--exec','/usr/bin/printenv','WSL_DISTRO_NAME')
     $script:SelectedDistro = $Distro
+    if ($Distro -and $Distro -ne $defaultDistro) { throw 'Codex uses the default WSL distribution. Select the desired default with wsl --set-default before installing.' }
     if (-not $script:SelectedDistro) {
         # Let WSL select its configured default. The distro name is returned by WSL itself.
-        $script:SelectedDistro = (Invoke-Native (Join-Path $env:WINDIR 'System32\wsl.exe') @('--exec','/usr/bin/printenv','WSL_DISTRO_NAME'))
+        $script:SelectedDistro = $defaultDistro
     }
     $facts = Invoke-WslPython @'
 import json,os,pathlib,platform
@@ -134,17 +136,31 @@ print('Existing relay route preserved; capability was not displayed.')
     $linkReport = Invoke-WslPython @'
 import json,os,pathlib,sys
 p=pathlib.Path('/usr/local/bin/codex-patches-proxy');target=sys.argv[1];owner=pathlib.Path('/usr/local/share/codex-patches-owner.json')
-uid=int(sys.argv[2])
+uid=int(sys.argv[2]);previous=None
 if p.exists() or p.is_symlink():
  if not p.is_symlink() or not owner.exists():raise SystemExit('Existing proxy command is not owned by this toolkit')
- record=json.loads(owner.read_text())
+ record=json.loads(owner.read_text());previous=record
  if record.get('uid')!=uid or os.readlink(p)!=record.get('target'):raise SystemExit('Existing proxy ownership does not match')
 temporary=p.with_name('.codex-patches-proxy-'+str(os.getpid()))
 os.symlink(target,temporary);os.replace(temporary,p);owner.write_text(json.dumps({'uid':uid,'target':target})+'\n');owner.chmod(0o644)
-print(json.dumps({'link':str(p),'target':target}))
+print(json.dumps({'link':str(p),'target':target,'previous':previous}))
 '@ @($proxy,(Invoke-Wsl @('/usr/bin/id','-u'))) -RootUser | ConvertFrom-Json
     # Pointer changes atomically only after build verification and runtime configuration.
-    Write-JsonFile (Join-Path $InstallRoot 'active.json') @{schemaVersion=1;deployment=$deployment;id=$id}
+    try {
+        Write-JsonFile (Join-Path $InstallRoot 'active.json') @{schemaVersion=1;deployment=$deployment;id=$id}
+    } catch {
+        $previous = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(($linkReport.previous | ConvertTo-Json -Compress)))
+        Invoke-WslPython @'
+import base64,json,os,pathlib,sys
+p=pathlib.Path('/usr/local/bin/codex-patches-proxy');owner=pathlib.Path('/usr/local/share/codex-patches-owner.json')
+if not p.is_symlink() or os.readlink(p)!=sys.argv[1]:raise SystemExit('Proxy changed; rollback requires review')
+previous=json.loads(base64.b64decode(sys.argv[2]))
+if previous:
+ temp=p.with_name('.codex-patches-rollback-'+str(os.getpid()));os.symlink(previous['target'],temp);os.replace(temp,p);owner.write_text(json.dumps(previous)+'\n')
+else:p.unlink();owner.unlink(missing_ok=True)
+'@ @($proxy,$previous) -RootUser | Out-Null
+        throw
+    }
     $bootstrap = @'
 param([string]$InstallRoot = $PSScriptRoot)
 $ErrorActionPreference = 'Stop'

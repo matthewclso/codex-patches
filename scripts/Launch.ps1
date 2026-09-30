@@ -5,6 +5,8 @@ function Invoke-CodexPatchesLaunch([switch]$Launch) {
     if (-not ([IO.Path]::GetFullPath($deployment)).StartsWith(([IO.Path]::GetFullPath((Join-Path $InstallRoot 'versions')) + '\'), [StringComparison]::OrdinalIgnoreCase)) { throw 'Active deployment is outside the install directory.' }
     $install = Read-JsonFile (Join-Path $deployment 'install.json')
     Assert-Hash (Join-Path $deployment 'receipt.json') $install.receiptSha256
+    $defaultDistro = Invoke-Native (Join-Path $env:WINDIR 'System32\wsl.exe') @('--exec','/usr/bin/printenv','WSL_DISTRO_NAME')
+    if ($defaultDistro -ne $install.distro) { throw 'The default WSL distribution changed. Restore the recorded default or reinstall for the new Ubuntu distribution.' }
     $receipt = Read-JsonFile (Join-Path $deployment 'receipt.json')
     Assert-ToolkitSnapshot $deployment $receipt
     $package = Get-CodexPackage
@@ -19,8 +21,19 @@ function Invoke-CodexPatchesLaunch([switch]$Launch) {
     $requestPath = Join-Path $requests "$([Guid]::NewGuid()).json"
     $resultPath = "$requestPath.result.json"
     $environment = @()
+    $retiredNames = @('CODEX_PROJECT_PATH_PROXY_REAL_CLI','CODEX_PROJECT_PATH_PROXY_REWRITE_ENABLED','CODEX_REMOTE_CONTROL_RELAY_ENABLED','CODEX_PATCHES_REAL_CLI')
+    foreach ($key in $retiredNames) { $environment += @{name=$key;value=$null} }
+    $removeBashEnv = $env:BASH_ENV -and ($env:BASH_ENV -match '(^|[/\\])\.codex-wsl-launcher([/\\]|$)|[/\\]gh-graphql-env\.sh$')
+    if ($removeBashEnv) { $environment += @{name='BASH_ENV';value=$null} }
+
     foreach ($property in $install.environment.PSObject.Properties) {
         $value = [string]$property.Value
+        if ($property.Name -eq 'WSLENV') {
+            $replaceNames = @('CODEX_HOME','CODEX_PATCHES_RUNTIME_CONFIG') + $retiredNames
+            if ($removeBashEnv) { $replaceNames += 'BASH_ENV' }
+            $kept = @($env:WSLENV -split ':' | Where-Object { $_ -and (($_ -split '/',2)[0]) -notin $replaceNames })
+            $value = (@($kept) + @('CODEX_HOME/u','CODEX_PATCHES_RUNTIME_CONFIG/u')) -join ':'
+        }
         if ($property.Name -eq 'PATH') { $value = "$(Join-Path $deployment 'bin');$env:PATH" }
         $environment += @{name=$property.Name;value=$value}
     }

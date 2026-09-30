@@ -50,9 +50,9 @@ function Invoke-Native([string]$Executable, [string[]]$Arguments, [string]$Input
     } finally { $process.Dispose() }
 }
 function Invoke-Wsl([string[]]$Arguments, [string]$InputText = '', [switch]$RootUser) {
-    $args = @('-d', $script:SelectedDistro)
-    if ($RootUser) { $args += @('-u','root') }
-    return Invoke-Native (Join-Path $env:WINDIR 'System32\wsl.exe') ($args + @('--exec') + $Arguments) $InputText
+    $wslArguments = @('-d', $script:SelectedDistro)
+    if ($RootUser) { $wslArguments += @('-u','root') }
+    return Invoke-Native (Join-Path $env:WINDIR 'System32\wsl.exe') ($wslArguments + @('--exec') + $Arguments) $InputText
 }
 function Invoke-WslPython([string]$Code, [string[]]$Arguments = @(), [switch]$RootUser) {
     return Invoke-Wsl (@('/usr/bin/python3','-') + $Arguments) $Code -RootUser:$RootUser

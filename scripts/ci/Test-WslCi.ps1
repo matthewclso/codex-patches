@@ -46,7 +46,7 @@ function Unsupported([string]$Reason) {
     Write-Warning $Reason
 }
 function LinuxPath([string]$Path) {
-    $result = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--', 'wslpath', '-a', '-u', $Path)
+    $result = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--exec', 'wslpath', '-a', '-u', $Path.Replace('\', '/'))
     if ($result.exitCode -ne 0) { throw "Cannot translate runner path into WSL: $($result.output)" }
     return $result.output
 }
@@ -59,17 +59,19 @@ try {
     $featureResults = @()
     foreach ($feature in @('Microsoft-Windows-Subsystem-Linux', 'VirtualMachinePlatform')) {
         $state = Get-WindowsOptionalFeature -Online -FeatureName $feature -ErrorAction Stop
-        if ($state.State -ne 'Enabled') {
+        $featureResult = [ordered]@{ name = $feature; previous = [string]$state.State; requiredForWsl2 = $feature -eq 'VirtualMachinePlatform'; enabledForCi = $false; restartRequired = $false }
+        # Modern WSL2 requires VirtualMachinePlatform. The inbox WSL optional
+        # component is only necessary for WSL1; do not force a needless reboot.
+        if ($state.State -ne 'Enabled' -and $feature -eq 'VirtualMachinePlatform') {
             $enable = Enable-WindowsOptionalFeature -Online -FeatureName $feature -All -NoRestart -ErrorAction Stop
-            $featureResults += [ordered]@{ name = $feature; previous = [string]$state.State; restartRequired = [bool]$enable.RestartNeeded }
-            if ($enable.RestartNeeded) {
-                $report.host.features = $featureResults
-                Unsupported "Enabling $feature requires a reboot; this ephemeral hosted job cannot claim WSL2 acceptance."
-                return
-            }
+            $featureResult.enabledForCi = $true; $featureResult.restartRequired = [bool]$enable.RestartNeeded
         }
+        $featureResults += $featureResult
     }
     $report.host.features = $featureResults
+    $report.host.hypervisorPresent = [bool](Get-CimInstance Win32_ComputerSystem).HypervisorPresent
+    $report.host.services = @(Get-Service -Name vmcompute, WslService, LxssManager -ErrorAction SilentlyContinue | Select-Object Name, Status)
+    Save-Report
     # Install/update the official WSL runtime, never silently fall back to WSL1.
     $update = Invoke-Captured 'wsl.exe' @('--update', '--web-download') 300
     Stage 'wsl-update' $update
@@ -90,24 +92,25 @@ try {
     Stage 'wsl2-import' $import
     if ($import.exitCode -ne 0) { Unsupported 'WSL2 import failed. The hosted runner may not expose nested virtualization; consult the stage output.'; return }
     $imported = $true
-    $boot = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--', 'sh', '-c', 'cat /etc/os-release; uname -r') 120
+    $boot = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--exec', 'sh', '-c', 'cat /etc/os-release; uname -r') 120
     Stage 'ubuntu-boot' $boot
     if ($boot.exitCode -ne 0) { Unsupported 'WSL2 guest could not boot on the hosted runner. This is not patch acceptance.'; return }
     if ($boot.output -notmatch 'VERSION_ID="26\.04"' -or $boot.output -notmatch '(?i)microsoft.*wsl2') { throw 'Booted guest did not identify as Ubuntu 26.04 on a WSL2 kernel.' }
     $linuxRepository = LinuxPath (Resolve-Path $Repository).Path
     $linuxCli = LinuxPath (Resolve-Path $StockLinuxCli).Path
     $linuxExe = LinuxPath (Resolve-Path $StockDesktopExecutable).Path
+    $linuxWindowsNode = LinuxPath (Get-Command node.exe -ErrorAction Stop).Source
     if ($NodeVersion -notmatch '^24\.\d+\.\d+$') { throw 'WSL tests require an exact Node 24 version.' }
     $nodeArchive = "node-v$NodeVersion-linux-x64.tar.xz"
     $nodeUrl = "https://nodejs.org/dist/v$NodeVersion"
     $bootstrap = "set -eu; apt-get update -qq; apt-get install -y --no-install-recommends ca-certificates curl xz-utils python3; cd /tmp; curl -fsSLo node.tar.xz '$nodeUrl/$nodeArchive'; curl -fsSLo SHASUMS256.txt '$nodeUrl/SHASUMS256.txt'; expected=`$(awk '/ $nodeArchive`$/ {print `$1}' SHASUMS256.txt); test -n `"`$expected`"; printf '%s  node.tar.xz\n' `"`$expected`" | sha256sum -c -; tar -xJf node.tar.xz -C /opt; /opt/node-v$NodeVersion-linux-x64/bin/node --version"
-    $nodeSetup = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--', 'sh', '-c', $bootstrap) 300
+    $nodeSetup = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--exec', 'sh', '-c', $bootstrap) 300
     Stage 'node-setup' $nodeSetup
     if ($nodeSetup.exitCode -ne 0) { throw 'Verified Node runtime installation in WSL failed.' }
     # Paths are passed as positional arguments, not interpolated into shell source.
-    $testScript = 'set -eu; export PATH="$1:$PATH"; cd "$2"; export CODEX_PATCHES_STOCK_LINUX_CLI="$3"; export CODEX_RELAY_TEST_BINARY="$3"; export CODEX_SOURCE_ASAR="$(dirname "$3")/app.asar"; export CODEX_PATCHES_TEST_ASAR="$CODEX_SOURCE_ASAR"; export CODEX_SOURCE_EXE="$5"; export CODEX_AUDIT_UNKNOWN=1; npm ci --ignore-scripts; npm test; node --test scripts/ci/*.test.cjs; node scripts/ci/probe-app-server.cjs --cli "$3" --out "$4"'
+    $testScript = 'set -eu; export PATH="$1:$PATH"; cd "$2"; export CODEX_PATCHES_STOCK_LINUX_CLI="$3"; export CODEX_RELAY_TEST_BINARY="$3"; export CODEX_SOURCE_ASAR="$(dirname "$3")/app.asar"; export CODEX_PATCHES_TEST_ASAR="$CODEX_SOURCE_ASAR"; export CODEX_SOURCE_EXE="$5"; export CODEX_AUDIT_UNKNOWN=1; npm ci --ignore-scripts; npm test; node --test scripts/ci/*.test.cjs; node scripts/ci/probe-app-server.cjs --cli "$3" --out "$4"; node tools/audit-graphql.cjs "$CODEX_SOURCE_ASAR" "$7" "$6" > "$(dirname "$4")/graphql-windows-boundary.json"'
     $linuxReport = LinuxPath $OutputDirectory
-    $tests = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--', 'sh', '-c', $testScript, 'ci-tests', "/opt/node-v$NodeVersion-linux-x64/bin", $linuxRepository, $linuxCli, "$linuxReport/app-server.json", $linuxExe) 600
+    $tests = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--exec', 'sh', '-c', $testScript, 'ci-tests', "/opt/node-v$NodeVersion-linux-x64/bin", $linuxRepository, $linuxCli, "$linuxReport/app-server.json", $linuxExe, $linuxWindowsNode, $Distribution) 600
     Stage 'wsl-tests-and-stock-app-server' $tests
     if ($tests.exitCode -ne 0) { throw 'One or more WSL tests or stock app-server probes failed.' }
     $report.status = 'passed'; $report.reason = 'Ubuntu 26.04 WSL2 boot, repository tests, and stock app-server RPC probe passed.'

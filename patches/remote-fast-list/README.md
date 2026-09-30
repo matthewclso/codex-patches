@@ -8,6 +8,13 @@ Chunked messages retain their segment metadata. Other HTTP requests and
 WebSockets stream through; TLS certificate checks and configured HTTP(S)
 network proxies remain enabled.
 
+The direct native stock regression is narrower than a general listing failure:
+on CLI `0.159.0` and `0.159.2`, project-filtered remote lists already use the
+SQLite path, while unfiltered remote lists still fall back to rollout-file
+history. Disposable database-only witnesses are omitted by stock unfiltered
+requests both with `useStateDbOnly: false` and with that field absent. The relay
+returns those same witnesses and preserves pagination through reconnect.
+
 The CLI needs a loopback backend URL to reach the relay. Account routing that
 reports the default `NO_CONSTRAINT` backend is translated back to the original
 `https://chatgpt.com` origin; explicit residency and account routing overrides
