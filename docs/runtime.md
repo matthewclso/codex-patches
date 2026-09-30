@@ -37,6 +37,11 @@ selecting a backend. The adapter passes the canonical POSIX home and SQLite
 directory to its owned Linux child. The custom pet app patch chooses paths after
 selecting the execution platform; historical pet-home junctions are unnecessary.
 
+This startup adapter remains in place when both optional runtime modules are
+disabled. Every stock CLI invocation, including version discovery and non-stdio
+commands, receives the canonical backend home. Disabling request rewriting or
+the relay must not redirect the Linux CLI into the Windows-format desktop home.
+
 ## Explicit state maintenance
 
 Project membership repair uses existing desktop assignments and explicit host

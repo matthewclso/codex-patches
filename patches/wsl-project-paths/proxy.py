@@ -204,7 +204,7 @@ def main(arguments: Sequence[str]) -> int:
     if not should_proxy_app_server(arguments):
         os.execve(config["realCli"], [config["realCli"], *arguments], backend_env)
     version = subprocess.run([config["realCli"], "--version"], check=True, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE, text=True, timeout=10).stdout.strip()
+                             stderr=subprocess.PIPE, text=True, timeout=10, env=backend_env).stdout.strip()
     if version != config.get("cliVersion"):
         raise RuntimeError("stock CLI version differs from the supported build")
     if not config["relayEnabled"] and not config["rewriteProjectPaths"]:

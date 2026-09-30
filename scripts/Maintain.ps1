@@ -6,7 +6,7 @@ function Get-ActiveRuntime {
     return @{active=$active;install=$install;runtime=($json | ConvertFrom-Json)}
 }
 function Test-DeploymentInUse([string]$Deployment) {
-    $processes = @(Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($Deployment + '\',[StringComparison]::OrdinalIgnoreCase) })
+    $processes = @(Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -ne $PID -and (($_.ExecutablePath -and $_.ExecutablePath.StartsWith($Deployment + '\',[StringComparison]::OrdinalIgnoreCase)) -or ($_.CommandLine -and $_.CommandLine.IndexOf($Deployment,[StringComparison]::OrdinalIgnoreCase) -ge 0)) })
     if ($processes.Count -gt 0) { return $true }
     $linux = Get-WslPath $Deployment
     $found = Invoke-WslPython @'

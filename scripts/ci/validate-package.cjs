@@ -72,7 +72,7 @@ function validate(appDirectory, packageReport, outDirectory) {
       codeModeLinuxSha256: packageReport.hashes.codeModeLinuxSha256,
       codeModeWindowsSha256: packageReport.hashes.codeModeWindowsSha256,
       acceptance: 'candidate; source behavior checked; desktop and WSL acceptance require review',
-      runtimePatches: known?.runtimePatches ? structuredClone(known.runtimePatches) :
+      runtimePatches: supported && known?.runtimePatches ? structuredClone(known.runtimePatches) :
         Object.fromEntries(Object.keys(compatibility.builds[0]?.runtimePatches || {}).map(id => [id, {
           status: 'review-required', evidence: 'Bundled runtime changed; current native stock-versus-patched behavior must be audited.' }])),
       patches: Object.fromEntries(audit.report.patches.map(p => [p.id, { status: 'candidate', sourceSha256: p.beforeHash, targetPath: p.targetPath }])),

@@ -44,6 +44,16 @@ for p in pathlib.Path('/proc').iterdir():
 print(int(found))
 '@ @($oldProxy)
     if ($oldProxyInUse -eq '1') { throw 'The historical Linux proxy is still running; no cleanup performed.' }
+    # Inspect links without traversing them, before changing any shortcut,
+    # junction, proxy or wrapper. A refusal leaves the legacy setup intact.
+    $pending = [Collections.Generic.Stack[string]]::new(); $pending.Push($LegacyRoot)
+    while ($pending.Count -gt 0) {
+        $directory = $pending.Pop()
+        foreach ($entry in Get-ChildItem -LiteralPath $directory -Force) {
+            if ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'The legacy tree contains links. Review them before removing code.' }
+            if ($entry.PSIsContainer) { $pending.Push($entry.FullName) }
+        }
+    }
     $preserved = Join-Path $InstallRoot "legacy-data\$([DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss'))"
     Set-PrivateDirectory $preserved
     # Keep data/diagnostics, not application copies or executable patch backups.
@@ -86,10 +96,6 @@ if p.exists():
  p.unlink()
 '@ @($oldProxy) | Out-Null
     if ($wrapperValid) { Remove-Item -LiteralPath $LegacyWrapper -Force }
-    # Windows recursive removal removes directory links themselves. Refuse any
-    # linked entry anyway so no unexpected data target participates in cleanup.
-    $linked = @(Get-ChildItem -LiteralPath $LegacyRoot -Recurse -Force | Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint })
-    if ($linked.Count -gt 0) { throw 'The legacy tree contains links. Review them before removing the remaining code.' }
     Remove-Item -LiteralPath $LegacyRoot -Recurse -Force
     $plan.applied = $true; $plan.preservedDiagnostics = $preserved
     Write-JsonFile (Join-Path $InstallRoot 'legacy-cleanup-plan.json') $plan
