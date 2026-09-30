@@ -1,6 +1,6 @@
 # Acceptance evidence
 
-Automated evidence is recorded separately from interactive behavior.
+This file records evidence against the authoritative [behavior contract](BEHAVIOR_CONTRACT.md); it does not redefine the requirements. Automated evidence is recorded separately from interactive behavior.
 
 1. `npm test` checks module selection, archive and PE changes, transport framing, project paths and conditional SQLite updates. With pristine-source variables configured it also invokes actual app functions and the stock CLI against disposable loopback services.
 2. `doctor` verifies the current signed source, generated file receipts, package identity and an isolated Windows-to-WSL app-server handshake. It reads the existing desktop config only to check path accessibility. No user session or provider request is initiated.

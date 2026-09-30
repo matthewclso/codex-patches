@@ -27,6 +27,7 @@
     "codex-patches.ps1",
     "config.example.json",
     "README.md",
+    "AGENTS.md",
     "LICENSE"
   ]
 }

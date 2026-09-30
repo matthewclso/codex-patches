@@ -1,4 +1,6 @@
-# Backend runtime contract
+# Backend runtime interface
+
+This implementation reference is subordinate to the [user-visible behavior contract](BEHAVIOR_CONTRACT.md).
 
 The Windows launcher supplies `CODEX_CLI_PATH=codex-patches-proxy`. Windows
 version discovery resolves a renamed stock executable; the selected WSL

@@ -1,5 +1,7 @@
 # Codex patches
 
+**Behavior authority:** [docs/BEHAVIOR_CONTRACT.md](docs/BEHAVIOR_CONTRACT.md) defines the user-visible requirements and takes precedence over every other repository source. Read it before changing behavior.
+
 Modular compatibility fixes for the **Windows x64 Codex desktop app using an Ubuntu 26.04 LTS WSL2 backend**. Windows 11 is the supported desktop. CI uses hosted Windows Server 2025 runners.
 
 This is an independent community project. It builds an owned app copy from your installed, signed Codex package. It never edits the Store package and does not redistribute Codex binaries. Changing the copy's Electron archive-integrity resource makes its executable's original Authenticode signature invalid. Features that require a signed executable can still reject the copy. The stock launcher remains available.

@@ -34,7 +34,7 @@ For an already supported package, it exits without creating a PR. For a new pack
 
 Test failures on an already reviewed package remain failed CI evidence; they do not create a misleading new-package proposal.
 
-The maintainer reviews the report, fixes changed modules when necessary, reproduces the stock-versus-patched scenarios, and adds the build to the supported registry with the actual acceptance evidence. A candidate PR can be used to collect that work; merging candidate metadata alone does not support installation. The registry is the install authority. The next scheduled run recognizes a reviewed supported build without generating another proposal.
+The maintainer reviews the report, fixes changed modules when necessary, reproduces the stock-versus-patched scenarios, and adds the build to the supported registry with the actual acceptance evidence. A candidate PR can be used to collect that work; merging candidate metadata alone does not support installation. The registry is the runtime allowlist for reviewed builds; it does not override the [user-visible behavior contract](BEHAVIOR_CONTRACT.md). The next scheduled run recognizes a reviewed supported build without generating another proposal.
 
 A candidate with unchanged targeted source can pass deterministic composition and source behavior tests. It still requires review of executable/package identity, runtime behavior, and the remaining desktop/mobile acceptance. Runtime CLI version changes also require an explicit review of adapter applicability and relay tests.
 
