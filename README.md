@@ -28,6 +28,14 @@ By default, the installer uses the default WSL distribution, `%USERPROFILE%\.cod
 
 The installation lives in `%USERPROFILE%\.codex-patches`. `-InstallRoot` changes it (choose a directory outside LocalAppData to avoid packaged-app filesystem redirection) and `-NoShortcut` suppresses shortcut creation. The WSL supervisor command is a toolkit-owned `/usr/local/bin/codex-patches-proxy` symlink, created through `wsl -u root`; installation does not require an elevated Windows shell or an interactive sudo password. Only one Windows user's toolkit installation may own this command in a given distro.
 
+The installer creates **Codex - Patched** on your Windows desktop by default. To recreate that shortcut without rebuilding the app, run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\codex-patches.ps1 shortcut
+```
+
+Pass the same `-InstallRoot` if you installed in a custom directory. The shortcut uses the installed launcher, so moving or deleting the repository checkout does not break it. Existing pinned icons may still open the previous launcher; use **Codex - Patched** when switching to this installation.
+
 ## Select patches
 
 Every patch has its own directory, source audit and tests. Copy `config.example.json`, then change each mode to `auto`, `enabled` or `disabled`:

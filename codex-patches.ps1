@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [Parameter(Position=0)][ValidateSet('inspect','install','launch','doctor','stock','uninstall','repair-projects','cleanup','cleanup-legacy')][string]$Command = 'inspect',
+    [Parameter(Position=0)][ValidateSet('inspect','install','shortcut','launch','doctor','stock','uninstall','repair-projects','cleanup','cleanup-legacy')][string]$Command = 'inspect',
     [string]$Distro,
     [string]$CodexHome,
     [string]$SqliteHome,
@@ -19,6 +19,7 @@ $ErrorActionPreference = 'Stop'
 switch ($Command) {
     'inspect' { $package = Get-CodexPackage; $selectionPath = Get-SelectionPath $Config $InstallRoot; Invoke-Native (Get-CodexNode $package) @((Join-Path $PSScriptRoot 'bin\toolkit.cjs'),'inspect',"--source=$(Join-Path $package.InstallLocation 'app')","--config=$selectionPath") | Write-Host }
     'install' { . (Join-Path $PSScriptRoot 'scripts\Install.ps1'); Install-CodexPatches }
+    'shortcut' { . (Join-Path $PSScriptRoot 'scripts\Shortcut.ps1'); New-CodexPatchesShortcut }
     'launch' { . (Join-Path $PSScriptRoot 'scripts\Launch.ps1'); Invoke-CodexPatchesLaunch -Launch }
     'doctor' { . (Join-Path $PSScriptRoot 'scripts\Launch.ps1'); Invoke-CodexPatchesLaunch }
     'stock' { Start-Process 'explorer.exe' "shell:AppsFolder\$((Get-CodexPackage).PackageFamilyName)!App" }

@@ -207,16 +207,8 @@ foreach ($entry in $receipt.toolkitFiles) {
 '@
     [IO.File]::WriteAllText((Join-Path $InstallRoot 'launch.ps1'), $bootstrap, [Text.UTF8Encoding]::new($false))
     if (-not $NoShortcut) {
-        $shortcutPath = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Codex - Patched.lnk'
-        $shell = New-Object -ComObject WScript.Shell
-        $shortcut = $shell.CreateShortcut($shortcutPath)
-        $shortcut.TargetPath = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
-        $shortcut.Arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $InstallRoot 'launch.ps1')`" -InstallRoot `"$InstallRoot`""
-        $shortcut.WorkingDirectory = $InstallRoot
-        $shortcut.IconLocation = "$(Join-Path $deployment 'app\ChatGPT.exe'),0"
-        $shortcut.Description = 'Codex with the selected Windows/WSL compatibility patches'
-        $shortcut.Save()
-        Write-JsonFile (Join-Path $InstallRoot 'shortcut.json') @{path=$shortcutPath;target=$shortcut.TargetPath;arguments=$shortcut.Arguments}
+        . (Join-Path $PSScriptRoot 'Shortcut.ps1')
+        New-CodexPatchesShortcut
     }
     Write-Host "Installed $id. Run .\codex-patches.ps1 doctor to validate package-context WSL startup, then close Codex and use Codex - Patched."
 }
