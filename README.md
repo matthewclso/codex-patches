@@ -52,7 +52,7 @@ Copy-Item config.example.json config.local.json
 | [custom-pets](patches/custom-pets/README.md) | Fix pet discovery, selection and installation across Windows/WSL paths. |
 | [browser-wsl](patches/browser-wsl/README.md) | Remove the in-app browser's WSL eligibility rejection while keeping other prerequisites. |
 | [browser-service-path](patches/browser-service-path/README.md) | Register the browser service with a Windows path for the Windows worker. |
-| [project-memberships](patches/project-memberships/README.md) | Optional native synchronization of named desktop project assignments for Remote Control; disabled by default. |
+| [project-memberships](patches/project-memberships/README.md) | Optional native synchronization of desktop project assignments to the backend; disabled by default. |
 | [wsl-project-paths](patches/wsl-project-paths/README.md) | Translate Windows drive and matching WSL UNC project roots at the JSONL boundary. |
 | [remote-fast-list](patches/remote-fast-list/README.md) | Add the required listing options on the Remote Control transport while running the unmodified bundled CLI. |
 
