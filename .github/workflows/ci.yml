@@ -1,0 +1,40 @@
+name: Toolkit tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: toolkit-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows:
+    name: Windows toolkit and module tests
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: node --test scripts/ci/*.test.cjs
+      - name: Parse all PowerShell sources
+        shell: pwsh
+        run: |
+          $errorsFound = @()
+          Get-ChildItem -Recurse -File -Filter '*.ps1' | ForEach-Object {
+            $tokens = $null; $parseErrors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$parseErrors)
+            $errorsFound += $parseErrors
+          }
+          if ($errorsFound.Count) { $errorsFound | Format-List; throw 'PowerShell source parse failed.' }
+      - name: Verify source-only release payload
+        shell: pwsh
+        run: |
+          npm pack --dry-run --json | Set-Content "$env:RUNNER_TEMP/npm-pack.json" -Encoding utf8
+          if ($LASTEXITCODE -ne 0) { throw 'npm pack failed.' }
+          node scripts/ci/evidence.cjs pack "$env:RUNNER_TEMP/npm-pack.json"

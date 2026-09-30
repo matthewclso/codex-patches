@@ -1,0 +1,32 @@
+{
+  "name": "codex-patches",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Modular Windows x64 Codex fixes for an Ubuntu 26.04 WSL2 backend",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "test": "node --test tests/*.cjs",
+    "inspect": "node bin/toolkit.cjs inspect",
+    "verify": "node bin/toolkit.cjs verify"
+  },
+  "dependencies": {
+    "ws": "8.22.0"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "patches",
+    "compatibility",
+    "docs",
+    "scripts",
+    "tools",
+    "tests",
+    "codex-patches.ps1",
+    "config.example.json",
+    "README.md",
+    "LICENSE"
+  ]
+}

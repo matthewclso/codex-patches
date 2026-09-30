@@ -1,0 +1,14 @@
+node_modules/
+.work/
+out/
+*.msix
+*.msixbundle
+*.zip
+*.tar.xz
+*.sqlite*
+*.log
+runtime.json
+config.local.json
+*.tgz
+__pycache__/
+*.pyc

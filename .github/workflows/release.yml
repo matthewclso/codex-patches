@@ -1,0 +1,42 @@
+name: Release source toolkit
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: node --test scripts/ci/*.test.cjs
+      - name: Package tracked source toolkit including dependency lock
+        id: package
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          node scripts/ci/evidence.cjs tree
+          if ($LASTEXITCODE -ne 0) { throw 'Release tree ownership check failed.' }
+          $package = Get-Content package.json -Raw | ConvertFrom-Json
+          if ($env:RELEASE_TAG -ne "v$($package.version)") { throw 'Release tag must match package.json version.' }
+          $filename = Join-Path $env:RUNNER_TEMP "codex-patches-$($package.version).zip"
+          git archive --format=zip "--output=$filename" HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Source archive failed.' }
+          "filename=$filename" | Add-Content $env:GITHUB_OUTPUT
+      - name: Publish source-only toolkit release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          PACKAGE_FILENAME: ${{ steps.package.outputs.filename }}
+        run: |
+          gh release create "$env:RELEASE_TAG" "$env:PACKAGE_FILENAME" --verify-tag --generate-notes

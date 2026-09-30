@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "patches": {
+    "custom-pets": "auto",
+    "browser-wsl": "auto",
+    "browser-service-path": "auto",
+    "wsl-project-paths": "auto",
+    "remote-fast-list": "auto"
+  }
+}

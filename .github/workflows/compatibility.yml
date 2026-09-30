@@ -1,0 +1,111 @@
+name: Codex compatibility
+on:
+  schedule:
+    - cron: '17 9 * * *'
+  workflow_dispatch:
+    inputs:
+      propose_update:
+        description: Create a draft compatibility proposal for a new official package
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: codex-compatibility
+  cancel-in-progress: false
+jobs:
+  probe:
+    name: Official Windows package and WSL2 probe
+    runs-on: windows-2025
+    timeout-minutes: 40
+    outputs:
+      wsl_status: ${{ steps.wsl.outputs.status }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: node --test scripts/ci/*.test.cjs
+      - name: Download and verify official signed Codex package
+        id: package
+        shell: pwsh
+        run: ./scripts/ci/Get-CodexPackage.ps1 -OutputDirectory "$env:RUNNER_TEMP/codex-package"
+      - name: Check downloaded stock behavior and composed patches
+        id: source
+        continue-on-error: true
+        shell: pwsh
+        env:
+          CODEX_APP_DIRECTORY: ${{ steps.package.outputs.app_directory }}
+          CODEX_PACKAGE_REPORT: ${{ steps.package.outputs.package_report }}
+        run: node scripts/ci/validate-package.cjs --app-dir "$env:CODEX_APP_DIRECTORY" --package-report "$env:CODEX_PACKAGE_REPORT" --out "$env:RUNNER_TEMP/codex-reports"
+      - name: Initialize and test Ubuntu 26.04 WSL2 on this Windows runner
+        id: wsl
+        shell: pwsh
+        env:
+          STOCK_LINUX_CLI: ${{ steps.package.outputs.linux_cli }}
+          STOCK_EXECUTABLE: ${{ steps.package.outputs.stock_executable }}
+        run: |
+          $nodeVersion = (node --version).TrimStart('v')
+          ./scripts/ci/Test-WslCi.ps1 -Repository "$env:GITHUB_WORKSPACE" -StockLinuxCli "$env:STOCK_LINUX_CLI" -StockDesktopExecutable "$env:STOCK_EXECUTABLE" -OutputDirectory "$env:RUNNER_TEMP/codex-reports" -NodeVersion $nodeVersion
+      - name: Record evidence summary
+        if: always()
+        shell: pwsh
+        run: |
+          "## Codex package compatibility evidence" | Add-Content $env:GITHUB_STEP_SUMMARY
+          foreach ($filename in @('validation.json', 'wsl.json')) {
+            $reportPath = Join-Path "$env:RUNNER_TEMP/codex-reports" $filename
+            if (Test-Path $reportPath) {
+              $report = Get-Content $reportPath -Raw | ConvertFrom-Json
+              "- ${filename}: **$($report.status)** $($report.reason)" | Add-Content $env:GITHUB_STEP_SUMMARY
+            } else { "- ${filename}: **not-run**" | Add-Content $env:GITHUB_STEP_SUMMARY }
+          }
+          'This workflow does not establish authenticated desktop browser/pet behavior or a real phone reconnect.' | Add-Content $env:GITHUB_STEP_SUMMARY
+      - name: Save public evidence reports only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: codex-compatibility-reports
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            ${{ runner.temp }}/codex-reports/validation.json
+            ${{ runner.temp }}/codex-reports/wsl.json
+            ${{ runner.temp }}/codex-reports/app-server.json
+            ${{ runner.temp }}/codex-reports/app-source-tests.txt
+            ${{ runner.temp }}/codex-package/package.json
+            ${{ runner.temp }}/codex-package/msix-signature.txt
+      - name: Require actual WSL2 acceptance
+        # A successful diagnostic/report step cannot make unsupported WSL appear green.
+        run: node scripts/ci/evidence.cjs gate "${{ runner.temp }}/codex-reports/wsl.json"
+  propose:
+    name: Propose new compatibility for review
+    needs: probe
+    if: always() && (github.event_name == 'schedule' || inputs.propose_update)
+    runs-on: windows-2025
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: codex-compatibility-reports
+          path: ${{ runner.temp }}/codex-evidence
+      - name: Create deterministic draft proposal
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $validation = @(Get-ChildItem "$env:RUNNER_TEMP/codex-evidence" -Recurse -Filter validation.json)
+          $wsl = @(Get-ChildItem "$env:RUNNER_TEMP/codex-evidence" -Recurse -Filter wsl.json)
+          if ($validation.Count -ne 1) { throw 'No unique verified package validation report; no compatibility proposal can be trusted.' }
+          $wslPath = if ($wsl.Count -eq 1) { $wsl[0].FullName } else { "$env:RUNNER_TEMP/codex-evidence/wsl-not-produced.json" }
+          $validationPath = $validation[0].FullName
+          node scripts/ci/propose-update.cjs $validationPath $wslPath "$env:RUNNER_TEMP/codex-proposal"
