@@ -37,3 +37,9 @@ test('release payload parses both npm 11 and npm 12 JSON formats', () => {
   assert.deepEqual(npmPacks({ 'codex-patches': pack }), [pack]);
   assert.throws(() => npmPacks({ error: 'bad' }), /Invalid npm pack/);
 });
+const { requirePackageEvidence } = require('./evidence.cjs');
+test('candidate/source composition or failed unit tests cannot establish reviewed package acceptance', () => {
+  assert.equal(requirePackageEvidence({ status: 'passed', reviewRequired: false, checks: [{ status: 'passed' }] }), true);
+  assert.throws(() => requirePackageEvidence({ status: 'needs-review', reviewRequired: true, checks: [{ status: 'passed' }] }), /Compatibility review/);
+  assert.throws(() => requirePackageEvidence({ status: 'passed', checks: [{ status: 'failed' }] }), /successful checks/);
+});

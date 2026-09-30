@@ -10,10 +10,10 @@ function Test-DeploymentInUse([string]$Deployment) {
     if ($processes.Count -gt 0) { return $true }
     $linux = Get-WslPath $Deployment
     $found = Invoke-WslPython @'
-import pathlib,sys
+import os,pathlib,sys
 needle=sys.argv[1].encode();found=False
 for p in pathlib.Path('/proc').iterdir():
- if not p.name.isdigit():continue
+ if not p.name.isdigit() or int(p.name)==os.getpid():continue
  try:
   if needle in (p/'cmdline').read_bytes():found=True;break
  except (PermissionError,FileNotFoundError,ProcessLookupError):pass

@@ -7,6 +7,12 @@ function npmPacks(value) {
   if (!packs.length || packs.some(pack => !Array.isArray(pack.files) || typeof pack.filename !== 'string')) throw new Error('Invalid npm pack JSON.');
   return packs;
 }
+function requirePackageEvidence(report) {
+  if (!report || report.status !== 'passed' || report.reviewRequired ||
+      !report.checks?.length || report.checks.some(check => check.status !== 'passed'))
+    throw new Error('Package validation ' + (report?.status || 'missing') + ': ' + (report?.reason || 'Compatibility review or successful checks are required.'));
+  return true;
+}
 function requireEvidence(report) {
   if (!report || !['passed', 'failed', 'unsupported', 'not-run'].includes(report.status))
     throw new Error('Evidence report has no valid status.');
@@ -27,6 +33,9 @@ if (require.main === module) {
   if (process.argv[2] === 'gate') {
     try { requireEvidence(readJson(process.argv[3])); console.log('WSL2 acceptance evidence passed.'); }
     catch (error) { console.error(error.message); process.exitCode = 1; }
+  } else if (process.argv[2] === 'package-gate') {
+    try { requirePackageEvidence(readJson(process.argv[3])); console.log('Known package and toolkit validation passed.'); }
+    catch (error) { console.error(error.message); process.exitCode = 1; }
   } else if (process.argv[2] === 'pack') {
     try {
       const packs = npmPacks(readJson(process.argv[3]));
@@ -46,6 +55,6 @@ if (require.main === module) {
       if (packs.length !== 1) throw new Error('Expected exactly one release tarball.');
       console.log(packs[0].filename);
     } catch (error) { console.error(error.message); process.exitCode = 1; }
-  } else { console.error('Usage: evidence.cjs gate <wsl.json> | pack <npm-pack.json> | tree | pack-filename <npm-pack.json>'); process.exitCode = 1; }
+  } else { console.error('Usage: evidence.cjs gate <wsl.json> | package-gate <validation.json> | pack <npm-pack.json> | tree | pack-filename <npm-pack.json>'); process.exitCode = 1; }
 }
-module.exports = { readJson, requireEvidence, artifactIsSourceOnly, npmPacks };
+module.exports = { readJson, requireEvidence, artifactIsSourceOnly, npmPacks, requirePackageEvidence };

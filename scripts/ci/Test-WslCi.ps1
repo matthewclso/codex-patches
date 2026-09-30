@@ -105,7 +105,7 @@ try {
     Stage 'node-setup' $nodeSetup
     if ($nodeSetup.exitCode -ne 0) { throw 'Verified Node runtime installation in WSL failed.' }
     # Paths are passed as positional arguments, not interpolated into shell source.
-    $testScript = 'set -eu; export PATH="$1:$PATH"; cd "$2"; export CODEX_PATCHES_STOCK_LINUX_CLI="$3"; export CODEX_RELAY_TEST_BINARY="$3"; export CODEX_SOURCE_ASAR="$(dirname "$3")/app.asar"; export CODEX_SOURCE_EXE="$5"; export CODEX_AUDIT_UNKNOWN=1; npm ci --ignore-scripts; npm test; node --test scripts/ci/*.test.cjs; node scripts/ci/probe-app-server.cjs --cli "$3" --out "$4"'
+    $testScript = 'set -eu; export PATH="$1:$PATH"; cd "$2"; export CODEX_PATCHES_STOCK_LINUX_CLI="$3"; export CODEX_RELAY_TEST_BINARY="$3"; export CODEX_SOURCE_ASAR="$(dirname "$3")/app.asar"; export CODEX_PATCHES_TEST_ASAR="$CODEX_SOURCE_ASAR"; export CODEX_SOURCE_EXE="$5"; export CODEX_AUDIT_UNKNOWN=1; npm ci --ignore-scripts; npm test; node --test scripts/ci/*.test.cjs; node scripts/ci/probe-app-server.cjs --cli "$3" --out "$4"'
     $linuxReport = LinuxPath $OutputDirectory
     $tests = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--', 'sh', '-c', $testScript, 'ci-tests', "/opt/node-v$NodeVersion-linux-x64/bin", $linuxRepository, $linuxCli, "$linuxReport/app-server.json", $linuxExe) 600
     Stage 'wsl-tests-and-stock-app-server' $tests

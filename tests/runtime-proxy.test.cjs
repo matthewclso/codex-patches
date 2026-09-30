@@ -7,7 +7,7 @@ const PYTHON = process.env.CODEX_PATCHES_PYTHON ?? (process.platform === "win32"
 const PROXY = path.join(__dirname, "../patches/wsl-project-paths/proxy.py");
 
 function python(source) {
-  return execFileSync(PYTHON, ["-c", `import importlib.util,json\nspec=importlib.util.spec_from_file_location('proxy',${JSON.stringify(PROXY)})\np=importlib.util.module_from_spec(spec);spec.loader.exec_module(p)\n${source}`], { encoding: "utf8" });
+  return execFileSync(PYTHON, ["-c", `import importlib.util,json,sys\nsys.dont_write_bytecode=True\nspec=importlib.util.spec_from_file_location('proxy',${JSON.stringify(PROXY)})\np=importlib.util.module_from_spec(spec);spec.loader.exec_module(p)\n${source}`], { encoding: "utf8" });
 }
 
 test("project roots translate discovered drive mounts and matching WSL UNC paths only", () => {
@@ -26,7 +26,7 @@ test("JSONL adapter preserves unrelated and malformed traffic, newline style and
   assert.ok(report.out.endsWith("\r\n"));
   assert.equal(JSON.parse(report.out).params.roots[0].path, "/drives/d/work");
   for (const line of ["not JSON\n", '{"id":1,"method":"thread/start","params":{"cwd":"D:\\\\work"}}\n', "[]\n"]) {
-    assert.equal(python(`out,_,_=p.rewrite_request_line(${JSON.stringify(line)}.encode(),'FixtureUbuntu',{'d':'/drives/d'});print(out.decode(),end='')`), line);
+    assert.equal(python(`out,_,_=p.rewrite_request_line(${JSON.stringify(line)}.encode(),'FixtureUbuntu',{'d':'/drives/d'});sys.stdout.buffer.write(out)`), line);
   }
 });
 

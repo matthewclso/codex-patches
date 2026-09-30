@@ -14,7 +14,7 @@ function Write-JsonFile([string]$Path, $Value) {
     New-Item -ItemType Directory -Path $parent -Force | Out-Null
     $temp = "$Path.$PID.tmp"
     [IO.File]::WriteAllText($temp, ($Value | ConvertTo-Json -Depth 30), [Text.UTF8Encoding]::new($false))
-    if ([IO.File]::Exists($Path)) { [IO.File]::Replace($temp, $Path, $null) }
+    if ([IO.File]::Exists($Path)) { [IO.File]::Replace($temp, $Path, [NullString]::Value) }
     else { [IO.File]::Move($temp, $Path) }
 }
 function Read-JsonFile([string]$Path) { [IO.File]::ReadAllText($Path, [Text.Encoding]::UTF8) | ConvertFrom-Json }

@@ -27,7 +27,10 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npm test
+      - name: Run Windows toolkit tests
+        id: windows_tests
+        continue-on-error: true
+        run: npm test
       - run: node --test scripts/ci/*.test.cjs
       - name: Download and verify official signed Codex package
         id: package
@@ -40,6 +43,7 @@ jobs:
         env:
           CODEX_APP_DIRECTORY: ${{ steps.package.outputs.app_directory }}
           CODEX_PACKAGE_REPORT: ${{ steps.package.outputs.package_report }}
+          CODEX_CI_WINDOWS_TEST_OUTCOME: ${{ steps.windows_tests.outcome }}
         run: node scripts/ci/validate-package.cjs --app-dir "$env:CODEX_APP_DIRECTORY" --package-report "$env:CODEX_PACKAGE_REPORT" --out "$env:RUNNER_TEMP/codex-reports"
       - name: Initialize and test Ubuntu 26.04 WSL2 on this Windows runner
         id: wsl
@@ -55,6 +59,7 @@ jobs:
         shell: pwsh
         run: |
           "## Codex package compatibility evidence" | Add-Content $env:GITHUB_STEP_SUMMARY
+          "- Windows toolkit suite: **${{ steps.windows_tests.outcome }}**" | Add-Content $env:GITHUB_STEP_SUMMARY
           foreach ($filename in @('validation.json', 'wsl.json')) {
             $reportPath = Join-Path "$env:RUNNER_TEMP/codex-reports" $filename
             if (Test-Path $reportPath) {
@@ -77,6 +82,8 @@ jobs:
             ${{ runner.temp }}/codex-reports/app-source-tests.txt
             ${{ runner.temp }}/codex-package/package.json
             ${{ runner.temp }}/codex-package/msix-signature.txt
+      - name: Require reviewed package and successful toolkit validation
+        run: node scripts/ci/evidence.cjs package-gate "${{ runner.temp }}/codex-reports/validation.json"
       - name: Require actual WSL2 acceptance
         # A successful diagnostic/report step cannot make unsupported WSL appear green.
         run: node scripts/ci/evidence.cjs gate "${{ runner.temp }}/codex-reports/wsl.json"

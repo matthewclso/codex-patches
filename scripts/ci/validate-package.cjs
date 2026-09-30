@@ -11,6 +11,8 @@ function validate(appDirectory, packageReport, outDirectory) {
   fs.mkdirSync(outDirectory, { recursive: true });
   const report = { schemaVersion: 1, status: 'failed', reviewRequired: true,
     observedAt: new Date().toISOString(), package: packageReport, checks: [] };
+  if (process.env.CODEX_CI_WINDOWS_TEST_OUTCOME) report.checks.push({ name: 'windows-toolkit-module-tests',
+    status: process.env.CODEX_CI_WINDOWS_TEST_OUTCOME === 'success' ? 'passed' : 'failed' });
   try {
     assert.equal(packageReport.identity.name, 'OpenAI.Codex');
     assert.equal(packageReport.identity.architecture, 'x64');
@@ -54,6 +56,9 @@ function validate(appDirectory, packageReport, outDirectory) {
       known.codeModeLinuxSha256 === packageReport.hashes.codeModeLinuxSha256);
     report.status = supported ? 'passed' : 'needs-review';
     report.reviewRequired = !supported;
+    if (report.checks.some(check => check.status === 'failed')) {
+      report.status = 'failed'; report.reviewRequired = true; report.reason = 'Windows toolkit tests failed; package/WSL probes still ran independently.';
+    }
     // Never amend the supported-build registry. A candidate is evidence for a PR.
     report.candidate = {
       packageVersion: packageReport.identity.packageVersion, appVersion: packageReport.versions.appVersion,

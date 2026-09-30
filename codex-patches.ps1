@@ -5,7 +5,7 @@ param(
     [string]$CodexHome,
     [string]$SqliteHome,
     [string]$Config,
-    [string]$InstallRoot = (Join-Path $env:LOCALAPPDATA 'CodexPatches'),
+    [string]$InstallRoot = (Join-Path $env:USERPROFILE '.codex-patches'),
     [switch]$NoShortcut,
     [switch]$Apply,
     [string]$ImportRelayState

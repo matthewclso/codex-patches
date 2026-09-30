@@ -26,7 +26,7 @@ By default, the installer uses the default WSL distribution, `%USERPROFILE%\.cod
 .\codex-patches.ps1 install -Distro Ubuntu -CodexHome D:\CodexData -SqliteHome /home/example/.codex/sqlite
 ```
 
-The installation lives in `%LOCALAPPDATA%\CodexPatches`. `-InstallRoot` changes it and `-NoShortcut` suppresses shortcut creation. The WSL supervisor command is a toolkit-owned `/usr/local/bin/codex-patches-proxy` symlink, created through `wsl -u root`; installation does not require an elevated Windows shell or an interactive sudo password. Only one Windows user's toolkit installation may own this command in a given distro.
+The installation lives in `%USERPROFILE%\.codex-patches`. `-InstallRoot` changes it (choose a directory outside LocalAppData to avoid packaged-app filesystem redirection) and `-NoShortcut` suppresses shortcut creation. The WSL supervisor command is a toolkit-owned `/usr/local/bin/codex-patches-proxy` symlink, created through `wsl -u root`; installation does not require an elevated Windows shell or an interactive sudo password. Only one Windows user's toolkit installation may own this command in a given distro.
 
 ## Select patches
 

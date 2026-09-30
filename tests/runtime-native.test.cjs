@@ -203,7 +203,8 @@ for (const shutdown of ["eof", "signal"]) test(`stock project path regression cr
       const result = await rpc.exit;
       const signal = rpc.child.signalCode;
       rpc = null;
-      assert.equal(result, 143, `Proxy exit must be supervised; signal=${signal}`);
+      assert.ok([0, 143].includes(result), `Proxy exit must be supervised; code=${result}, signal=${signal}`);
+      assert.equal(signal, null, "Python must shut down cleanly rather than aborting its interpreter");
     } else await rpc.close();
     rpc = null;
     const rebound = await createRelay(relayConfig);

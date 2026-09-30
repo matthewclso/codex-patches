@@ -23,11 +23,12 @@ print(json.dumps({'home':home,'stateRoot':home+'/.local/share/codex-patches','sq
         $CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }
     }
     if (-not (Test-Path -LiteralPath (Join-Path $CodexHome 'config.toml'))) { throw 'CodexHome must contain the existing Codex config.toml.' }
-    $CodexHome = (Resolve-Path -LiteralPath $CodexHome).Path
+    $CodexHome = Invoke-Native $node @('-e','console.log(require("node:fs").realpathSync(process.argv[1]))',(Resolve-Path -LiteralPath $CodexHome).Path)
     $toml = [IO.File]::ReadAllText((Join-Path $CodexHome 'config.toml'), [Text.Encoding]::UTF8)
     if ($toml -notmatch '(?m)^\s*runCodexInWindowsSubsystemForLinux\s*=\s*true\s*$') { throw 'Select the WSL backend in Codex settings before installing.' }
     if (-not $SqliteHome) { $SqliteHome = $facts.sqliteHome }
     if (-not $SqliteHome.StartsWith('/')) { throw 'SqliteHome must be an absolute Linux path.' }
+    if ([IO.Path]::GetFullPath($InstallRoot).StartsWith([IO.Path]::GetFullPath($env:LOCALAPPDATA),[StringComparison]::OrdinalIgnoreCase)) { throw 'Choose InstallRoot outside LocalAppData; desktop package filesystem virtualization would make that path ambiguous to WSL.' }
     Set-PrivateDirectory $InstallRoot
     $InstallRoot = (Resolve-Path -LiteralPath $InstallRoot).Path
     $stateRoot = $facts.stateRoot

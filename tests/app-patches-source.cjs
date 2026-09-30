@@ -15,6 +15,17 @@ const petPatch = require('../patches/custom-pets/index.cjs');
 const browserPatch = require('../patches/browser-wsl/index.cjs');
 const servicePatch = require('../patches/browser-service-path/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
+const auditUnknown = process.env.CODEX_AUDIT_UNKNOWN === '1';
+function compose(bytes, selected) {
+  if (!auditUnknown) return app.transformArchive(bytes, selected);
+  const result = app.auditArchive(bytes, selected);
+  assert(result.buffer, 'Candidate modules changed; source audit must be updated before composing');
+  if (!result.report.supported) {
+    assert.equal(result.report.reviewRequired, true);
+    assert.throws(() => app.transformArchive(bytes, selected), /Unsupported Codex archive/);
+  }
+  return { ...result, changes: result.report.changes, build: result.report.build };
+}
 let original, archive;
 function packed(name) { return asar.readEntry(archive, name).toString('utf8'); }
 function setup() { if (!original) { original = fs.readFileSync(sourcePath); archive = asar.parseArchive(original); } }
@@ -125,7 +136,7 @@ sourceTest('all valid app-patch combinations are deterministic, source-gated and
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-patch-syntax-'));
   try {
     for (const selected of combinations) {
-      const result = app.transformArchive(original, selected), resultAgain = app.transformArchive(original, selected);
+      const result = compose(original, selected), resultAgain = compose(original, selected);
       assert(result.buffer.equals(resultAgain.buffer)); assert.equal(result.changes.length, selected.length);
       const output = asar.parseArchive(result.buffer), changedPaths = new Set(result.changes.map(change => change.targetPath));
       for (const { path: name, entry } of asar.listEntries(archive.tree)) {
@@ -143,8 +154,9 @@ sourceTest('all valid app-patch combinations are deterministic, source-gated and
 });
 sourceTest('actual executable integrity updater changes only the recorded header hash', () => {
   if (!process.env.CODEX_SOURCE_EXE) return;
-  const executable = fs.readFileSync(process.env.CODEX_SOURCE_EXE), result = app.transformArchive(original, ['custom-pets', 'browser-wsl', 'browser-service-path']);
-  assert.equal(asar.sha256(executable), result.build.executableSha256);
+  const executable = fs.readFileSync(process.env.CODEX_SOURCE_EXE), result = compose(original, ['custom-pets', 'browser-wsl', 'browser-service-path']);
+  if (result.build) assert.equal(asar.sha256(executable), result.build.executableSha256);
+  else assert.equal(auditUnknown, true);
   const corrected = asar.updateExecutableIntegrity(executable, result.sourceHeaderHash, result.outputHeaderHash);
   const delta = []; for (let i = 0; i < executable.length; i++) if (executable[i] !== corrected[i]) delta.push(i);
   assert(delta.length > 0 && delta.length <= 64); assert(delta.at(-1) - delta[0] < 64);
