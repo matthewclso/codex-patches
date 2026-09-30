@@ -3,6 +3,7 @@ param(
     [Parameter(Mandatory)][string]$Repository,
     [Parameter(Mandatory)][string]$StockLinuxCli,
     [Parameter(Mandatory)][string]$StockDesktopExecutable,
+    [Parameter(Mandatory)][string]$StockWindowsNode,
     [Parameter(Mandatory)][string]$OutputDirectory,
     [string]$NodeVersion = '24.16.0',
     [string]$Distribution = 'CodexPatches-CI-Ubuntu-26.04'
@@ -99,7 +100,7 @@ try {
     $linuxRepository = LinuxPath (Resolve-Path $Repository).Path
     $linuxCli = LinuxPath (Resolve-Path $StockLinuxCli).Path
     $linuxExe = LinuxPath (Resolve-Path $StockDesktopExecutable).Path
-    $linuxWindowsNode = LinuxPath (Get-Command node.exe -ErrorAction Stop).Source
+    $linuxWindowsNode = LinuxPath (Resolve-Path $StockWindowsNode).Path
     if ($NodeVersion -notmatch '^24\.\d+\.\d+$') { throw 'WSL tests require an exact Node 24 version.' }
     $nodeArchive = "node-v$NodeVersion-linux-x64.tar.xz"
     $nodeUrl = "https://nodejs.org/dist/v$NodeVersion"

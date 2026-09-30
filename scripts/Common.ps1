@@ -62,13 +62,14 @@ function Get-WindowsPath([string]$LinuxPath) { return Invoke-Wsl @('/usr/bin/wsl
 function Set-PrivateDirectory([string]$Path) {
     New-Item -ItemType Directory -Path $Path -Force | Out-Null
     $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User
-    $acl = [Security.AccessControl.DirectorySecurity]::new()
+    $acl = [IO.Directory]::GetAccessControl($Path, [Security.AccessControl.AccessControlSections]::Access)
     $acl.SetAccessRuleProtection($true, $false)
+    foreach ($existing in $acl.GetAccessRules($true, $false, [Security.Principal.SecurityIdentifier])) { [void]$acl.RemoveAccessRuleAll($existing) }
     foreach ($principal in @($sid, [Security.Principal.SecurityIdentifier]::new('S-1-5-18'), [Security.Principal.SecurityIdentifier]::new('S-1-5-32-544'))) {
         $rule = [Security.AccessControl.FileSystemAccessRule]::new($principal,'FullControl','ContainerInherit,ObjectInherit','None','Allow')
         $acl.AddAccessRule($rule)
     }
-    Set-Acl -LiteralPath $Path -AclObject $acl
+    [IO.Directory]::SetAccessControl($Path, $acl)
 }
 function Assert-Hash([string]$Path,[string]$Expected) {
     if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Expected) { throw "Hash changed: $Path" }

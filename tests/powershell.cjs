@@ -30,3 +30,15 @@ test('all shipped PowerShell files parse in Windows PowerShell 5.1', { skip: !wi
   const result = powershell(`$all=@();foreach($file in @(${names.map(literal).join(',')})){$errors=$null;$tokens=$null;[Management.Automation.Language.Parser]::ParseFile($file,[ref]$tokens,[ref]$errors)|Out-Null;foreach($entry in $errors){$all+=@{file=$file;error=$entry.Message}}};@{errors=@($all)}|ConvertTo-Json -Compress`);
   assert.deepEqual(result.errors, []);
 });
+
+test('private directory setup is repeatable without requiring audit-policy privileges', { skip: !windows }, () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-patches-acl-'));
+  try {
+    const result = powershell(`. ${literal(path.join(root, 'scripts/Common.ps1'))};Set-PrivateDirectory ${literal(directory)};Set-PrivateDirectory ${literal(directory)};$acl=[IO.Directory]::GetAccessControl(${literal(directory)});@{protected=$acl.AreAccessRulesProtected;rules=@($acl.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier])|ForEach-Object{$_.IdentityReference.Value})}|ConvertTo-Json -Compress`);
+    assert.equal(result.protected, true);
+    assert.equal(result.rules.length, 3);
+    assert(result.rules.includes('S-1-5-18'));
+    assert(result.rules.includes('S-1-5-32-544'));
+    assert(!result.rules.includes('S-1-1-0'));
+  } finally { fs.rmSync(directory, {recursive:true,force:true}); }
+});

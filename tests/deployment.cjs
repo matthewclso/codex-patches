@@ -52,6 +52,23 @@ test('build rejects unsupported source, modified runtime binaries and output ben
     assert.throws(() => deployment.identify(f.source), /Unsupported installed Codex build/);
   } finally { f.cleanup(); }
 });
+test('inspection reports an unknown update without authorizing installation or changing source', () => {
+  const f=fixture();
+  try {
+    const archive=fs.readFileSync(path.join(f.source,'resources/app.asar'));
+    const parsed=asar.parseArchive(archive);
+    parsed.tree.note='unknown update';
+    const unknown=asar.serializeArchive(parsed.tree,parsed.payload);
+    fs.writeFileSync(path.join(f.source,'resources/app.asar'),unknown);
+    const configPath=path.join(f.root,'selection.json');fs.writeFileSync(configPath,JSON.stringify(config()));
+    const report=require('../bin/toolkit.cjs').main(['inspect','--source='+f.source,'--config='+configPath]);
+    assert.equal(report.supported,false);
+    assert.equal(report.appAudit.reviewRequired,true);
+    assert(report.appAudit.patches.every(p=>p.status==='review-required'));
+    assert(fs.readFileSync(path.join(f.source,'resources/app.asar')).equals(unknown));
+    assert.throws(()=>deployment.identify(f.source),/Unsupported installed/);
+  } finally { f.cleanup(); }
+});
 test('generated snapshot is independent and detects app or runtime tampering', () => {
   const f = fixture();
   try {

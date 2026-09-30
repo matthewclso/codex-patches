@@ -51,9 +51,10 @@ jobs:
         env:
           STOCK_LINUX_CLI: ${{ steps.package.outputs.linux_cli }}
           STOCK_EXECUTABLE: ${{ steps.package.outputs.stock_executable }}
+          STOCK_WINDOWS_NODE: ${{ steps.package.outputs.stock_windows_node }}
         run: |
           $nodeVersion = (node --version).TrimStart('v')
-          ./scripts/ci/Test-WslCi.ps1 -Repository "$env:GITHUB_WORKSPACE" -StockLinuxCli "$env:STOCK_LINUX_CLI" -StockDesktopExecutable "$env:STOCK_EXECUTABLE" -OutputDirectory "$env:RUNNER_TEMP/codex-reports" -NodeVersion $nodeVersion
+          ./scripts/ci/Test-WslCi.ps1 -Repository "$env:GITHUB_WORKSPACE" -StockLinuxCli "$env:STOCK_LINUX_CLI" -StockDesktopExecutable "$env:STOCK_EXECUTABLE" -StockWindowsNode "$env:STOCK_WINDOWS_NODE" -OutputDirectory "$env:RUNNER_TEMP/codex-reports" -NodeVersion $nodeVersion
       - name: Record evidence summary
         if: always()
         shell: pwsh

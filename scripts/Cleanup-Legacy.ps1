@@ -24,7 +24,7 @@ function Remove-LegacyPatches {
         if (-not (Test-Path $directory)) { continue }
         foreach ($link in Get-ChildItem -LiteralPath $directory -Recurse -File -Filter '*.lnk') {
             $shortcut = $shell.CreateShortcut($link.FullName)
-            if ($shortcut.Arguments.Contains('.codex-wsl-launcher') -or ($LegacyWrapper -and $shortcut.Arguments.Contains($LegacyWrapper))) { $shortcuts += $link.FullName }
+            if ($shortcut.Arguments.IndexOf('.codex-wsl-launcher',[StringComparison]::OrdinalIgnoreCase) -ge 0 -or ($LegacyWrapper -and $shortcut.Arguments.IndexOf($LegacyWrapper,[StringComparison]::OrdinalIgnoreCase) -ge 0)) { $shortcuts += $link.FullName }
         }
     }
     $plan = @{schemaVersion=1;legacyRoot=$LegacyRoot;wrapper=$LegacyWrapper;shortcutCount=$shortcuts.Count;linuxProxy=$oldProxy;homeAliases=@($alias,$mirror);preserve='Codex data, private relay state and account/project backups outside the launcher remain in place. Diagnostics and browser sandbox data inside the launcher are moved into legacy-data.';applied=$false}
@@ -35,11 +35,11 @@ function Remove-LegacyPatches {
     if (Test-DeploymentInUse $LegacyRoot) { throw 'Legacy launcher code is still in use. Close and reopen Codex using the new shortcut before cleanup.' }
     $oldProxyInUse = Invoke-WslPython @'
 import os,pathlib,sys
-needle=sys.argv[1].encode();found=False
+needles=[sys.argv[1].encode(),b'/usr/local/bin/codex-project-path-proxy'];found=False
 for p in pathlib.Path('/proc').iterdir():
  if not p.name.isdigit() or int(p.name)==os.getpid():continue
  try:
-  if needle in (p/'cmdline').read_bytes():found=True;break
+  if any(needle in (p/'cmdline').read_bytes() for needle in needles):found=True;break
  except (PermissionError,FileNotFoundError,ProcessLookupError):pass
 print(int(found))
 '@ @($oldProxy)

@@ -45,7 +45,8 @@ $windowsCli = Join-Path $appDirectory 'resources\codex.exe'
 $linuxCli = Join-Path $appDirectory 'resources\codex'
 $linuxCodeMode = Join-Path $appDirectory 'resources\codex-code-mode-host'
 $windowsCodeMode = Join-Path $appDirectory 'resources\codex-code-mode-host.exe'
-foreach ($runtimeFile in @($windowsCli, $linuxCli, $linuxCodeMode, $windowsCodeMode)) {
+$windowsNode = Join-Path $appDirectory 'resources\cua_node\bin\node.exe'
+foreach ($runtimeFile in @($windowsCli, $linuxCli, $linuxCodeMode, $windowsCodeMode, $windowsNode)) {
     if (-not (Test-Path $runtimeFile)) { throw "The official package is missing a stock CLI/Code Mode runtime: $runtimeFile" }
 }
 $cliOutput = (& $windowsCli --version 2>&1 | Out-String).Trim()
@@ -66,6 +67,7 @@ $report = [ordered]@{
         cliWindowsSha256 = (Get-FileHash $windowsCli -Algorithm SHA256).Hash.ToLowerInvariant()
         codeModeLinuxSha256 = (Get-FileHash $linuxCodeMode -Algorithm SHA256).Hash.ToLowerInvariant()
         codeModeWindowsSha256 = (Get-FileHash $windowsCodeMode -Algorithm SHA256).Hash.ToLowerInvariant()
+        nodeWindowsSha256 = (Get-FileHash $windowsNode -Algorithm SHA256).Hash.ToLowerInvariant()
     }
     versions = [ordered]@{ cliVersion = $cliVersion; appVersion = $appVersion }
     files = [ordered]@{ executableRelativePath = [IO.Path]::GetRelativePath($appDirectory, $executable) }
@@ -78,5 +80,6 @@ if ($env:GITHUB_OUTPUT) {
     "package_version=$($identity.Version)" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
     "linux_cli=$linuxCli" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
     "stock_executable=$executable" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
+    "stock_windows_node=$windowsNode" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
 }
 Write-Host "Verified official OpenAI.Codex $($identity.Version), bundled CLI $cliVersion"

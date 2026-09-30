@@ -27,7 +27,7 @@ function validate(appDirectory, packageReport, outDirectory) {
     assert.equal(sha256(archive), packageReport.hashes.archiveSha256);
     assert.equal(sha256(executable), packageReport.hashes.executableSha256);
     for (const [filename, key] of [['codex', 'cliLinuxSha256'], ['codex.exe', 'cliWindowsSha256'],
-      ['codex-code-mode-host', 'codeModeLinuxSha256'], ['codex-code-mode-host.exe', 'codeModeWindowsSha256']])
+      ['codex-code-mode-host', 'codeModeLinuxSha256'], ['codex-code-mode-host.exe', 'codeModeWindowsSha256'], ['cua_node/bin/node.exe', 'nodeWindowsSha256']])
       assert.equal(sha256(fs.readFileSync(path.join(appDirectory, 'resources', filename))), packageReport.hashes[key]);
     const audit = auditArchive(archive, listPatches().map(p => p.id));
     report.audit = audit.report;
@@ -55,7 +55,9 @@ function validate(appDirectory, packageReport, outDirectory) {
       known.executableSha256 === packageReport.hashes.executableSha256 &&
       known.cliLinuxSha256 === packageReport.hashes.cliLinuxSha256 &&
       known.cliWindowsSha256 === packageReport.hashes.cliWindowsSha256 &&
-      known.codeModeLinuxSha256 === packageReport.hashes.codeModeLinuxSha256);
+      known.codeModeLinuxSha256 === packageReport.hashes.codeModeLinuxSha256 &&
+      known.codeModeWindowsSha256 === packageReport.hashes.codeModeWindowsSha256 &&
+      known.nodeWindowsSha256 === packageReport.hashes.nodeWindowsSha256);
     report.status = supported ? 'passed' : 'needs-review';
     report.reviewRequired = !supported;
     if (report.checks.some(check => check.status === 'failed')) {
@@ -71,6 +73,7 @@ function validate(appDirectory, packageReport, outDirectory) {
       cliWindowsSha256: packageReport.hashes.cliWindowsSha256,
       codeModeLinuxSha256: packageReport.hashes.codeModeLinuxSha256,
       codeModeWindowsSha256: packageReport.hashes.codeModeWindowsSha256,
+      nodeWindowsSha256: packageReport.hashes.nodeWindowsSha256,
       acceptance: 'candidate; source behavior checked; desktop and WSL acceptance require review',
       runtimePatches: supported && known?.runtimePatches ? structuredClone(known.runtimePatches) :
         Object.fromEntries(Object.keys(compatibility.builds[0]?.runtimePatches || {}).map(id => [id, {

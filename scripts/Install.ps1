@@ -3,6 +3,7 @@ function Install-CodexPatches {
     $node = Get-CodexNode $package
     $selectionPath = Get-SelectionPath $Config $InstallRoot
     $inspection = Invoke-Native $node @((Join-Path $PSScriptRoot '..\bin\toolkit.cjs'),'inspect',"--source=$(Join-Path $package.InstallLocation 'app')","--config=$selectionPath") | ConvertFrom-Json
+    if (-not $inspection.supported) { throw $inspection.reason }
     $defaultDistro = Invoke-Native (Join-Path $env:WINDIR 'System32\wsl.exe') @('--exec','/usr/bin/printenv','WSL_DISTRO_NAME')
     $script:SelectedDistro = $Distro
     if ($Distro -and $Distro -ne $defaultDistro) { throw 'Codex uses the default WSL distribution. Select the desired default with wsl --set-default before installing.' }

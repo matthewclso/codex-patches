@@ -4,10 +4,22 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { identify, buildCopy, verifyCopy } = require('../lib/deployment.cjs');
 const { resolveSelection } = require('../lib/selection.cjs');
+const { inspectArchive, listPatches } = require('../lib/app-patches.cjs');
 function main(argv) {
   const [command,...args] = argv;
   const opts = Object.fromEntries(args.map(arg => { const at=arg.indexOf('='); if (!arg.startsWith('--')||at<3) throw new Error('Use --name=value arguments'); return [arg.slice(2,at),arg.slice(at+1)]; }));
-  if(command==='inspect') { const {build}=identify(opts.source); return {build,selection:resolveSelection(JSON.parse(fs.readFileSync(opts.config,'utf8').replace(/^\uFEFF/,'')),build)}; }
+  if(command==='inspect') {
+    const config=JSON.parse(fs.readFileSync(opts.config,'utf8').replace(/^\uFEFF/,''));
+    // Inspection stays useful for an unknown update. It never grants install authority.
+    let build;
+    try { ({build}=identify(opts.source)); }
+    catch(error) {
+      const ids=listPatches().filter(p=>config.patches?.[p.id]!=='disabled').map(p=>p.id);
+      const audit=inspectArchive(fs.readFileSync(path.join(opts.source,'resources/app.asar')),ids,{allowUnknownForAudit:true});
+      return {supported:false,reason:error.message,appAudit:audit,runtimeAudit:'Review bundled CLI and runtime regressions before enabling this build.'};
+    }
+    return {supported:true,build,selection:resolveSelection(config,build)};
+  }
   if(command==='build') return buildCopy({source:opts.source,destination:opts.destination,config:JSON.parse(fs.readFileSync(opts.config,'utf8').replace(/^\uFEFF/,'')),packageFullName:opts['package-full-name'],packageFamilyName:opts['package-family-name'],toolkitRoot:path.resolve(__dirname,'..')});
   if(command==='verify') { const {receipt,...report}=verifyCopy(opts.directory,{full:opts.full==='true'});return report; }
   throw new Error('Commands: inspect --source=... --config=...; build --source=... --destination=... --config=... --package-full-name=... --package-family-name=...; verify --directory=... [--full=true]');
