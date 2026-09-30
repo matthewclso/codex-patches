@@ -52,10 +52,13 @@ Copy-Item config.example.json config.local.json
 | [custom-pets](patches/custom-pets/README.md) | Fix pet discovery, selection and installation across Windows/WSL paths. |
 | [browser-wsl](patches/browser-wsl/README.md) | Remove the in-app browser's WSL eligibility rejection while keeping other prerequisites. |
 | [browser-service-path](patches/browser-service-path/README.md) | Register the browser service with a Windows path for the Windows worker. |
+| [project-memberships](patches/project-memberships/README.md) | Optional native synchronization of named desktop project assignments for Remote Control; disabled by default. |
 | [wsl-project-paths](patches/wsl-project-paths/README.md) | Translate Windows drive and matching WSL UNC project roots at the JSONL boundary. |
 | [remote-fast-list](patches/remote-fast-list/README.md) | Add the required listing options on the Remote Control transport while running the unmodified bundled CLI. |
 
 The audited build, source hashes, evidence and retired workarounds are in [compatibility/current.json](compatibility/current.json). Runtime injections, drag hooks and old custom Rust CLI binaries are not installed. Unknown builds fail closed; `.\codex-patches.ps1 stock` explicitly opens the signed app.
+
+`project-memberships` requires explicit opt-in, including after updating an older saved configuration. Inspect `repair-projects` first: the native initial synchronization follows recorded desktop assignments and can overwrite a conflicting backend membership. Enabling it also persists future task creation, moves and cleared assignments. Disabling it does not undo memberships already written. See its [module documentation](patches/project-memberships/README.md) before setting it to `enabled` or `auto`.
 
 ## Update and clean up
 

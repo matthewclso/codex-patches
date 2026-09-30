@@ -8,6 +8,12 @@ const { sha256, updateExecutableIntegrity } = require('../../lib/asar.cjs');
 const { readJson } = require('./evidence.cjs');
 const compatibility = require('../../compatibility/current.json');
 function argument(name) { const index = process.argv.indexOf(name); if (index < 0 || !process.argv[index + 1]) throw new Error('Missing argument: ' + name); return process.argv[index + 1]; }
+function candidatePatches(patches) {
+  return Object.fromEntries(patches.map(p => [p.id, {
+    status: 'candidate', sourceSha256: p.sourceHash ?? p.beforeHash,
+    outputSha256: p.standaloneOutputHash, targetPath: p.targetPath,
+  }]));
+}
 function matchesReviewedPackage(build, packageReport) {
   if (!build || build.packageVersion !== packageReport.identity.packageVersion ||
       build.appVersion !== packageReport.versions.appVersion || build.cliVersion !== packageReport.versions.cliVersion ||
@@ -81,7 +87,7 @@ function validate(appDirectory, packageReport, outDirectory) {
       runtimePatches: supported && known?.runtimePatches ? structuredClone(known.runtimePatches) :
         Object.fromEntries(Object.keys(compatibility.builds[0]?.runtimePatches || {}).map(id => [id, {
           status: 'review-required', evidence: 'Bundled runtime changed; current native stock-versus-patched behavior must be audited.' }])),
-      patches: Object.fromEntries(audit.report.patches.map(p => [p.id, { status: 'candidate', sourceSha256: p.beforeHash, targetPath: p.targetPath }])),
+      patches: candidatePatches(audit.report.patches),
     };
     return report;
   } catch (error) { report.reason = error.message; return report; }
@@ -94,4 +100,4 @@ if (require.main === module) {
     if (report.status === 'failed') process.exitCode = 1;
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }
-module.exports = { validate, matchesReviewedPackage };
+module.exports = { validate, matchesReviewedPackage, candidatePatches };

@@ -14,6 +14,7 @@ const app = require('../lib/app-patches.cjs');
 const petPatch = require('../patches/custom-pets/index.cjs');
 const browserPatch = require('../patches/browser-wsl/index.cjs');
 const servicePatch = require('../patches/browser-service-path/index.cjs');
+const membershipPatch = require('../patches/project-memberships/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
 const auditUnknown = process.env.CODEX_AUDIT_UNKNOWN === '1';
 function compose(bytes, selected) {
@@ -132,13 +133,109 @@ sourceTest('actual trusted-service generator fixes native Windows mount paths on
   const regression = generator(source, 'win32', true, '/mnt/c/User/.codex/scripts/browser-service.mjs', ['iab']);
   assert.equal(JSON.parse(regression.extraEnv['trusted-services']).browser, '/mnt/c/User/.codex/scripts/browser-service.mjs');
 });
+sourceTest('actual native membership synchronizer migrates and persists explicit projects for new chats, moves and clearing', async () => {
+  const source = packed(modulePath(membershipPatch)), patched = membershipPatch.apply(source, app.replaceExactlyOnce);
+  const gate = text => between(text, 'f=()=>{u.setThreadAssignmentsEnabled(', '};f(),this.disposables.add(ri(f))').slice('f=()=>{'.length);
+  const enable = (text, flag) => {
+    let enabled;
+    vm.runInNewContext('(function(u,K){' + gate(text) + '})')({ setThreadAssignmentsEnabled: value => { enabled = value; } }, () => ({ localProjectTaskMembership: flag }));
+    return enabled;
+  };
+  assert.equal(enable(source, false), false); assert.equal(enable(source, true), true);
+  assert.equal(enable(patched, false), true); assert.equal(enable(patched, true), true);
+  const keys = { THREAD_PROJECT_ASSIGNMENTS: 'assignments', PROJECTLESS_THREAD_IDS: 'projectless', LOCAL_PROJECTS: 'projects', APP_SERVER_PROJECTS_MIGRATION_BY_HOST: 'migration' };
+  const record = {
+    assignments: { engineering: { projectKind: 'local', projectId: 'legacy-engineering' }, research: { projectKind: 'local', projectId: 'legacy-research' }, archived: { projectKind: 'local', projectId: 'legacy-research' }, absent: { projectKind: 'local', projectId: 'legacy-engineering' } },
+    projectless: [], projects: { 'legacy-engineering': { name: 'Engineering' }, 'legacy-research': { name: 'Research' } },
+    migration: { 'local:canonical': { version: 1, projectsMigrated: true, threadAssignmentsMigrated: false } },
+  };
+  // Deliberately share cwd: identity must come from the recorded assignment.
+  const threads = new Map(['engineering', 'research', 'archived', 'unassigned', 'new', 'disabled-new', 'remote'].map(id => [id, { id, projectId: null, cwd: '/same/directory', archived: id === 'archived' }]));
+  const projectIds = { 'legacy-engineering': 'server-engineering', 'legacy-research': 'server-research' };
+  const calls = [], signal = { throwIfAborted() {} };
+  let enabled = enable(source, false);
+  const context = { h3: 100, g3: 8, V: { setTimeout: async () => {} }, o: { Gt: error => error?.code }, r: {
+    Xo: keys, es: id => id, u: ['cli', 'vscode', 'exec', 'mcp', 'unknown'],
+    s: (left, right) => JSON.stringify(left ?? null) === JSON.stringify(right ?? null),
+  } };
+  const synchronizerSource = between(source, 'pVe=class{', '},mVe=').slice('pVe='.length) + '}';
+  const helpers = between(source, 'async function m3(', 'var h3=');
+  const Synchronizer = vm.runInNewContext(helpers + '\n(' + synchronizerSource + ')', context);
+  const state = { get: key => record[key], set: (key, value) => { record[key] = value; }, update: (key, fn) => { record[key] = fn(record[key]); } };
+  const connection = { sendAppServerRequest: async (method, params) => {
+    calls.push({ method, params: JSON.parse(JSON.stringify(params)) });
+    if (method === 'thread/list') return { data: [...threads.values()].filter(t => !t.archived).map(t => ({ ...t })), nextCursor: null };
+    if (method === 'thread/read') return { thread: { ...threads.get(params.threadId) } };
+    assert.equal(method, 'thread/metadata/update');
+    assert(['server-engineering', 'server-research', ''].includes(params.projectId));
+    threads.get(params.threadId).projectId = params.projectId || null;
+    return {};
+  } };
+  const sync = new Synchronizer(state, connection, id => projectIds[id], () => enabled, id => Object.keys(projectIds).find(key => projectIds[key] === id));
+  const updates = () => calls.filter(call => call.method === 'thread/metadata/update');
+  const assignment = id => ({ projectKind: 'local', projectId: id });
+  const write = async (threadId, value, ready = true, host = 'local') => sync.write(threadId, value, async () => {
+    if (value) record.assignments[threadId] = value; else delete record.assignments[threadId];
+  }, async () => ready, signal, undefined, host);
+  await sync.migrate('local:canonical', signal);
+  await write('disabled-new', assignment('legacy-engineering'));
+  assert.equal(calls.length, 0); assert.equal(threads.get('disabled-new').projectId, null);
+  enabled = enable(patched, false);
+  await sync.migrate('local:canonical', signal);
+  assert.equal(threads.get('engineering').projectId, 'server-engineering');
+  assert.equal(threads.get('research').projectId, 'server-research');
+  assert.equal(threads.get('disabled-new').projectId, 'server-engineering');
+  assert.equal(threads.get('unassigned').projectId, null);
+  assert.equal(threads.get('archived').projectId, null);
+  assert(record.migration['local:canonical'].pendingThreadAssignmentIds.includes('archived'));
+  assert(record.migration['local:canonical'].pendingThreadAssignmentIds.includes('absent'));
+  assert.equal(record.migration['local:canonical'].threadAssignmentsMigrated, true);
+  assert.equal(record.migration['local:canonical'].threadAssignmentsReadMigrated, true);
+  const beforeRepeat = updates().length;
+  await sync.migrate('local:canonical', signal); assert.equal(updates().length, beforeRepeat);
+  await write('new', assignment('legacy-research')); assert.equal(threads.get('new').projectId, 'server-research');
+  await write('new', assignment('legacy-engineering')); assert.equal(threads.get('new').projectId, 'server-engineering');
+  await write('new', null); assert.equal(threads.get('new').projectId, null); assert.equal(updates().at(-1).params.projectId, '');
+  const beforeGuards = updates().length;
+  await write('new', assignment('legacy-research'), false); // Backend not ready.
+  await write('remote', assignment('legacy-engineering'), true, 'remote-host');
+  assert.equal(updates().length, beforeGuards);
+  enabled = false; await write('new', assignment('legacy-engineering')); assert.equal(updates().length, beforeGuards);
+
+  // Exercise the actual initial-project getter used by readCreationInputs.
+  const start = vm.runInNewContext('({' + between(source, 'async getThreadStartProjectId(e){', 'async writeThreadAssignment(') + '})').getThreadStartProjectId;
+  let ready = 0;
+  const backend = { threadAssignmentsEnabled: false, projectSupport: 'supported', ensureProjectsReady: async () => { ready++; }, threadAssignments: sync };
+  assert.equal(await start.call(backend, assignment('legacy-engineering')), null); assert.equal(ready, 0);
+  backend.threadAssignmentsEnabled = true;
+  assert.equal(await start.call(backend, assignment('legacy-engineering')), 'server-engineering');
+  backend.projectSupport = 'unsupported'; assert.equal(await start.call(backend, assignment('legacy-engineering')), null);
+  assert.equal(await start.call(backend, { projectKind: 'remote', projectId: 'other' }), null);
+  const rendererPath = asar.listEntries(archive.tree).find(entry => /^webview\/assets\/app-initial-[^/]+\.js$/.test(entry.path)).path;
+  const creation = vm.runInNewContext('({' + between(packed(rendererPath), 'async readCreationInputs(e,t){', 'async readPrewarmInputs(') + '})', {
+    qc: { threadProjectAssignments: { getThreadStartProjectId: value => start.call(backend, value) } },
+  }).readCreationInputs;
+  const runtime = { params: { hostId: 'local' }, readInputs: async () => ({ hasDesktopRuntime: true }) };
+  const inputs = { projectAssignment: assignment('legacy-research'), memoryPreferences: { useMemories: false } };
+  backend.projectSupport = 'supported'; backend.threadAssignmentsEnabled = false;
+  assert.equal((await creation.call(runtime, inputs)).projectId, null);
+  backend.threadAssignmentsEnabled = true;
+  assert.equal((await creation.call(runtime, inputs)).projectId, 'server-research');
+  runtime.params.hostId = 'remote-host'; assert.equal((await creation.call(runtime, inputs)).projectId, undefined);
+});
 sourceTest('all valid app-patch combinations are deterministic, source-gated and preserve unrelated entries', () => {
-  const combinations = [[], ['custom-pets'], ['browser-wsl'], ['browser-service-path'], ['custom-pets', 'browser-wsl'], ['custom-pets', 'browser-service-path'], ['browser-wsl', 'browser-service-path'], ['custom-pets', 'browser-wsl', 'browser-service-path']];
+  const ids = app.listPatches().map(p => p.id);
+  const combinations = Array.from({ length: 1 << ids.length }, (_, mask) => ids.filter((_, index) => mask & (1 << index)));
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-patch-syntax-'));
   try {
     for (const selected of combinations) {
       const result = compose(original, selected), resultAgain = compose(original, selected);
       assert(result.buffer.equals(resultAgain.buffer)); assert.equal(result.changes.length, selected.length);
+      for (const change of result.changes) {
+        assert.equal(change.sourceHash, asar.sha256(asar.readEntry(archive, change.targetPath)));
+        const patch = require('../patches/' + change.id + '/index.cjs');
+        assert.equal(change.standaloneOutputHash, asar.sha256(Buffer.from(patch.apply(packed(change.targetPath), app.replaceExactlyOnce))));
+      }
       const output = asar.parseArchive(result.buffer), changedPaths = new Set(result.changes.map(change => change.targetPath));
       for (const { path: name, entry } of asar.listEntries(archive.tree)) {
         if (!changedPaths.has(name)) { assert.deepEqual(asar.lookup(output.tree, name), entry); if (!entry.unpacked && !entry.link) assert(asar.readEntry(archive, name).equals(asar.readEntry(output, name))); }
@@ -155,7 +252,7 @@ sourceTest('all valid app-patch combinations are deterministic, source-gated and
 });
 sourceTest('actual executable integrity updater changes only the recorded header hash', () => {
   if (!process.env.CODEX_SOURCE_EXE) return;
-  const executable = fs.readFileSync(process.env.CODEX_SOURCE_EXE), result = compose(original, ['custom-pets', 'browser-wsl', 'browser-service-path']);
+  const executable = fs.readFileSync(process.env.CODEX_SOURCE_EXE), result = compose(original, app.listPatches().map(p => p.id));
   if (result.build) assert.equal(asar.sha256(executable), result.build.executableSha256);
   else assert.equal(auditUnknown, true);
   const corrected = asar.updateExecutableIntegrity(executable, result.sourceHeaderHash, result.outputHeaderHash);

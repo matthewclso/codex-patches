@@ -41,6 +41,14 @@ test('generic declared dependencies remain enforced', () => {
     assert.throws(() => resolveSelection(config({ 'browser-wsl': 'disabled' }), build), /custom-pets requires browser-wsl/);
   } finally { delete module.dependencies; }
 });
+test('project memberships require explicit opt-in even for previously saved configurations', () => {
+  const build = { patches: { 'project-memberships': { status: 'needed' } } };
+  const omitted = resolveSelection(config(), build);
+  assert.equal(omitted.states['project-memberships'], 'disabled');
+  assert.deepEqual(omitted.appPatches, []);
+  for (const mode of ['enabled', 'auto']) assert.deepEqual(resolveSelection(config({ 'project-memberships': mode }), build).appPatches, ['project-memberships']);
+  assert.deepEqual(resolveSelection(config({ 'project-memberships': 'disabled' }), build).appPatches, []);
+});
 test('build rejects unsupported source, modified runtime binaries and output beneath source', () => {
   const f = fixture();
   try {

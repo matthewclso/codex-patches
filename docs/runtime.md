@@ -44,6 +44,8 @@ the relay must not redirect the Linux CLI into the Windows-format desktop home.
 
 ## Explicit state maintenance
 
+The opt-in [project-memberships](../patches/project-memberships/README.md) app module enables Codex's existing native project synchronizer. It handles ongoing assignment changes and its own historical migration. The offline repair below is a separate, conservative recovery tool: it fills only missing memberships and leaves conflicting assignments for review.
+
 Project membership repair uses existing desktop assignments and explicit host
 identity mappings. It never infers a project from a working directory or repairs
 a conflicting non-null assignment. The default operation prints counts only:

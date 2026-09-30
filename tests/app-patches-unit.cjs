@@ -3,6 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const asar = require('../lib/asar.cjs');
 const { inspectArchive, transformArchive, auditArchive } = require('../lib/app-patches.cjs');
+const compatibility = require('../compatibility/current.json');
 function archiveFixture() {
   const data = Buffer.from('original module'), other = Buffer.from('untouched');
   const integrity = bytes => ({ algorithm: 'SHA256', hash: asar.sha256(bytes), blockSize: 4, blocks: Array.from({ length: Math.ceil(bytes.length / 4) }, (_, i) => asar.sha256(bytes.subarray(i * 4, (i + 1) * 4))) });
@@ -57,4 +58,29 @@ test('unknown archive cannot be installed, and audit remains review required', (
   assert.equal(auditArchive(original, ['custom-pets']).buffer, null);
   assert.throws(() => inspectArchive(original, ['unknown'], { allowUnknownForAudit: true }), /Unknown app patch/);
   assert.equal(inspectArchive(original, ['browser-service-path'], { allowUnknownForAudit: true }).patches[0].status, 'review-required');
+});
+test('modules sharing a target validate independent hashes before deterministic composition', () => {
+  const browser = require('../patches/browser-service-path/index.cjs');
+  const memberships = require('../patches/project-memberships/index.cjs');
+  const source = Buffer.from('const y=null,g=false,m={platform:"linux"},o={st:x=>x},u={setThreadAssignmentsEnabled(){}},K=()=>({localProjectTaskMembership:false});const services=' + browser.before + ';' + memberships.before + ';');
+  const integrity = { algorithm: 'SHA256', hash: asar.sha256(source), blockSize: source.length, blocks: [asar.sha256(source)] };
+  const original = asar.serializeArchive({ files: { 'fixture.js': { offset: '0', size: source.length, integrity } } }, source);
+  const apply = patch => Buffer.from(patch.apply(source.toString(), require('../lib/app-patches.cjs').replaceExactlyOnce));
+  const build = { archiveSha256: asar.sha256(original), headerSha256: asar.headerHash(original), patches: Object.fromEntries([browser, memberships].map(patch => [patch.id, {
+    status: 'needed', targetPath: 'fixture.js', sourceSha256: asar.sha256(source), outputSha256: asar.sha256(apply(patch)),
+  }])) };
+  compatibility.builds.push(build);
+  try {
+    for (const selection of [[], [browser.id], [memberships.id], [browser.id, memberships.id]]) {
+      const result = transformArchive(original, selection), output = asar.readEntry(asar.parseArchive(result.buffer), 'fixture.js').toString();
+      assert.equal(output.includes(browser.after), selection.includes(browser.id));
+      assert.equal(output.includes(memberships.after), selection.includes(memberships.id));
+      for (const change of result.changes) assert.equal(change.sourceHash, asar.sha256(source));
+    }
+    const composed = transformArchive(original, [browser.id, memberships.id]);
+    assert.notEqual(composed.changes[1].beforeHash, composed.changes[1].sourceHash);
+    assert.equal(composed.changes[1].standaloneOutputHash, build.patches[memberships.id].outputSha256);
+    build.patches[memberships.id].outputSha256 = composed.changes[1].afterHash;
+    assert.throws(() => transformArchive(original, [browser.id, memberships.id]), /Reviewed patch output hash mismatch: project-memberships/);
+  } finally { compatibility.builds.splice(compatibility.builds.indexOf(build), 1); }
 });

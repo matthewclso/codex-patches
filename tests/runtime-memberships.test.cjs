@@ -6,6 +6,7 @@ const os = require("node:os");
 const path = require("node:path");
 const { DatabaseSync } = require("node:sqlite");
 const { makePlan, stateDb } = require("../tools/repair-project-memberships.cjs");
+const { AppServerRpc } = require("../patches/remote-fast-list/rpc.cjs");
 
 test("authoritative assignments distinguish two projects sharing one working directory", () => {
   const result = makePlan({ projects: { a: {name:"Research"}, b: {name:"AI"} }, mapping: {a:"p1", b:"p2"},
@@ -42,4 +43,52 @@ test("SQLite repair is atomic, conditional, reversible and leaves other fields u
     assert.deepEqual(stateDb(db,"snapshot"),before);
     assert.equal((await stateDb(db,"backup",{destination:path.join(dir,"backup.sqlite")})).quickCheck,"ok");
   } finally { fs.rmSync(dir,{recursive:true,force:true}); }
+});
+
+test("stock project APIs persist initial, moved and cleared memberships independently of cwd", {
+  skip: !process.env.CODEX_RELAY_TEST_BINARY || process.platform === "win32", timeout: 30000,
+}, async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "codex-project-membership-api-"));
+  const home = path.join(dir, "home"), sqlite = path.join(dir, "sqlite");
+  fs.mkdirSync(home, { mode: 0o700 }); fs.mkdirSync(sqlite, { mode: 0o700 });
+  fs.writeFileSync(path.join(home, "config.toml"),
+    'cli_auth_credentials_store = "file"\n[analytics]\nenabled = false\n[feedback]\nenabled = false\n');
+  let rpc = new AppServerRpc(process.env.CODEX_RELAY_TEST_BINARY, home, sqlite);
+  try {
+    await rpc.initialize();
+    assert.equal((await rpc.request("account/read", {})).account, null);
+    const projects = [];
+    for (const name of ["Research", "AI"]) projects.push((await rpc.request("project/create", {
+      name, roots: [{ path: dir }], idempotencyKey: require("node:crypto").randomUUID(),
+    })).project);
+    const started = await rpc.request("thread/start", {
+      cwd: dir, projectId: projects[0].id, ephemeral: false, approvalPolicy: "never", sandbox: "read-only",
+    });
+    const threadId = started.thread.id;
+    assert.equal(started.thread.projectId, projects[0].id);
+    // Persist a synthetic history item through the stock API without starting
+    // a model turn. All files and state belong to this disposable test home.
+    await rpc.request("thread/inject_items", { threadId, items: [{
+      type: "message", role: "user", content: [{ type: "input_text", text: "Isolated membership fixture." }],
+    }] });
+    const read = async () => (await rpc.request("thread/read", { threadId, includeTurns: false })).thread;
+    assert.equal((await read()).projectId, projects[0].id);
+    for (const projectId of [projects[1].id, "", projects[0].id]) {
+      await rpc.request("thread/metadata/update", { threadId, projectId });
+      const thread = await read();
+      assert.equal(thread.projectId, projectId || null);
+      assert.equal(thread.cwd, dir, "Membership changes must not rename the shared working directory");
+      const persisted = new DatabaseSync(path.join(sqlite, "state_5.sqlite"), { readOnly: true });
+      try { assert.equal(persisted.prepare("SELECT project_id FROM threads WHERE id=?").get(threadId).project_id,
+        projectId || null, "The backend must persist each update, including a clear"); }
+      finally { persisted.close(); }
+    }
+    await rpc.close(); rpc = null;
+    rpc = new AppServerRpc(process.env.CODEX_RELAY_TEST_BINARY, home, sqlite);
+    await rpc.initialize();
+    assert.equal((await read()).projectId, projects[0].id, "Membership must survive a backend restart");
+  } finally {
+    try { if (rpc) await rpc.close(); }
+    finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  }
 });

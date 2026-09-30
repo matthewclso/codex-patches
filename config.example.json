@@ -4,6 +4,7 @@
     "custom-pets": "auto",
     "browser-wsl": "auto",
     "browser-service-path": "auto",
+    "project-memberships": "disabled",
     "wsl-project-paths": "auto",
     "remote-fast-list": "auto"
   }
