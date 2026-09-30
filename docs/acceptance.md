@@ -10,6 +10,12 @@ Automated evidence is recorded separately from interactive behavior.
 
 The copied executable retains package context but loses its original valid Authenticode signature. Report any signed-binary-only behavior separately. Hosted CI does not establish Windows 11 interactive behavior or authenticated cloud acceptance.
 
+## September 30, 2026 local check
+
+On Windows 11 with the Ubuntu 26.04 WSL backend, package `26.928.1915.0` passed the package-context startup check after relaunch. An existing custom pet appeared and remained selectable. An agent used the installed Browser plugin to open Example Domain, inspect its accessibility tree, follow its link to IANA, verify the destination and close the test tab.
+
+Remote Control in the ChatGPT Android app reconnected and received chats with backend project IDs. Its initialization enabled `experimentalApi`; missing capability negotiation was therefore ruled out for this session. Android continued to display working-folder groups despite correct saved project memberships. This remains a [documented limitation](../patches/project-memberships/README.md), not a passed project-label check. The local migration was completed with that limitation explicitly accepted. These observations do not establish every interactive scenario above, such as installing a new pet or moving a chat between projects through the desktop UI.
+
 ## Browser troubleshooting
 
 An open browser panel does not prove that agents can control it. Follow the installed Browser skill and test navigation through its supported tool. If a chat's working directory was moved or deleted, restore it before refreshing that chat's tools: the backend starts local tool servers in the chat directory, and caches failed startup attempts. A fresh backend session is needed when the failed tool cannot be refreshed.
