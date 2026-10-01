@@ -99,7 +99,13 @@ test('Windows activation distinguishes old app/backend from independent tools an
     const unrelated = await f.start(process.execPath, ['-e', idle, 'app-server']);
     const records = scan();
     const blockerIds = [app.pid, backend.pid].sort();
-    assert.deepEqual(records.filter(p => p.activationBlocker).map(p => p.pid).sort(), blockerIds);
+    const found = records.filter(p => p.activationBlocker).map(p => p.pid).sort();
+    if (JSON.stringify(found) !== JSON.stringify(blockerIds)) {
+      // Only our disposable fixtures are included; never dump arbitrary process
+      // command lines (which may hold authentication or relay capabilities).
+      const evidence = powershell(`${dot}Initialize-ProcessNativeMethods;@{requestedRoot=${literal(f.deployment)};expandedRoot=[CodexPatches.CommandLine]::LongPath(${literal(f.deployment)});fixtures=@(Get-CimInstance Win32_Process|Where-Object {$_.ProcessId -in @(${blockerIds.join(',')})}|Select-Object ProcessId,Name,ExecutablePath);native=@(Get-Process -Id @(${blockerIds.join(',')})|ForEach-Object {@{pid=$_.Id;name=$_.ProcessName;path=$_.MainModule.FileName}})}|ConvertTo-Json -Depth 4 -Compress`);
+      assert.deepEqual(found, blockerIds, JSON.stringify({ ...evidence, records }));
+    }
     const alias = powershell(`ConvertTo-Json ((New-Object -ComObject Scripting.FileSystemObject).GetFolder(${literal(f.deployment)}).ShortPath)`);
     assert.deepEqual(scan(alias).filter(p => p.activationBlocker).map(p => p.pid).sort(), blockerIds, '8.3 paths must identify the same blocking processes');
     for (const child of [review, worker, command]) assert.equal(records.find(p => p.pid === child.pid)?.activationBlocker, false);
