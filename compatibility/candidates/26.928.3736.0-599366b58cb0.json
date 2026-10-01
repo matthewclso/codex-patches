@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "status": "review-required",
+  "package": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-01T16:28:48.5423854Z",
+    "source": {
+      "documentationUrl": "https://learn.chatgpt.com/docs/enterprise/windows-deployment",
+      "downloadUrl": "https://persistent.oaistatic.com/codex-app-prod/ChatGPT-x64.msix",
+      "finalUrl": "https://persistent.oaistatic.com/codex-app-prod/ChatGPT-x64.msix"
+    },
+    "identity": {
+      "name": "OpenAI.Codex",
+      "packageVersion": "26.928.3736.0",
+      "architecture": "x64",
+      "publisher": "CN=50BDFD77-8903-4850-9FFE-6E8522F64D5B"
+    },
+    "hashes": {
+      "msixSha256": "36a36149f7004c5d4619a4df7882931cc0fccb4d86b065fae2c49d7b179bfa8d",
+      "archiveSha256": "599366b58cb09833c32e76e9b21ce452c72a2de31e99a4d84e716eea141400bc",
+      "executableSha256": "8fb63474e98f6651105fd78c575be5ebae67fb869849b16e7a940f2da54c28ab",
+      "cliLinuxSha256": "1748767b230ebfc3d4ab7e4e254920d0c0ad9691fd8c11f190e7d44511a4a92e",
+      "cliWindowsSha256": "34549ded6e2aee87c911c62d025e52e26c488683d0f489cd68f756baef1a6df6",
+      "codeModeLinuxSha256": "5b2c075ac2380fa04d76d7313fbc044d29c8d0a0d0b9138415acd4610211ca03",
+      "codeModeWindowsSha256": "850eca242991c4271d1b0fd42e096423efac0046e984f9d2124319dae181a945",
+      "nodeWindowsSha256": "70d50ed42e14ea32ffde422cda4603c95cef61622206640c6d2f3485737b6e0a"
+    },
+    "versions": {
+      "cliVersion": "0.159.2",
+      "appVersion": "26.928.31416"
+    },
+    "files": {
+      "executableRelativePath": "ChatGPT.exe"
+    },
+    "verification": {
+      "msixSignature": "valid",
+      "executableSignature": "valid",
+      "identity": "verified",
+      "publisher": "matched-pin",
+      "architecture": "x64"
+    }
+  },
+  "candidate": null,
+  "audit": {
+    "schemaVersion": 1,
+    "supported": false,
+    "reviewRequired": true,
+    "sourceArchiveHash": "599366b58cb09833c32e76e9b21ce452c72a2de31e99a4d84e716eea141400bc",
+    "sourceHeaderHash": "7f779782c6663f19e83dd8bef968d403e61be520cf457349b9564cf937794120",
+    "build": null,
+    "selectedIds": [
+      "custom-pets",
+      "browser-wsl",
+      "browser-service-path",
+      "project-memberships"
+    ],
+    "patches": [
+      {
+        "id": "custom-pets",
+        "status": "source-unchanged-review-required",
+        "targetPath": ".vite/build/bootstrap-DvSEn4qy.js",
+        "sourceHash": "3632ac2605be436c271d27d68c657919b186840319dee9917f397ad8b5fb63cf",
+        "standaloneOutputHash": "7a5d2a62042a1c20d695936c3a4eb6fbbcd8e8c2342f811f31b43c3149548d23",
+        "beforeHash": "3632ac2605be436c271d27d68c657919b186840319dee9917f397ad8b5fb63cf",
+        "afterHash": "7a5d2a62042a1c20d695936c3a4eb6fbbcd8e8c2342f811f31b43c3149548d23",
+        "beforeSize": 2231742,
+        "afterSize": 2231818
+      },
+      {
+        "id": "browser-wsl",
+        "status": "review-required",
+        "targetPath": "webview/assets/app-shared-6472dfc83b38.js",
+        "reason": "Missing ASAR entry: webview/assets/app-shared-6472dfc83b38.js"
+      },
+      {
+        "id": "browser-service-path",
+        "status": "source-unchanged-review-required",
+        "targetPath": ".vite/build/main-DkWgQSQe.js",
+        "sourceHash": "febce65087ab1c20c53e6da4c1f17baf720a57e8fa5cedc9b9b84fc82223e811",
+        "standaloneOutputHash": "2625c1fea14956a66e43d750da28ce80a463274636661ec074fd408a50256d27",
+        "beforeHash": "febce65087ab1c20c53e6da4c1f17baf720a57e8fa5cedc9b9b84fc82223e811",
+        "afterHash": "2625c1fea14956a66e43d750da28ce80a463274636661ec074fd408a50256d27",
+        "beforeSize": 3712144,
+        "afterSize": 3712181
+      },
+      {
+        "id": "project-memberships",
+        "status": "source-unchanged-review-required",
+        "targetPath": ".vite/build/main-DkWgQSQe.js",
+        "sourceHash": "febce65087ab1c20c53e6da4c1f17baf720a57e8fa5cedc9b9b84fc82223e811",
+        "standaloneOutputHash": "9eeae69bb5cf1b865fbb6f88f5a14e6f85c4779dfc2c414e84c344627c707839",
+        "beforeHash": "2625c1fea14956a66e43d750da28ce80a463274636661ec074fd408a50256d27",
+        "afterHash": "754272096a1dbecb2bf69907d054a8ac0a9c9c04e580cc324fd72dbda33d716a",
+        "beforeSize": 3712181,
+        "afterSize": 3712153
+      }
+    ],
+    "changes": [
+      {
+        "id": "custom-pets",
+        "status": "source-unchanged-review-required",
+        "targetPath": ".vite/build/bootstrap-DvSEn4qy.js",
+        "sourceHash": "3632ac2605be436c271d27d68c657919b186840319dee9917f397ad8b5fb63cf",
+        "standaloneOutputHash": "7a5d2a62042a1c20d695936c3a4eb6fbbcd8e8c2342f811f31b43c3149548d23",
+        "beforeHash": "3632ac2605be436c271d27d68c657919b186840319dee9917f397ad8b5fb63cf",
+        "afterHash": "7a5d2a62042a1c20d695936c3a4eb6fbbcd8e8c2342f811f31b43c3149548d23",
+        "beforeSize": 2231742,
+        "afterSize": 2231818
+      },
+      {
+        "id": "browser-service-path",
+        "status": "source-unchanged-review-required",
+        "targetPath": ".vite/build/main-DkWgQSQe.js",
+        "sourceHash": "febce65087ab1c20c53e6da4c1f17baf720a57e8fa5cedc9b9b84fc82223e811",
+        "standaloneOutputHash": "2625c1fea14956a66e43d750da28ce80a463274636661ec074fd408a50256d27",
+        "beforeHash": "febce65087ab1c20c53e6da4c1f17baf720a57e8fa5cedc9b9b84fc82223e811",
+        "afterHash": "2625c1fea14956a66e43d750da28ce80a463274636661ec074fd408a50256d27",
+        "beforeSize": 3712144,
+        "afterSize": 3712181
+      },
+      {
+        "id": "project-memberships",
+        "status": "source-unchanged-review-required",
+        "targetPath": ".vite/build/main-DkWgQSQe.js",
+        "sourceHash": "febce65087ab1c20c53e6da4c1f17baf720a57e8fa5cedc9b9b84fc82223e811",
+        "standaloneOutputHash": "9eeae69bb5cf1b865fbb6f88f5a14e6f85c4779dfc2c414e84c344627c707839",
+        "beforeHash": "2625c1fea14956a66e43d750da28ce80a463274636661ec074fd408a50256d27",
+        "afterHash": "754272096a1dbecb2bf69907d054a8ac0a9c9c04e580cc324fd72dbda33d716a",
+        "beforeSize": 3712181,
+        "afterSize": 3712153
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "windows-toolkit-module-tests",
+      "status": "passed"
+    },
+    {
+      "name": "compose-existing-patches",
+      "status": "blocked",
+      "reason": "Target source modules changed or are missing. Existing implementations cannot be assumed correct."
+    }
+  ],
+  "failureReason": null,
+  "wsl": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-01T16:30:00.7744912Z",
+    "status": "failed",
+    "target": {
+      "windows": "Windows x64",
+      "backend": "Ubuntu 26.04 LTS",
+      "wslVersion": 2
+    },
+    "host": {
+      "os": "Microsoft Windows NT 10.0.26100.0",
+      "runnerImage": "win25-vs2026",
+      "runnerVersion": "20260925.250.1",
+      "virtualization": [
+        {
+          "Name": "AMD EPYC 7763 64-Core Processor                ",
+          "VirtualizationFirmwareEnabled": true,
+          "SecondLevelAddressTranslationExtensions": false,
+          "VMMonitorModeExtensions": false
+        }
+      ],
+      "features": [
+        {
+          "name": "Microsoft-Windows-Subsystem-Linux",
+          "previous": "Enabled",
+          "requiredForWsl2": false,
+          "enabledForCi": false,
+          "restartRequired": false
+        },
+        {
+          "name": "VirtualMachinePlatform",
+          "previous": "Enabled",
+          "requiredForWsl2": true,
+          "enabledForCi": false,
+          "restartRequired": false
+        }
+      ],
+      "hypervisorPresent": true,
+      "services": [
+        {
+          "Name": "vmcompute",
+          "Status": 4
+        },
+        {
+          "Name": "WslService",
+          "Status": 4
+        }
+      ]
+    },
+    "stages": [
+      {
+        "name": "wsl-version",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "WSL version: 2.7.14.0\r\nKernel version: 6.18.33.2-2\r\nWSLg version: 1.0.73.2\r\nMSRDC version: 1.2.7214\r\nDirect3D version: 1.611.1-81528511\r\nDXCore version: 10.0.26100.1-240331-1435.ge-release\r\nWindows version: 10.0.26100.33438"
+      },
+      {
+        "name": "wsl-update",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "Checking for updates.\r\nUpdating Windows Subsystem for Linux to version: 3.0.1."
+      },
+      {
+        "name": "wsl2-import",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "The operation completed successfully."
+      },
+      {
+        "name": "ubuntu-boot",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "PRETTY_NAME=\"Ubuntu 26.04.1 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"26.04\"\nVERSION=\"26.04.1 LTS (Resolute Raccoon)\"\nVERSION_CODENAME=resolute\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=resolute\nLOGO=ubuntu-logo\n6.18.40.1-microsoft-standard-WSL2"
+      },
+      {
+        "name": "node-setup",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "Reading package lists...\nBuilding dependency tree...\nReading state information...\nca-certificates is already the newest version (20260601~26.04.1).\nca-certificates set to manually installed.\nxz-utils is already the newest version (5.8.3-1).\nxz-utils set to manually installed.\npython3 is already the newest version (3.14.3-0ubuntu2).\npython3 set to manually installed.\nSolving dependencies...\nThe following additional packages will be installed:\n  libcurl3t64-gnutls libcurl4t64\nThe following packages will be upgraded:\n  curl libcurl3t64-gnutls libcurl4t64\n3 upgraded, 0 newly installed, 0 to remove and 95 not upgraded.\nNeed to get 1120 kB of archives.\nAfter this operation, 11.3 kB of additional disk space will be used.\nGet:1 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 curl amd64 8.18.0-1ubuntu2.7 [272 kB]\nGet:2 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libcurl4t64 amd64 8.18.0-1ubuntu2.7 [428 kB]\nGet:3 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libcurl3t64-gnutls amd64 8.18.0-1ubuntu2.7 [419 kB]\nFetched 1120 kB in 1s (903 kB/s)\n(Reading database ... \r(Reading database ... 5%\r(Reading database ... 10%\r(Reading database ... 15%\r(Reading database ... 20%\r(Reading database ... 25%\r(Reading database ... 30%\r(Reading database ... 35%\r(Reading database ... 40%\r(Reading database ... 45%\r(Reading database ... 50%\r(Reading database ... 55%\r(Reading database ... 60%\r(Reading database ... 65%\r(Reading database ... 70%\r(Reading database ... 75%\r(Reading database ... 80%\r(Reading database ... 85%\r(Reading database ... 90%\r(Reading database ... 95%\r(Reading database ... 100%\r(Reading database ... 35908 files and directories currently installed.)\r\nPreparing to unpack .../curl_8.18.0-1ubuntu2.7_amd64.deb ...\r\nUnpacking curl (8.18.0-1ubuntu2.7) over (8.18.0-1ubuntu2.4) ...\r\nPreparing to unpack .../libcurl4t64_8.18.0-1ubuntu2.7_amd64.deb ...\r\nUnpacking libcurl4t64:amd64 (8.18.0-1ubuntu2.7) over (8.18.0-1ubuntu2.4) ...\r\nPreparing to unpack .../libcurl3t64-gnutls_8.18.0-1ubuntu2.7_amd64.deb ...\r\nUnpacking libcurl3t64-gnutls:amd64 (8.18.0-1ubuntu2.7) over (8.18.0-1ubuntu2.4) ...\r\nSetting up libcurl4t64:amd64 (8.18.0-1ubuntu2.7) ...\r\nSetting up libcurl3t64-gnutls:amd64 (8.18.0-1ubuntu2.7) ...\r\nSetting up curl (8.18.0-1ubuntu2.7) ...\r\nProcessing triggers for man-db (2.13.1-1build1) ...\r\nProcessing triggers for libc-bin (2.43-2ubuntu2.3) ...\r\nnode.tar.xz: OK\nv24.21.0"
+      },
+      {
+        "name": "wsl-tests-and-stock-app-server",
+        "exitCode": 1,
+        "timedOut": false,
+        "output": "added 1 package, and audited 2 packages in 695ms\n\nfound 0 vulnerabilities\n\n> codex-patches@0.1.0 test\n> node --test tests/*.cjs\n\n✔ actual pet loader: stock fails Windows home under POSIX; patch fixes all three paths and retains traversal checks (6964.760708ms)\n✖ actual in-app eligibility preserves all prerequisites across 256 cases and external browser gate (1.600111ms)\n✔ actual trusted-service generator fixes native Windows mount paths only under WSL and retains all other generated fields (632.954502ms)\n✖ actual native membership synchronizer migrates and persists explicit projects for new chats, moves and clearing (84.278613ms)\n✖ all valid app-patch combinations are deterministic, source-gated and preserve unrelated entries (16140.846796ms)\n✖ actual executable integrity updater changes only the recorded header hash (1152.587414ms)\n✔ ASAR replacement appends data and preserves other metadata and all original payload (9.644218ms)\n✔ ASAR parser and replacement reject malformed bounds and source integrity (5.67097ms)\n✔ PE updater locates named resource, preserves decoy and all bytes outside hash (3.098838ms)\n✔ unknown archive cannot be installed, and audit remains review required (3.628045ms)\n✔ modules sharing a target validate independent hashes before deterministic composition (9.276114ms)\n✔ shared-target CI candidates retain pristine source and independent output hashes (1.753722ms)\n✔ backend detection distinguishes actual subcommands from prompts, option values and help tooling (92.73784ms)\n﹣ Windows activation distinguishes old app/backend from independent tools and force closes only blockers (0.217603ms) # SKIP\n﹣ ForceClose is rejected outside install before any command runs (0.120401ms) # SKIP\n✔ WSL activation detects owned backends and protects independent review, worker and working-directory users (1943.79064ms)\n✔ WSL supervisor through stable symlink and relay runner block activation, and ForceClose handles a stuck backend (3602.654603ms)\n✔ selection honors independent auto/disabled states and rejects unsupported explicit requests (3.899621ms)\n✔ generic declared dependencies remain enforced (4.090721ms)\n✔ project memberships require explicit opt-in even for previously saved configurations (2.523413ms)\n✔ build rejects unsupported source, modified runtime binaries and output beneath source (6.248733ms)\n✔ inspection reports an unknown update without authorizing installation or changing source (25.359635ms)\n✔ generated snapshot is independent and detects app or runtime tampering (50.118065ms)\n✔ historical Rust source plan records absent manifests without creating paths (371.468068ms)\n✔ historical Rust source removal requires unchanged inventory and preserves unreferenced siblings (885.50809ms)\n✔ historical source links are refused without traversing external data (205.324187ms)\n✔ running processes prevent historical source removal (223.872785ms)\n﹣ Windows cleanup archives nested audits and probe state while excluding bundled app code (0.472703ms) # SKIP\n﹣ Windows cleanup refuses links inside excluded app directories (0.304801ms) # SKIP\n﹣ Windows wrapper inspection reads regular files and rejects directories (0.169101ms) # SKIP\n﹣ Windows wrapper cloud allowlist excludes redirecting and unknown reparse tags (0.213201ms) # SKIP\n﹣ Windows wrapper inspection refuses junction entries and ancestors before reading descendants (0.211001ms) # SKIP\n﹣ Windows wrapper inspection refuses live and dangling file symlinks (0.699503ms) # SKIP\n﹣ Windows PowerShell 5.1 preserves UTF8 JSON through initial creation and replacement (1.771809ms) # SKIP\n﹣ Windows native argument transport preserves empty, quoted, Unicode and trailing-backslash values (0.280702ms) # SKIP\n﹣ all shipped PowerShell files parse in Windows PowerShell 5.1 (0.167901ms) # SKIP\n﹣ private directory setup is repeatable without requiring audit-policy privileges (0.198301ms) # SKIP\n﹣ installed bootstrap checks the complete snapshot before execution without module discovery (0.266401ms) # SKIP\n✔ default backend origin remains upstream; residency, overrides and missing fields are untouched (13.812973ms)\n✔ runtime binds an explicit stock binary and rejects incompatible, public or aliased config (1281.737521ms)\n✔ default configure plan has no filesystem or enrollment side effects (471.75833ms)\n✔ stable relay route is independent of CLI updates, migrations are additive and rollback is conditional (513.946437ms)\n✔ an enrollment identity conflict rolls back every preceding candidate insertion (226.482247ms)\n✔ current stock GitHub and WSL command generators preserve GraphQL variables without the retired guard (6257.687084ms)\n✔ authoritative assignments distinguish two projects sharing one working directory (2.569419ms)\n✔ stale mappings do not rename projects or guess missing identities (0.339902ms)\n✔ SQLite repair is atomic, conditional, reversible and leaves other fields unchanged (13.690699ms)\n✔ stock project APIs persist initial, moved and cleared memberships independently of cwd (4294.905933ms)\n✔ unmodified CLI native flow, stock native unfiltered-list regression (2024.608071ms)\n✔ unmodified CLI native flow, fresh isolated enrollment (1982.476402ms)\n✔ unmodified CLI native flow, preserving an existing paired server (1702.752969ms)\nWARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"/tmp\" (codex_home: AbsolutePathBuf(\"/tmp/codex-patches-stack-xMnO8M/home\"))\n✔ stock project path regression crosses proxy, relay and unmodified CLI; eof cleans up owned children (13687.368234ms)\nWARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"/tmp\" (codex_home: AbsolutePathBuf(\"/tmp/codex-patches-stack-evcVqo/home\"))\n✔ stock project path regression crosses proxy, relay and unmodified CLI; signal cleans up owned children (12557.684322ms)\n✔ project roots translate discovered drive mounts and matching WSL UNC paths only (163.238928ms)\n✔ JSONL adapter preserves unrelated and malformed traffic, newline style and unsafe integer IDs (427.739556ms)\n✔ only a stdio app-server session is supervised (83.97518ms)\n✔ stock passthrough and both-disabled app-server use the canonical Linux home even with a Windows desktop environment (811.057306ms)\n✔ non-Remote-Control WebSockets remain byte-exact through the configured HTTP proxy (160.073006ms)\n✔ ordinary HTTP streams are delivered before the upstream response finishes (21.032345ms)\n✔ HTTP preserves method, query, body and native auth; rejects browsers and escaping paths (23.228261ms)\n✔ native WebSocket traffic is rewritten only upstream-to-CLI; ping/pong and bytes pass through (53.382369ms)\n✔ upstream handshake rejection preserves native status, retry headers and body (9.138364ms)\n✔ changes only request parameters; preserves unsafe integer IDs and cursors exactly (2.830119ms)\n✔ non-target, binary, notification, already-patched and malformed messages stay byte-exact (1.974614ms)\n✔ reassembles target chunks, retaining each segment's count, sequence and cursor (1.835212ms)\n✔ non-target chunks remain original bytes (0.446803ms)\n✔ chunk order, duplicates, corrupt sizes, bounds and timeout fail closed (1.125907ms)\nℹ tests 67\nℹ suites 0\nℹ pass 50\nℹ fail 4\nℹ cancelled 0\nℹ skipped 13\nℹ todo 0\nℹ duration_ms 43049.091692\n\n✖ failing tests:\n\ntest at tests/app-patches-source.cjs:39:34\n✖ actual in-app eligibility preserves all prerequisites across 256 cases and external browser gate (1.600111ms)\n  AssertionError [ERR_ASSERTION]: Missing ASAR entry: webview/assets/app-shared-6472dfc83b38.js\n      at lookup (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:26:5)\n      at Object.readEntry (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:32:17)\n      at packed (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:32:37)\n      at /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:98:18\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:39:153)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/app-patches-source.cjs:39:34\n✖ actual native membership synchronizer migrates and persists explicit projects for new chats, moves and clearing (84.278613ms)\n  ReferenceError: tl is not defined\n      at Object.readCreationInputs (evalmachine.<anonymous>:1:697)\n      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n      at async /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:221:17\n      at async TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:39:147)\n      at async Test.run (node:internal/test_runner/test:1409:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)\n\ntest at tests/app-patches-source.cjs:39:34\n✖ all valid app-patch combinations are deterministic, source-gated and preserve unrelated entries (16140.846796ms)\n  AssertionError [ERR_ASSERTION]: Candidate modules changed; source audit must be updated before composing\n      at compose (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:23:3)\n      at /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:232:22\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:39:153)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12)\n      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/app-patches-source.cjs:39:34\n✖ actual executable integrity updater changes only the recorded header hash (1152.587414ms)\n  AssertionError [ERR_ASSERTION]: Candidate modules changed; source audit must be updated before composing\n      at compose (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:23:3)\n      at /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:255:78\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:39:153)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12)\n      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\nnpm notice\nnpm notice New major version of npm available! 11.19.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice"
+      }
+    ],
+    "limitations": [
+      "Authenticated desktop, browser UI, and phone reconnect require local acceptance."
+    ],
+    "image": {
+      "index": "https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json",
+      "url": "https://releases.ubuntu.com/26.04.1/ubuntu-26.04.1-wsl-amd64.wsl",
+      "sha256": "48d56724b5c8e60f24893e83e73bbb58c60b3ca22fba3da977075420acd54104"
+    },
+    "reason": "One or more WSL tests or stock app-server probes failed."
+  },
+  "evidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/36892141054",
+  "decisionRequired": "Reproduce stock behavior and review all acceptance evidence before changing compatibility/current.json. This file does not enable installation."
+}
