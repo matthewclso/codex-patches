@@ -57,13 +57,18 @@ function Test-WindowsAppServerCommand([string]$CommandLine) {
 }
 function Get-WindowsDeploymentProcesses([string]$Deployment) {
     Initialize-ProcessNativeMethods
-    $requestedRoot = [IO.Path]::GetFullPath($Deployment).TrimEnd([char[]]@('\','/'))
-    # CIM returns expanded executable paths even when TEMP/InstallRoot uses an
-    # 8.3 alias (as on hosted Windows runners). Match the same directory spelling.
-    $root = [CodexPatches.CommandLine]::LongPath($requestedRoot)
+    $requestedRoot = $Deployment.TrimEnd([char[]]@('\','/'))
+    # CIM may preserve 8.3 executable paths while GetFullPath expands InstallRoot
+    # (as on hosted Windows runners). Normalize both sides of the comparison.
+    $root = [CodexPatches.CommandLine]::LongPath([IO.Path]::GetFullPath($requestedRoot))
     foreach ($process in Get-CimInstance Win32_Process) {
         if ($process.ProcessId -eq $PID) { continue }
-        $executableInside = $process.ExecutablePath -and $process.ExecutablePath.StartsWith($root + '\',[StringComparison]::OrdinalIgnoreCase)
+        $executable = $process.ExecutablePath
+        if ($executable) {
+            try { $executable = [CodexPatches.CommandLine]::LongPath($executable) }
+            catch [ComponentModel.Win32Exception] { } # Other users' files may be inaccessible; retain the reported path.
+        }
+        $executableInside = $executable -and $executable.StartsWith($root + '\',[StringComparison]::OrdinalIgnoreCase)
         $argumentReference = $process.CommandLine -and ($process.CommandLine.IndexOf($root,[StringComparison]::OrdinalIgnoreCase) -ge 0 -or $process.CommandLine.IndexOf($requestedRoot,[StringComparison]::OrdinalIgnoreCase) -ge 0)
         if (-not $executableInside -and -not $argumentReference) { continue }
         $name = $process.Name

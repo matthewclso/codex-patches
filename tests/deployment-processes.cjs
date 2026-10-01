@@ -90,12 +90,17 @@ test('Windows activation distinguishes old app/backend from independent tools an
   const scan = (deployment = f.deployment) => powershell(`${dot}ConvertTo-Json -InputObject @(Get-DeploymentProcesses ${literal(deployment)}) -Compress`);
   const activate = force => powershell(`${dot}try { Assert-DeploymentCanActivate ${literal(f.deployment)} 'prepared-copy' ${force ? '-ForceClose' : ''} 6>$null;@{allowed=$true}|ConvertTo-Json -Compress } catch { @{allowed=$false;error=$_.Exception.Message}|ConvertTo-Json -Compress }`);
   try {
-    const app = await f.start(f.copy('app/ChatGPT.exe'), ['-e', idle]);
+    const appPath = f.copy('app/ChatGPT.exe');
     const cli = f.copy('app/resources/codex.exe');
-    const backend = await f.start(cli, ['app-server'], { cwd: f.directory });
+    const alias = powershell(`ConvertTo-Json ((New-Object -ComObject Scripting.FileSystemObject).GetFolder(${literal(f.deployment)}).ShortPath)`);
+    // Launch through the short spelling too: CIM may retain it even when
+    // PowerShell expands the deployment root to the long spelling.
+    const aliased = executable => path.join(alias, path.relative(f.deployment, executable));
+    const app = await f.start(aliased(appPath), ['-e', idle]);
+    const backend = await f.start(aliased(cli), ['app-server'], { cwd: f.directory });
     const review = await f.start(process.execPath, ['-e', idle, '--', '--cli=' + cli]);
     const worker = await f.start(f.copy('app/resources/cua_node/bin/node_repl.exe'), ['-e', idle]);
-    const command = await f.start(cli, ['exec', 'app-server'], { cwd: f.directory });
+    const command = await f.start(aliased(cli), ['exec', 'app-server'], { cwd: f.directory });
     const unrelated = await f.start(process.execPath, ['-e', idle, 'app-server']);
     const records = scan();
     const blockerIds = [app.pid, backend.pid].sort();
@@ -106,7 +111,6 @@ test('Windows activation distinguishes old app/backend from independent tools an
       const evidence = powershell(`${dot}Initialize-ProcessNativeMethods;@{requestedRoot=${literal(f.deployment)};expandedRoot=[CodexPatches.CommandLine]::LongPath(${literal(f.deployment)});fixtures=@(Get-CimInstance Win32_Process|Where-Object {$_.ProcessId -in @(${blockerIds.join(',')})}|Select-Object ProcessId,Name,ExecutablePath);native=@(Get-Process -Id @(${blockerIds.join(',')})|ForEach-Object {@{pid=$_.Id;name=$_.ProcessName;path=$_.MainModule.FileName}})}|ConvertTo-Json -Depth 4 -Compress`);
       assert.deepEqual(found, blockerIds, JSON.stringify({ ...evidence, records }));
     }
-    const alias = powershell(`ConvertTo-Json ((New-Object -ComObject Scripting.FileSystemObject).GetFolder(${literal(f.deployment)}).ShortPath)`);
     assert.deepEqual(scan(alias).filter(p => p.activationBlocker).map(p => p.pid).sort(), blockerIds, '8.3 paths must identify the same blocking processes');
     for (const child of [review, worker, command]) assert.equal(records.find(p => p.pid === child.pid)?.activationBlocker, false);
     assert(!records.some(p => p.pid === unrelated.pid));
