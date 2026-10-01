@@ -87,7 +87,7 @@ test('backend detection distinguishes actual subcommands from prompts, option va
 test('Windows activation distinguishes old app/backend from independent tools and force closes only blockers', { skip: !windows }, async () => {
   const f = await fixture();
   const dot = `. ${literal(path.join(root, 'scripts/Maintain.ps1'))};function Get-DeploymentProcesses([string]$Deployment){Get-WindowsDeploymentProcesses $Deployment};`;
-  const scan = () => powershell(`${dot}ConvertTo-Json -InputObject @(Get-DeploymentProcesses ${literal(f.deployment)}) -Compress`);
+  const scan = (deployment = f.deployment) => powershell(`${dot}ConvertTo-Json -InputObject @(Get-DeploymentProcesses ${literal(deployment)}) -Compress`);
   const activate = force => powershell(`${dot}try { Assert-DeploymentCanActivate ${literal(f.deployment)} 'prepared-copy' ${force ? '-ForceClose' : ''} 6>$null;@{allowed=$true}|ConvertTo-Json -Compress } catch { @{allowed=$false;error=$_.Exception.Message}|ConvertTo-Json -Compress }`);
   try {
     const app = await f.start(f.copy('app/ChatGPT.exe'), ['-e', idle]);
@@ -98,7 +98,10 @@ test('Windows activation distinguishes old app/backend from independent tools an
     const command = await f.start(cli, ['exec', 'app-server'], { cwd: f.directory });
     const unrelated = await f.start(process.execPath, ['-e', idle, 'app-server']);
     const records = scan();
-    assert.deepEqual(records.filter(p => p.activationBlocker).map(p => p.pid).sort(), [app.pid, backend.pid].sort());
+    const blockerIds = [app.pid, backend.pid].sort();
+    assert.deepEqual(records.filter(p => p.activationBlocker).map(p => p.pid).sort(), blockerIds);
+    const alias = powershell(`ConvertTo-Json ((New-Object -ComObject Scripting.FileSystemObject).GetFolder(${literal(f.deployment)}).ShortPath)`);
+    assert.deepEqual(scan(alias).filter(p => p.activationBlocker).map(p => p.pid).sort(), blockerIds, '8.3 paths must identify the same blocking processes');
     for (const child of [review, worker, command]) assert.equal(records.find(p => p.pid === child.pid)?.activationBlocker, false);
     assert(!records.some(p => p.pid === unrelated.pid));
     const blocked = activate(false);

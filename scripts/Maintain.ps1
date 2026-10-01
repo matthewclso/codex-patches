@@ -5,16 +5,25 @@ function Get-ActiveRuntime {
     $json = Invoke-WslPython 'import pathlib,sys;print(pathlib.Path(sys.argv[1]).read_text())' @($install.runtimeConfig)
     return @{active=$active;install=$install;runtime=($json | ConvertFrom-Json)}
 }
-function Test-WindowsAppServerCommand([string]$CommandLine) {
+function Initialize-ProcessNativeMethods {
     if (-not ('CodexPatches.CommandLine' -as [type])) {
         Add-Type @'
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 namespace CodexPatches {
     public static class CommandLine {
         [DllImport("shell32.dll", SetLastError = true)]
         static extern IntPtr CommandLineToArgvW([MarshalAs(UnmanagedType.LPWStr)] string command, out int count);
         [DllImport("kernel32.dll")] static extern IntPtr LocalFree(IntPtr memory);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        static extern uint GetLongPathName(string path, StringBuilder expanded, uint size);
+        public static string LongPath(string path) {
+            var expanded = new StringBuilder(32768);
+            uint length = GetLongPathName(path, expanded, (uint)expanded.Capacity);
+            if (length == 0 || length >= expanded.Capacity) throw new System.ComponentModel.Win32Exception();
+            return expanded.ToString();
+        }
         public static string[] Split(string command) {
             int count;
             IntPtr pointer = CommandLineToArgvW(command, out count);
@@ -29,6 +38,9 @@ namespace CodexPatches {
 }
 '@
     }
+}
+function Test-WindowsAppServerCommand([string]$CommandLine) {
+    Initialize-ProcessNativeMethods
     # Only the app-server subcommand is a backend. A review/exec prompt or a
     # configuration value containing that word must never authorize termination.
     $arguments = [CodexPatches.CommandLine]::Split($CommandLine)
@@ -44,11 +56,15 @@ namespace CodexPatches {
     return $false
 }
 function Get-WindowsDeploymentProcesses([string]$Deployment) {
-    $root = [IO.Path]::GetFullPath($Deployment).TrimEnd([char[]]@('\','/'))
+    Initialize-ProcessNativeMethods
+    $requestedRoot = [IO.Path]::GetFullPath($Deployment).TrimEnd([char[]]@('\','/'))
+    # CIM returns expanded executable paths even when TEMP/InstallRoot uses an
+    # 8.3 alias (as on hosted Windows runners). Match the same directory spelling.
+    $root = [CodexPatches.CommandLine]::LongPath($requestedRoot)
     foreach ($process in Get-CimInstance Win32_Process) {
         if ($process.ProcessId -eq $PID) { continue }
         $executableInside = $process.ExecutablePath -and $process.ExecutablePath.StartsWith($root + '\',[StringComparison]::OrdinalIgnoreCase)
-        $argumentReference = $process.CommandLine -and $process.CommandLine.IndexOf($root,[StringComparison]::OrdinalIgnoreCase) -ge 0
+        $argumentReference = $process.CommandLine -and ($process.CommandLine.IndexOf($root,[StringComparison]::OrdinalIgnoreCase) -ge 0 -or $process.CommandLine.IndexOf($requestedRoot,[StringComparison]::OrdinalIgnoreCase) -ge 0)
         if (-not $executableInside -and -not $argumentReference) { continue }
         $name = $process.Name
         $activationBlocker = $executableInside -and (
