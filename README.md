@@ -20,7 +20,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\codex-patches.ps1 install
 powershell -NoProfile -ExecutionPolicy Bypass -File .\codex-patches.ps1 doctor
 ```
 
-Close Codex normally and open **Codex - Patched** on your desktop. No processes are terminated by installation or launch. The package-context preflight exercises an isolated Windows → WSL → stock app-server handshake without your credentials, threads or provider requests. It does not prove interactive pet rendering, browser interaction or real phone reconnects; see [acceptance](docs/acceptance.md).
+Close Codex normally and open **Codex - Patched** on your desktop. Normal installation and launch do not terminate processes; installation can explicitly close blockers with `-ForceClose`, described below. The package-context preflight exercises an isolated Windows → WSL → stock app-server handshake without your credentials, threads or provider requests. It does not prove interactive pet rendering, browser interaction or real phone reconnects; see [acceptance](docs/acceptance.md).
 
 By default, the installer uses the default WSL distribution, `%USERPROFILE%\.codex`, and the Linux user's `~/.codex/sqlite`. Override discovery when needed:
 
@@ -76,6 +76,16 @@ git pull --ff-only
 ```
 
 The saved configuration is reused. The installer snapshots its runtime and launcher, verifies the source and generated hashes, then replaces its active pointer. Pulling the repository alone does not change the running deployment. Existing snapshots are retained until cleanup checks that they are not in use.
+
+A running app or app-server backend from a previous patched copy blocks activation. The error identifies its platform, process name and PID. Independent tools (for example, a review command referencing an older CLI or a Node worker using that copy) do not block activation, but cleanup preserves the files they still use.
+
+To explicitly stop blocking processes and continue installation:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\codex-patches.ps1 install -ForceClose
+```
+
+`-ForceClose` is available only for `install`. It can interrupt chats running through the old patched app/backend. The installer verifies the prepared copy first, rechecks each blocker's identity before stopping it, reports the processes it stops, and checks again before activation. It does not close independent tools, the separately installed stock app, or unrelated WSL processes, and it never shuts down WSL. Copies still used by tools remain protected from cleanup.
 
 Private relay state survives rebuilds so updates retain the same local route and existing server identities. Installation adds missing route mappings with a SQLite backup; startup never migrates account state. To migrate an existing installation, pass `-ImportRelayState /absolute/linux/path/runtime.json`; the import preserves its port and capability without displaying the capability. Stop the old launcher before switching. Keep the old files until the new workflow's interactive checks pass. [Migration cleanup](docs/migration.md) provides a reviewable plan and removes recognized legacy code only after those checks.
 

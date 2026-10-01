@@ -4,7 +4,7 @@ This is the repository's **highest-authority source for intended behavior**. Cod
 
 This contract describes what users should experience without requiring them or future coding agents to read the implementation. Module and command names identify today's delivery interfaces; internal techniques may change while preserving these outcomes. A passing test or an existing implementation is evidence, not permission to change the contract.
 
-The source is every current user-authored message in the **Design Codex patch repository** task, including confirmation replies and the proposals whose defaults the owner accepted. The [message coverage ledger](#message-coverage-ledger) accounts for all 16 messages. Requirements, adopted delivery details, verification evidence and accepted limitations are distinguished below. Private transcripts, account data and machine-specific paths are not needed to use this document.
+The source is the user-authored messages in the **Design Codex patch repository** task, including confirmation replies, subsequent installer requests and the proposals whose defaults the owner accepted. The [message coverage ledger](#message-coverage-ledger) accounts for the original 16 messages and later behavior changes. Requirements, adopted delivery details, verification evidence and accepted limitations are distinguished below. Private transcripts, account data and machine-specific paths are not needed to use this document.
 
 ## Scope and delivery
 
@@ -86,15 +86,17 @@ Sources: U08, U11–U15. The optional module and conservative repair semantics a
 
 **LIFECYCLE-2 — A repository-owned shortcut.** Include desktop shortcut creation in the repository and normal installation. Provide a command to recreate it without rebuilding. The clearly named **Codex - Patched** shortcut must target a stable installed launcher, survive version changes and remain usable if the checkout is moved or deleted. Optional/custom install locations must be supported by that same workflow. During an explicit legacy migration, retarget only recognized old patch shortcuts and leave unrelated shortcuts alone.
 
-**LIFECYCLE-3 — Predictable updates.** The user can update Codex normally, pull the repository, inspect compatibility, rebuild/apply the saved patch selection, validate, remove unused generated copies and relaunch through the same shortcut. Pulling Git changes alone must not mutate the running deployment. Verify the prepared copy before activation, and keep selection/activation status clear when a running deployment prevents switching. Retain private relay state across rebuilds.
+**LIFECYCLE-3 — Predictable updates.** The user can update Codex normally, pull the repository, inspect compatibility, rebuild/apply the saved patch selection, validate, remove unused generated copies and relaunch through the same shortcut. Pulling Git changes alone must not mutate the running deployment. Verify the prepared copy before activation, and keep selection/activation status clear when a running deployment prevents switching. Identify blocking processes by platform, name and PID without exposing private command-line arguments. Distinguish a prior app/backend that prevents activation from an independent tool that only needs the old files retained: a review command referencing an old CLI or a worker using that copy must not falsely prevent installation after the app is closed. Retain private relay state across rebuilds.
 
 **LIFECYCLE-4 — Active-session protection.** Installation, launching and cleanup must not silently kill Codex chats, terminate unrelated processes, or shut down all WSL distributions to recover. Coordinate a normal user quit/relaunch when needed; do not remove a deployment or legacy path that an active process still needs. A user's temporary request to keep a session running must be respected until they authorize or perform the switch.
+
+The explicit `install -ForceClose` option authorizes stopping processes that actually block activation of the prepared copy. Explain that this can interrupt active chats. Validate the prepared copy first, confirm each process still belongs to a prior toolkit app/backend before stopping it, report what was stopped and recheck before switching. Normal installation must leave blockers running and explain how to resolve them. The flag is not permission to terminate independent tools, every process with a matching name, or all of WSL, and it must not bypass cleanup's in-use protections. This opt-in exception was requested in U18; it does not turn ordinary installation into a destructive operation.
 
 **LIFECYCLE-5 — Remove code while preserving user data.** Cleanup and uninstall must remove recognized, owned patch outputs rather than arbitrary files. Preview destructive maintenance, check ownership/changed links/in-use paths, and preserve shared Codex data, histories, settings, pet assets, pairing data and relevant state/rollback backups. Removing an alias must preserve its data target. Preserve and verify selected historical diagnostics before deleting legacy code. Data backups are distinct from obsolete executable launcher/proxy copies.
 
 **LIFECYCLE-6 — Complete legacy independence.** Once the repository installation is accepted, remove inventoried legacy launchers, custom binaries, app copies, shims, proxies, obsolete build/code-backup directories and stale references. The final installation must run without them; keeping an old launcher as a hidden dependency is not completion. Keep only the active or intentionally retained repository-generated copies and required private state. Migration may proceed with a known limitation only when that limitation is explicitly accepted, as Android labels were in U15.
 
-Sources: U01–U07, U10, U15 and accepted installation/cleanup defaults. The hold in U04 was superseded by the later relaunches and cleanup decision; it is not a permanent ban on updates.
+Sources: U01–U07, U10, U15, U17–U18 and accepted installation/cleanup defaults. The hold in U04 was superseded by the later relaunches and cleanup decision; it is not a permanent ban on updates.
 
 ## Hosted CI and new Codex versions
 
@@ -130,7 +132,7 @@ Sources: U01–U03 and accepted update-proposal defaults. The current daily sche
 
 ## Message coverage ledger
 
-All times below are September 30, 2026, America/New_York. The full user messages and their question context were reviewed; this is a requirements index, not a public transcript. Automatic environment/Page-context entries add no product behavior. The edited current document request supersedes its earlier wording.
+All times below are September 30, 2026, America/New_York; later follow-ups without an audited timestamp are marked as such. The full user messages and their question context were reviewed; this is a requirements index, not a public transcript. Automatic environment/Page-context entries add no product behavior. The edited original document request supersedes its earlier wording.
 
 | ID / time | User message or reply | Effect on this contract |
 | --- | --- | --- |
@@ -150,5 +152,7 @@ All times below are September 30, 2026, America/New_York. The full user messages
 | U14 · 10:56 | “Done” after reopening Remote Control for the bounded diagnostic. | Evidence that the requested diagnostic action was performed, not a claim that labels were fixed. |
 | U15 · 10:58 | “Finish migration; document Android limitation.” | Explicitly permits legacy removal with PROJECT-4 unresolved and documented; does not redefine folder labels as correct. |
 | U16 · 11:11 | Create this repo's complete user-visible behavior document from every user message; give it higher authority than every other repo source to prevent regressions. | This contract, its precedence, the coverage ledger and VERIFY-4. |
+| U17 · follow-up | Report that installing the latest build fails with “A prior toolkit deployment is in use” after exiting the app and stopping ChatGPT processes. | LIFECYCLE-3: diagnose actual activation blockers separately from independent users of retained files; actionable process details. |
+| U18 · follow-up | Add an install flag to force close processes considered still running and interfering. | LIFECYCLE-4: explicit `install -ForceClose`, scoped to confirmed activation blockers; preserve normal non-terminating behavior and cleanup protection. |
 
 “Accepted defaults” above refers to the two design responses preceding U02 and U03: a small modular toolkit and one composed app copy, reviewed build support, explicit stock fallback, deliberate preview/backup state repairs, reproducible downloads, deterministic update proposals, and cleanup only after validating independence from old code. Later explicit user decisions override those proposals. Unchosen alternatives and implementation details are not silently promoted into owner requests.

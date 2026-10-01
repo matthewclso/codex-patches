@@ -5,21 +5,112 @@ function Get-ActiveRuntime {
     $json = Invoke-WslPython 'import pathlib,sys;print(pathlib.Path(sys.argv[1]).read_text())' @($install.runtimeConfig)
     return @{active=$active;install=$install;runtime=($json | ConvertFrom-Json)}
 }
-function Test-DeploymentInUse([string]$Deployment) {
-    $processes = @(Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -ne $PID -and (($_.ExecutablePath -and $_.ExecutablePath.StartsWith($Deployment + '\',[StringComparison]::OrdinalIgnoreCase)) -or ($_.CommandLine -and $_.CommandLine.IndexOf($Deployment,[StringComparison]::OrdinalIgnoreCase) -ge 0)) })
-    if ($processes.Count -gt 0) { return $true }
+function Test-WindowsAppServerCommand([string]$CommandLine) {
+    if (-not ('CodexPatches.CommandLine' -as [type])) {
+        Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+namespace CodexPatches {
+    public static class CommandLine {
+        [DllImport("shell32.dll", SetLastError = true)]
+        static extern IntPtr CommandLineToArgvW([MarshalAs(UnmanagedType.LPWStr)] string command, out int count);
+        [DllImport("kernel32.dll")] static extern IntPtr LocalFree(IntPtr memory);
+        public static string[] Split(string command) {
+            int count;
+            IntPtr pointer = CommandLineToArgvW(command, out count);
+            if (pointer == IntPtr.Zero) throw new System.ComponentModel.Win32Exception();
+            try {
+                string[] result = new string[count];
+                for (int i = 0; i < count; i++) result[i] = Marshal.PtrToStringUni(Marshal.ReadIntPtr(pointer, i * IntPtr.Size));
+                return result;
+            } finally { LocalFree(pointer); }
+        }
+    }
+}
+'@
+    }
+    # Only the app-server subcommand is a backend. A review/exec prompt or a
+    # configuration value containing that word must never authorize termination.
+    $arguments = [CodexPatches.CommandLine]::Split($CommandLine)
+    for ($index = 1; $index -lt $arguments.Length; $index++) {
+        $argument = $arguments[$index]
+        if ($argument -cin @('--','--help','-h','--version','-V')) { return $false }
+        if ($argument -cin @('-c','--config','--enable','--disable','--remote','--remote-auth-token-env','-i','--image','-m','--model','--local-provider','-p','--profile','-s','--sandbox','-C','--cd','--add-dir','-a','--ask-for-approval')) { $index++; continue }
+        if ($argument.StartsWith('-')) { continue }
+        if ($argument -cne 'app-server') { return $false }
+        $tail = @($arguments | Select-Object -Skip ($index + 1))
+        return @($tail | Where-Object { $_ -cin @('--help','-h','generate-ts','generate-json-schema','help') }).Count -eq 0
+    }
+    return $false
+}
+function Get-WindowsDeploymentProcesses([string]$Deployment) {
+    $root = [IO.Path]::GetFullPath($Deployment).TrimEnd([char[]]@('\','/'))
+    foreach ($process in Get-CimInstance Win32_Process) {
+        if ($process.ProcessId -eq $PID) { continue }
+        $executableInside = $process.ExecutablePath -and $process.ExecutablePath.StartsWith($root + '\',[StringComparison]::OrdinalIgnoreCase)
+        $argumentReference = $process.CommandLine -and $process.CommandLine.IndexOf($root,[StringComparison]::OrdinalIgnoreCase) -ge 0
+        if (-not $executableInside -and -not $argumentReference) { continue }
+        $name = $process.Name
+        $activationBlocker = $executableInside -and (
+            $name -ieq 'ChatGPT.exe' -or
+            (($name -ieq 'codex.exe' -or $name -ieq 'codex-patches-proxy.exe') -and $process.CommandLine -and (Test-WindowsAppServerCommand $process.CommandLine))
+        )
+        [pscustomobject]@{platform='Windows';pid=$process.ProcessId;name=$name;activationBlocker=[bool]$activationBlocker;startToken=$process.CreationDate.ToUniversalTime().ToString('yyyyMMddHHmmssffffff')}
+    }
+}
+function Get-DeploymentProcesses([string]$Deployment) {
+    Get-WindowsDeploymentProcesses $Deployment
     $linux = Get-WslPath $Deployment
-    $found = Invoke-WslPython @'
-import os,pathlib,sys
-needle=sys.argv[1].encode();found=False
-for p in pathlib.Path('/proc').iterdir():
- if not p.name.isdigit() or int(p.name)==os.getpid():continue
- try:
-  if needle in (p/'cmdline').read_bytes():found=True;break
- except (PermissionError,FileNotFoundError,ProcessLookupError):pass
-print(int(found))
-'@ @($linux)
-    return $found -eq '1'
+    $code = [IO.File]::ReadAllText((Join-Path $PSScriptRoot '..\tools\deployment-processes.py'),[Text.Encoding]::UTF8)
+    $records = ConvertFrom-Json -InputObject (Invoke-WslPython $code @($linux))
+    foreach ($record in $records) { $record }
+}
+function Test-DeploymentInUse([string]$Deployment) {
+    # Cleanup/uninstall must retain copies used by ANY tools or path consumers.
+    return @(Get-DeploymentProcesses $Deployment).Count -gt 0
+}
+function Stop-DeploymentBlockers([string]$Deployment,[object[]]$Blockers) {
+    foreach ($record in $Blockers | Where-Object { $_.platform -eq 'Windows' }) {
+        $current = @(Get-WindowsDeploymentProcesses $Deployment | Where-Object { $_.pid -eq $record.pid -and $_.activationBlocker -and $_.startToken -eq $record.startToken })
+        if ($current.Count -eq 0) { continue }
+        $process = $null
+        try {
+            try { $process = [Diagnostics.Process]::GetProcessById($record.pid); [void]$process.Handle }
+            catch [ArgumentException] { continue }
+            if ($process.HasExited -or $process.StartTime.ToUniversalTime().ToString('yyyyMMddHHmmssffffff') -ne $record.startToken) { continue }
+            Write-Host "ForceClose: stopping Windows $($record.name) (PID $($record.pid))."
+            $process.Kill()
+            if (-not $process.WaitForExit(5000)) { throw 'A blocking Windows process did not exit.' }
+        } catch [ComponentModel.Win32Exception] {
+            # Closing the parent app may already have ended this child between
+            # the snapshot and handle acquisition. Do not hide access failures.
+            if (-not (Get-Process -Id $record.pid -ErrorAction SilentlyContinue)) { continue }
+            throw
+        } catch [InvalidOperationException] {
+            if ($process -and $process.HasExited) { continue }
+            throw
+        } finally { if ($process) { $process.Dispose() } }
+    }
+    $linux = @($Blockers | Where-Object { $_.platform -eq 'WSL' })
+    if ($linux.Count -gt 0) {
+        $code = [IO.File]::ReadAllText((Join-Path $PSScriptRoot '..\tools\deployment-processes.py'),[Text.Encoding]::UTF8)
+        $snapshot = ConvertTo-Json -InputObject $linux -Compress
+        $stopped = ConvertFrom-Json -InputObject (Invoke-WslPython $code @((Get-WslPath $Deployment),'--terminate',$snapshot))
+        foreach ($record in $stopped) { Write-Host "ForceClose: stopped WSL $($record.name) (PID $($record.pid))." }
+    }
+}
+function Assert-DeploymentCanActivate([string]$Deployment,[string]$PreparedCopy,[switch]$ForceClose) {
+    # Switching the stable pointer does not remove old files. Independent tools
+    # may keep using their immutable copy; only the app/backend blocks activation.
+    $blockers = @(Get-DeploymentProcesses $Deployment | Where-Object { $_.activationBlocker })
+    if ($ForceClose -and $blockers.Count -gt 0) {
+        Stop-DeploymentBlockers $Deployment $blockers
+        $blockers = @(Get-DeploymentProcesses $Deployment | Where-Object { $_.activationBlocker })
+    }
+    if ($blockers.Count -gt 0) {
+        $details = ($blockers | ForEach-Object { "$($_.platform) $($_.name) (PID $($_.pid))" }) -join ', '
+        throw "A prior Codex app or backend is still running: $details. Close that app/backend normally and retry, or explicitly use install -ForceClose. Prepared copy: $PreparedCopy"
+    }
 }
 function Repair-CodexProjects {
     $state = Get-ActiveRuntime

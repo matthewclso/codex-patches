@@ -16,6 +16,12 @@ On Windows 11 with the Ubuntu 26.04 WSL backend, package `26.928.1915.0` passed 
 
 Remote Control in the ChatGPT Android app reconnected and received chats with backend project IDs. Its initialization enabled `experimentalApi`; missing capability negotiation was therefore ruled out for this session. Android continued to display working-folder groups despite correct saved project memberships. This remains a [documented limitation](../patches/project-memberships/README.md), not a passed project-label check. The local migration was completed with that limitation explicitly accepted. These observations do not establish every interactive scenario above, such as installing a new pet or moving a chat between projects through the desktop UI.
 
+## September 30, 2026 installer regression check
+
+For package `26.928.2636.0`, an independent review process referencing an older generated CLI caused the original installer to report that the old deployment was in use after the app had closed. With the activation/cleanup checks separated, normal installation completed and `doctor` passed the package-context Windows-to-WSL startup check while that review process remained running. The old files still qualified for protection from cleanup. This checks LIFECYCLE-3/4/5; it does not establish interactive acceptance of this newer app build.
+
+Disposable Windows and WSL processes verified that normal activation refuses a running prior app/backend without stopping it, while explicit `install -ForceClose` can stop blockers. Tests preserve independent review/exec commands and worker processes, reject stale process identities, and cover a WSL backend ignoring the initial termination signal. A separate Windows PowerShell → WSL fixture exercised detection, explicit termination and rechecking across the actual boundary. No real user app/backend was force-closed for these checks.
+
 ## Browser troubleshooting
 
 An open browser panel does not prove that agents can control it. Follow the installed Browser skill and test navigation through its supported tool. If a chat's working directory was moved or deleted, restore it before refreshing that chat's tools: the backend starts local tool servers in the chat directory, and caches failed startup attempts. A fresh backend session is needed when the failed tool cannot be refreshed.

@@ -132,7 +132,7 @@ print('Existing relay route preserved; capability was not displayed.')
     }
     . (Join-Path $PSScriptRoot 'Maintain.ps1')
     foreach ($oldDirectory in Get-ChildItem -LiteralPath $versions -Directory) {
-        if ($oldDirectory.FullName -ne $deployment -and (Test-DeploymentInUse $oldDirectory.FullName)) { throw "A prior toolkit deployment is in use. Close patched Codex normally and retry installation. Prepared copy: $deployment" }
+        if ($oldDirectory.FullName -ne $deployment) { Assert-DeploymentCanActivate $oldDirectory.FullName $deployment -ForceClose:$ForceClose }
     }
     $linkReport = Invoke-WslPython @'
 import json,os,pathlib,sys

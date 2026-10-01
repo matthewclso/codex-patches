@@ -7,6 +7,7 @@ param(
     [string]$Config,
     [string]$InstallRoot = (Join-Path $env:USERPROFILE '.codex-patches'),
     [switch]$NoShortcut,
+    [switch]$ForceClose,
     [switch]$Apply,
     [string]$ImportRelayState,
     [string]$LegacyRoot = (Join-Path $env:USERPROFILE '.codex-wsl-launcher'),
@@ -15,6 +16,7 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+if ($ForceClose -and $Command -ne 'install') { throw '-ForceClose is available only with install.' }
 . (Join-Path $PSScriptRoot 'scripts\Common.ps1')
 switch ($Command) {
     'inspect' { $package = Get-CodexPackage; $selectionPath = Get-SelectionPath $Config $InstallRoot; Invoke-Native (Get-CodexNode $package) @((Join-Path $PSScriptRoot 'bin\toolkit.cjs'),'inspect',"--source=$(Join-Path $package.InstallLocation 'app')","--config=$selectionPath") | Write-Host }
