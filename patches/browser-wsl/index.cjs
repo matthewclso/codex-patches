@@ -9,3 +9,13 @@ module.exports = {
   sourceSha256: 'f17abe823ba920bf3e34dc41a88d0327d27dc3ae6ac80209c87984f0d525523d',
   apply: (source, replace) => replace(source, before, after), before, after, sourceType: 'module',
 };
+
+const currentBefore = before.replace("function xBr(", "function KBr(");
+const currentAfter = currentBefore.replace('o?`wsl-disabled`:`available`', '`available`');
+
+module.exports.revisions = [{
+  targetPath: 'webview/assets/app-shared-ac32c0d1413b.js',
+  sourceSha256: '08289e5e6a31013f044a61a0e856b68ee234b764a8b5a1f5e06bbeeb7a02f476',
+  before: currentBefore, after: currentAfter,
+  apply: (source, replace) => replace(source, currentBefore, currentAfter),
+}];

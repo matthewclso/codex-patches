@@ -16,9 +16,11 @@ function between(source, start, end) {
 
 async function auditGraphql(asarPath, { wslDistro, windowsNode } = {}) {
   const source = readEntry(parseArchive(fs.readFileSync(asarPath)), ".vite/build/worker.js").toString();
-  const quotes = between(source, "function sQ(", "var ube=");
-  const execute = between(source, "async function ije(", "function aje(");
-  const wrap = between(source, "function _xe(", "function yxe(");
+  const workerHash = crypto.createHash('sha256').update(source).digest('hex');
+  const currentSource = workerHash === '23cb6abfcfe706cb571b80140a65b04b9a6a0a66b741439afde3d9e6cddf92d3';
+  const quotes = between(source, "function sQ(", currentSource ? "var dbe=" : "var ube=");
+  const execute = between(source, currentSource ? "async function aje(" : "async function ije(", currentSource ? "function oje(" : "function aje(");
+  const wrap = between(source, "function _xe(", currentSource ? "function bxe(" : "function yxe(");
   const wslArgs = between(source, "function yU(", "function bU(");
   const shell = source.match(/pU=`([^`]+)`/)?.[1];
   if (!shell?.startsWith("/")) throw new Error("WSL shell boundary changed");
@@ -30,11 +32,11 @@ async function auditGraphql(asarPath, { wslDistro, windowsNode } = {}) {
   // Resolve the disposable fake gh in both login shells. The old variable
   // guard is deliberately absent, even if this audit runs from a patched app.
   fs.writeFileSync(hook, `export PATH=${JSON.stringify(bin)}:$PATH\nunset searchQuery first after owner repo number search threadId body\n`);
-  const context = { rje: { GIT_TERMINAL_PROMPT: "0", GH_PROMPT_DISABLED: "1" },
+  const context = { [currentSource ? "ije" : "rje"]: { GIT_TERMINAL_PROMPT: "0", GH_PROMPT_DISABLED: "1" },
     tF: () => true, QP: () => null, oU: value => value, fP: async value => value,
-    yxe: () => false, pU: shell, process: { cwd: () => directory, env: {} } };
+    [currentSource ? "bxe" : "yxe"]: () => false, pU: shell, process: { cwd: () => directory, env: {} } };
   vm.createContext(context);
-  vm.runInContext(quotes + execute + wrap + wslArgs + ";globalThis.auditExec=ije;globalThis.auditWrap=vxe;globalThis.auditWsl=yU;", context);
+  vm.runInContext(quotes + execute + wrap + wslArgs + (currentSource ? ";globalThis.auditExec=aje;globalThis.auditWrap=yxe;" : ";globalThis.auditExec=ije;globalThis.auditWrap=vxe;") + "globalThis.auditWsl=yU;", context);
   const query = "query($searchQuery:String!,$first:Int,$after:String){ search(query:$searchQuery,first:$first,after:$after,type:ISSUE){issueCount} }";
   const args = ["api", "graphql", "-f", `query=${query}`, "-f", "searchQuery=fixture's query"];
   let captured;

@@ -84,3 +84,31 @@ test('modules sharing a target validate independent hashes before deterministic 
     assert.throws(() => transformArchive(original, [browser.id, memberships.id]), /Reviewed patch output hash mismatch: project-memberships/);
   } finally { compatibility.builds.splice(compatibility.builds.indexOf(build), 1); }
 });
+test('reviewed source revisions select their own implementation while unknown revisions remain audit-only', () => {
+  const patch = require('../patches/browser-service-path/index.cjs');
+  const { patchForSource } = require('../lib/app-patches.cjs');
+  const source = Buffer.from('const updatedService = false;');
+  const sourceSha256 = asar.sha256(source);
+  const revision = { targetPath: 'module.js', sourceSha256, apply: (text, replace) => replace(text, 'false', 'true') };
+  const original = asar.serializeArchive({ files: { 'module.js': { offset: '0', size: source.length, integrity: { algorithm: 'SHA256', hash: sourceSha256, blockSize: source.length, blocks: [sourceSha256] } } } }, source);
+  patch.revisions.push(revision);
+  const build = { archiveSha256: asar.sha256(original), headerSha256: asar.headerHash(original), patches: { [patch.id]: {
+    status: 'needed', targetPath: revision.targetPath, sourceSha256, outputSha256: asar.sha256(Buffer.from('const updatedService = true;')),
+  } } };
+  try {
+    assert.equal(patchForSource(patch.id, sourceSha256).apply, revision.apply);
+    assert.equal(patchForSource(patch.id, patch.sourceSha256).apply, patch.apply);
+    const audit = auditArchive(original, [patch.id]);
+    assert(audit.buffer); assert.equal(audit.report.supported, false); assert.equal(audit.report.reviewRequired, true);
+    assert.throws(() => transformArchive(original, [patch.id]), /Unsupported Codex archive/);
+    compatibility.builds.push(build);
+    const transformed = transformArchive(original, [patch.id]);
+    assert.equal(asar.readEntry(asar.parseArchive(transformed.buffer), 'module.js').toString(), 'const updatedService = true;');
+    build.patches[patch.id].outputSha256 = '0'.repeat(64);
+    assert.throws(() => transformArchive(original, [patch.id]), /Reviewed patch output hash mismatch/);
+  } finally {
+    patch.revisions.splice(patch.revisions.indexOf(revision), 1);
+    const index = compatibility.builds.indexOf(build);
+    if (index >= 0) compatibility.builds.splice(index, 1);
+  }
+});

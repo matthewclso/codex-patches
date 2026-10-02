@@ -22,6 +22,16 @@ For package `26.928.2636.0`, an independent review process referencing an older 
 
 Disposable Windows and WSL processes verified that normal activation refuses a running prior app/backend without stopping it, while explicit `install -ForceClose` can stop blockers. Tests preserve independent review/exec commands and worker processes, reject stale process identities, and cover a WSL backend ignoring the initial termination signal. A separate Windows PowerShell → WSL fixture exercised detection, explicit termination and rechecking across the actual boundary. No real user app/backend was force-closed for these checks.
 
+## October 2, 2026 compatibility review
+
+Package `26.930.2377.0` (app `26.930.21537`, bundled CLI `0.159.0-alpha.12.1`) was checked against the installed signed stock files. Its archive and six executable/runtime hashes match the signed candidate captured by PR #2. The allowlist now records those source hashes, independent patch output hashes and the composed default archive/header/executable hashes. The original candidate remains an historical proposal; [the reviewed evidence](../compatibility/reviews/26.930.2377.0.json) records the later validation.
+
+Actual-source tests reproduce the stock WSL pet path failure and verify discovery, selection and installation with the patch. All 256 browser prerequisite cases, 90 trusted-service generator cases, native project assignment scenarios and all 16 app-patch combinations pass. The executable changes only its ASAR header hash, and unrelated packed entries remain unchanged. Source-specific revisions preserve the prior implementations and unknown archives still fail closed.
+
+The bundled stock CLI was exercised in Ubuntu 26.04 under WSL2 with temporary homes/databases and loopback enrollment services. The WSL UNC project-root and unfiltered Remote Control listing regressions remain present; their proxy/relay tests pass, including native pairing reuse, filtering, pagination, reconnect and owned-child cleanup. Stock GraphQL variables and apostrophes survive the actual Windows Node → `wsl.exe` boundary, so the GraphQL workaround remains retired. Windows and WSL toolkit suites pass; platform-specific skips are recorded separately.
+
+This review did not install or activate a generated app or relaunch the desktop. Interactive pet rendering/installation, agent browser control after relaunch, and real-phone reconnect/project labels remain pending for this build. The accepted Android project-label limitation remains in effect. Project memberships remain disabled by default. Initial parallel WSL checks exhausted available memory and hit startup timeouts; the separated runs passed.
+
 ## Browser troubleshooting
 
 An open browser panel does not prove that agents can control it. Follow the installed Browser skill and test navigation through its supported tool. If a chat's working directory was moved or deleted, restore it before refreshing that chat's tools: the backend starts local tool servers in the chat directory, and caches failed startup attempts. A fresh backend session is needed when the failed tool cannot be refreshed.
