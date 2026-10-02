@@ -17,3 +17,13 @@ module.exports = {
   sourceSha256: '3e36ecd7908d2b39dfbd57e223fe798c159ea7fda67c9fbe3e4822fae1b9be98',
   apply, replacements, helper, sourceType: 'commonjs',
 };
+
+module.exports.revisions = [{
+  targetPath: '.vite/build/bootstrap-CYu4H4X5.js',
+  sourceSha256: '9b9d3c9e8312dba970daf31fd3950b3f2bd760a89e1d7bf480c4efefb3d2b102',
+  apply(source, replace) {
+    assert(!source.includes('codexPetHome'), 'Pet helper is already present or collides');
+    for (const [before, after] of replacements) source = replace(source, before, after);
+    return replace(source, 'async function lB(', helper + 'async function lB(');
+  },
+}];

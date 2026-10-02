@@ -157,6 +157,81 @@
           }
         }
       }
+    },
+    {
+      "packageVersion": "26.930.2377.0",
+      "appVersion": "26.930.21537",
+      "cliVersion": "0.159.0-alpha.12.1",
+      "archiveSha256": "7a65bbbdf265aaa130a6670f1d310e7113646f9b86b2e9602e82fee400a92856",
+      "executableSha256": "27d4a13c2557cfb9b5d3360b0977828103b774b87295198abc7b901d4c223325",
+      "cliLinuxSha256": "7465b9e51a12eaf965afcdd13c57ee95bc1ba2846152ff3143869d751ebfe45b",
+      "cliWindowsSha256": "1722907aa64401bcc9b34467ef5c2af43f6aef9a5045ef04d11d19dfae4589fb",
+      "codeModeLinuxSha256": "fe3ae395e89eedce6aa5b695b200be79c41da3831571fe6330541c97a4ce078a",
+      "codeModeWindowsSha256": "a2bebbeaa20b5c997ae4de8dbe4c628d940e0e620088a0b86a3616a6d2c76a2b",
+      "nodeWindowsSha256": "1a1eace082f4c78a5cc38ad4ce233b0d715397a4f9256bb474e5be71ae874861",
+      "headerSha256": "cc672940d88b7bf98e0b72497cbe2389330b3832f0cb49536ef23041e21a33e3",
+      "executableRelativePath": "ChatGPT.exe",
+      "auditedAt": "2026-10-02",
+      "acceptance": "source-behavior and native WSL2 protocol verified; full desktop and real-phone acceptance pending",
+      "patches": {
+        "custom-pets": {
+          "status": "needed",
+          "targetPath": ".vite/build/bootstrap-CYu4H4X5.js",
+          "sourceSha256": "9b9d3c9e8312dba970daf31fd3950b3f2bd760a89e1d7bf480c4efefb3d2b102",
+          "outputSha256": "2abd03282a714f422d8a1a8c5977c0a5bb5162fa5080ada73b1fa3fc31cdc8ee",
+          "evidence": "Stock pet loader still joins a Windows home using POSIX paths. Actual-source tests verify patched discovery, selection and installation, POSIX/native Windows/WSL UNC homes, and traversal rejection. PET-1/2."
+        },
+        "browser-wsl": {
+          "status": "needed",
+          "targetPath": "webview/assets/app-shared-ac32c0d1413b.js",
+          "sourceSha256": "08289e5e6a31013f044a61a0e856b68ee234b764a8b5a1f5e06bbeeb7a02f476",
+          "outputSha256": "b6e1cdd7968967bd8b6e20bc7a7657cfbde66ef2c0842c5343a57ae20b321720",
+          "evidence": "Stock KBr in-app gate still rejects WSL. All 256 prerequisite combinations change only its WSL rejection; external-browser predicate remains unchanged. BROWSER-1."
+        },
+        "browser-service-path": {
+          "status": "needed",
+          "targetPath": ".vite/build/main-Dn18kdv3.js",
+          "sourceSha256": "447e4900075d8cb41f5c55f1728c20147ea23ab761bb4377348eea8c8f3d4a48",
+          "outputSha256": "705acafd739d2fe9358e389edc373c698e93de0f590760ded4458fb5d69e5346",
+          "evidence": "Stock rc generator registers a POSIX browser-service path for a Windows worker. Across 90 cases, the patch uses the existing native converter only with WSL paths on win32 and preserves every other generated field. BROWSER-3."
+        },
+        "project-memberships": {
+          "status": "needed",
+          "targetPath": ".vite/build/main-Dn18kdv3.js",
+          "sourceSha256": "447e4900075d8cb41f5c55f1728c20147ea23ab761bb4377348eea8c8f3d4a48",
+          "outputSha256": "f85338bd09c6bfc6d1851e79fff7627c549dc34832c5c2fda452167c4972ed16",
+          "evidence": "Native membership gate remains separately controlled by localProjectTaskMembership. Actual-source tests cover explicit migration, shared cwd, new assignments, moves, clearing and backend/host guards; stock CLI tests persist initial/moved/cleared IDs. Android display acceptance remains pending. PROJECT-2/3/4.",
+          "defaultMode": "disabled",
+          "nativeSynchronizerSha256": "6129c13565d6462712e069513533aac345674172590babb77d9c9d4346d3a30a"
+        }
+      },
+      "verifiedPackedEntries": 20676,
+      "composedApp": {
+        "selectedIds": [
+          "custom-pets",
+          "browser-wsl",
+          "browser-service-path"
+        ],
+        "archiveSha256": "5f823a979896c63515ffbbde5dc2cb1a051ef3c269b28cd2ba4549192288e3d3",
+        "headerSha256": "8cbe5c0763b5ff27f49bd242ca4ab8662c02f60a04a04a797bf3e173855132ec",
+        "executableSha256": "7c5e9c5aabd8f3089beb5ee5e0ac20bc55ac476d50462a1c89fff9a9dd897934"
+      },
+      "runtimePatches": {
+        "wsl-project-paths": {
+          "status": "needed",
+          "evidence": "Bundled stock CLI 0.159.0-alpha.12.1 rejects matching WSL UNC project/create roots. Proxy plus relay returns canonical POSIX roots in isolated home/database; EOF and SIGTERM release owned children and relay port. PATH-1/2."
+        },
+        "remote-fast-list": {
+          "status": "needed",
+          "evidence": "Bundled stock CLI 0.159.0-alpha.12.1 returns project-filtered SQLite witnesses but omits both witnesses from unfiltered native Remote Control requests with false or omitted useStateDbOnly. Relay returns both while preserving filters, pagination, pairing reuse and cursor reconnect. REMOTE-1/2/3; real-phone acceptance pending.",
+          "nativeMockWitnesses": {
+            "stateDbWitnesses": 2,
+            "stockProjectFiltered": 1,
+            "stockUnfiltered": 0,
+            "relayedUnfiltered": 2
+          }
+        }
+      }
     }
   ],
   "retired": [
@@ -173,16 +248,18 @@
     {
       "id": "graphql-shell",
       "status": "fixed",
-      "reason": "Both supported stock workers preserve GraphQL variables and apostrophe-bearing fixture arguments through exact GitHub/WSL generator functions, Windows Node and wsl.exe, without BASH_ENV guards. No external request was sent.",
+      "reason": "Reviewed stock workers preserve GraphQL variables and apostrophe-bearing fixture arguments through exact GitHub/WSL generator functions, Windows Node and wsl.exe, without variable guards. No external request was sent.",
       "sourceFile": ".vite/build/worker.js",
       "sourceSha256": "99d12495c2a50e2a55b888ff0a5785563480614b345455ef56e1b100b5df7490",
       "verifiedPackageVersions": [
         "26.928.1915.0",
-        "26.928.2636.0"
+        "26.928.2636.0",
+        "26.930.2377.0"
       ],
       "sourceSha256ByPackageVersion": {
         "26.928.1915.0": "99d12495c2a50e2a55b888ff0a5785563480614b345455ef56e1b100b5df7490",
-        "26.928.2636.0": "355dd7dbc03aa6b1ae32fee2a6a35b66d8b0a096f7d4e068888706cf2c65b1b1"
+        "26.928.2636.0": "355dd7dbc03aa6b1ae32fee2a6a35b66d8b0a096f7d4e068888706cf2c65b1b1",
+        "26.930.2377.0": "23cb6abfcfe706cb571b80140a65b04b9a6a0a66b741439afde3d9e6cddf92d3"
       }
     },
     {
@@ -191,7 +268,8 @@
       "reason": "The composed custom-pets module converts canonical Windows home to POSIX after choosing backend path semantics. The proxy supplies canonical POSIX CODEX_HOME to Linux. Historical pet-specific junctions are excluded; full desktop startup remains separate acceptance.",
       "verifiedPackageVersions": [
         "26.928.1915.0",
-        "26.928.2636.0"
+        "26.928.2636.0",
+        "26.930.2377.0"
       ]
     }
   ]

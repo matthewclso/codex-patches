@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "26.930.2377.0",
+  "appVersion": "26.930.21537",
+  "cliVersion": "0.159.0-alpha.12.1",
+  "reviewedAt": "2026-10-02",
+  "status": "automated-validation-passed; interactive-acceptance-pending",
+  "candidate": "compatibility/candidates/26.930.2377.0-7a65bbbdf265.json",
+  "packageVerification": {
+    "runtimeHashesMatched": 7,
+    "archiveSha256": "7a65bbbdf265aaa130a6670f1d310e7113646f9b86b2e9602e82fee400a92856",
+    "signedCandidateMsixSha256": "4c70df5417fcee1f004a1356f6d48f6b084abdcf1da349e154a7f593f2360b19",
+    "installedExecutableSignature": "valid",
+    "installedExecutablePublisher": "OpenAI OpCo, LLC",
+    "verifiedPackedEntries": 20676,
+    "note": "Installed app/runtime bytes match the signed candidate. The original MSIX signature evidence comes from that candidate; the installed executable signature was rechecked."
+  },
+  "checks": [
+    {
+      "name": "stock-and-patched-source-functions",
+      "status": "passed",
+      "cases": {
+        "petPaths": "discovery, selection, installation and traversal guards with Windows/POSIX/WSL UNC homes",
+        "browserPrerequisites": 256,
+        "trustedServicePaths": 90,
+        "projectMemberships": "migration, new assignments, shared cwd, moves, clearing and backend/host guards"
+      }
+    },
+    {
+      "name": "unknown-candidate-source-suite",
+      "status": "passed",
+      "tests": 6,
+      "installationOfUnknownArchive": "rejected"
+    },
+    {
+      "name": "reviewed-source-suite-on-Windows",
+      "status": "passed",
+      "tests": 6,
+      "appPatchCombinations": 16,
+      "command": "CODEX_SOURCE_ASAR=<pristine app.asar> CODEX_SOURCE_EXE=<stock executable> node --test tests/app-patches-source.cjs"
+    },
+    {
+      "name": "Windows-toolkit-and-CI-tests",
+      "status": "passed",
+      "tests": 75,
+      "passed": 54,
+      "skipped": 21,
+      "failed": 0,
+      "command": "CODEX_PATCHES_PYTHON=<Windows Python> node --test --test-concurrency=1 tests/*.cjs scripts/ci/*.test.cjs",
+      "skipScope": "WSL-only tests and separately executed source/GraphQL tests"
+    },
+    {
+      "name": "Ubuntu-26.04-WSL2-toolkit-and-CI-tests",
+      "status": "passed",
+      "tests": 75,
+      "passed": 55,
+      "skipped": 20,
+      "failed": 0,
+      "command": "CODEX_RELAY_TEST_BINARY=<stock bundled Linux CLI> node --test --test-concurrency=1 tests/*.cjs scripts/ci/*.test.cjs",
+      "skipScope": "Windows-only tests and separately executed source/GraphQL tests"
+    },
+    {
+      "name": "stock-GraphQL-Windows-Node-to-wsl.exe",
+      "status": "passed",
+      "sourceFile": ".vite/build/worker.js",
+      "workerSha256": "23cb6abfcfe706cb571b80140a65b04b9a6a0a66b741439afde3d9e6cddf92d3",
+      "stockQueryVariablesPreserved": true,
+      "doubleShell": true,
+      "wslExecutableExercised": true,
+      "externalRequests": 0,
+      "command": "node tools/audit-graphql.cjs <pristine app.asar> <discovered WSL distribution> <Windows Node executable>"
+    },
+    {
+      "name": "CLI-inspect-after-allowlist",
+      "status": "passed",
+      "supported": true,
+      "defaultSelection": [
+        "custom-pets",
+        "browser-wsl",
+        "browser-service-path",
+        "wsl-project-paths",
+        "remote-fast-list"
+      ],
+      "projectMembershipDefault": "disabled"
+    }
+  ],
+  "patchStatus": {
+    "custom-pets": "needed",
+    "browser-wsl": "needed",
+    "browser-service-path": "needed",
+    "project-memberships": "needed",
+    "wsl-project-paths": "needed",
+    "remote-fast-list": "needed",
+    "graphql-shell": "fixed; workaround remains retired"
+  },
+  "pendingAcceptance": [
+    "Desktop relaunch/package-context startup of generated copy",
+    "Interactive pet rendering, selection and installation",
+    "Agent browser inspection, interaction and navigation after relaunch",
+    "Real-phone Remote Control reconnect and project labels"
+  ],
+  "limitations": [
+    "Android project-label mismatch remains documented; backend IDs do not establish phone display acceptance.",
+    "Initial parallel WSL run exhausted available memory and hit startup timeouts. Separated reruns passed.",
+    "Running app and saved patch configuration were not changed."
+  ]
+}

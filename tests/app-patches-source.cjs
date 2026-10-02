@@ -11,10 +11,10 @@ const { Readable } = require('node:stream');
 const { spawnSync } = require('node:child_process');
 const asar = require('../lib/asar.cjs');
 const app = require('../lib/app-patches.cjs');
-const petPatch = require('../patches/custom-pets/index.cjs');
-const browserPatch = require('../patches/browser-wsl/index.cjs');
-const servicePatch = require('../patches/browser-service-path/index.cjs');
-const membershipPatch = require('../patches/project-memberships/index.cjs');
+let petPatch = require('../patches/custom-pets/index.cjs');
+let browserPatch = require('../patches/browser-wsl/index.cjs');
+let servicePatch = require('../patches/browser-service-path/index.cjs');
+let membershipPatch = require('../patches/project-memberships/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
 const auditUnknown = process.env.CODEX_AUDIT_UNKNOWN === '1';
 function compose(bytes, selected) {
@@ -27,10 +27,20 @@ function compose(bytes, selected) {
   }
   return { ...result, changes: result.report.changes, build: result.report.build };
 }
-let original, archive, sourcePlan;
+let original, archive, sourcePlan, currentSource;
+
 function modulePath(patch) { return sourcePlan.patches.find(p => p.id === patch.id).targetPath; }
 function packed(name) { return asar.readEntry(archive, name).toString('utf8'); }
-function setup() { if (!original) { original = fs.readFileSync(sourcePath); archive = asar.parseArchive(original); sourcePlan = app.inspectArchive(original, app.listPatches().map(p => p.id), { allowUnknownForAudit: true }); } }
+function setup() {
+  if (original) return;
+  original = fs.readFileSync(sourcePath);
+  archive = asar.parseArchive(original);
+  sourcePlan = app.inspectArchive(original, app.listPatches().map(p => p.id), { allowUnknownForAudit: true });
+  // Fixture names are selected only for the exact reviewed source archive.
+  currentSource = sourcePlan.sourceArchiveHash === '7a65bbbdf265aaa130a6670f1d310e7113646f9b86b2e9602e82fee400a92856';
+  [petPatch, browserPatch, servicePatch, membershipPatch] = [petPatch, browserPatch, servicePatch, membershipPatch].map(p =>
+    app.patchForSource(p.id, sourcePlan.patches.find(row => row.id === p.id).sourceHash));
+}
 function between(source, first, last) {
   const start = source.indexOf(first), end = source.indexOf(last, start + first.length);
   assert(start >= 0 && end > start, 'Missing source boundaries: ' + first);
@@ -45,14 +55,15 @@ function packedRequire(name, cache = new Map()) {
   return module.exports;
 }
 function pathHelpers() {
-  const network = packed('.vite/build/application-network-startup-D74LEWDz.js');
+  const network = packed(currentSource ? '.vite/build/application-network-startup-DN7Ktmlk.js' : '.vite/build/application-network-startup-D74LEWDz.js');
+  if (currentSource) return between(network, 'function pe(', 'var ve=class') + between(network, 'function yr(', 'function br(');
   return between(network, 'function fe(', 'var _e=class') + between(network, 'function vr(', 'function yr(');
 }
 async function petCase(loader, home, unix) {
-  const o = { rt: () => home }, sandbox = { Buffer, Response, n: packedRequire('.vite/build/zod-ClKgiFhi.js'), o, Vn: () => 'Ubuntu', eB: { default: () => 'probe-pet' } };
+  const o = { rt: () => home }, sandbox = { Buffer, Response, n: packedRequire('.vite/build/zod-ClKgiFhi.js'), o, Vn: () => 'Ubuntu', [currentSource ? 'rB' : 'eB']: { default: () => 'probe-pet' } };
   vm.createContext(sandbox);
-  const bootstrap = packed(modulePath(petPatch)), fsUtils = 'let ' + between(bootstrap, 'W={async readFile(', 'async function $a(');
-  vm.runInContext(pathHelpers() + ';Object.assign(o,{zt:ge});' + fsUtils + loader + ';globalThis.api={load:oB,loadAvatar:sB,install:lB};', sandbox);
+  const bootstrap = packed(modulePath(petPatch)), fsUtils = 'let ' + between(bootstrap, 'W={async readFile(', currentSource ? 'async function qa(' : 'async function $a(');
+  vm.runInContext(pathHelpers() + ';Object.assign(o,{zt:' + (currentSource ? '_e' : 'ge') + '});' + fsUtils + loader + ';globalThis.api=' + (currentSource ? '{load:lB,loadAvatar:uB,install:fB}' : '{load:oB,loadAvatar:sB,install:lB}') + ';', sandbox);
   const platform = unix ? path.posix : path.win32, normalizedHome = unix ? o.zt(home) : home, petRoot = platform.join(normalizedHome, 'pets'), legacyRoot = platform.join(normalizedHome, 'avatars');
   // Minimal valid PNG header for the actual stock dimension checker.
   const image = Buffer.alloc(24); Buffer.from([137,80,78,71,13,10,26,10]).copy(image); image.write('IHDR', 12); image.writeUInt32BE(1536, 16); image.writeUInt32BE(2288, 20);
@@ -83,7 +94,7 @@ async function petCase(loader, home, unix) {
   return { ids, installCalls, expectedInstall: [ ['mkdir', petRoot], ['mkdir', platform.join(petRoot, 'probe-pet')], ['write', platform.join(petRoot, 'probe-pet', 'spritesheet.png')], ['write', platform.join(petRoot, 'probe-pet', 'pet.json')] ] };
 }
 sourceTest('actual pet loader: stock fails Windows home under POSIX; patch fixes all three paths and retains traversal checks', async () => {
-  const bootstrap = packed(modulePath(petPatch)), loader = 'let ' + between(bootstrap, 'tB=1536,', 'function vB('), patched = petPatch.apply(loader, app.replaceExactlyOnce);
+  const bootstrap = packed(modulePath(petPatch)), loader = 'let ' + between(bootstrap, currentSource ? 'iB=1536,' : 'tB=1536,', currentSource ? 'function xB(' : 'function vB('), patched = petPatch.apply(loader, app.replaceExactlyOnce);
   const windows = 'D:\\Profiles\\Example User\\.codex';
   const stock = await petCase(loader, windows, true);
   assert.deepEqual(stock.ids, []); assert.notDeepEqual(stock.installCalls, stock.expectedInstall);
@@ -105,17 +116,18 @@ sourceTest('actual in-app eligibility preserves all prerequisites across 256 cas
     if (before !== after) { changed++; assert.equal(before, 'wsl-disabled'); assert.equal(after, 'available'); assert.equal(options.runCodexInWsl, true); }
   }
   assert(changed > 0);
-  const external = between(source, 'function _Br(', 'var vBr;');
+  const external = between(source, currentSource ? 'function HBr(' : 'function _Br(', currentSource ? 'var UBr;' : 'var vBr;');
   assert(patched.includes(external), 'External browser gate changed');
 });
 function generator(source, platform, useWsl, servicePath, backends) {
-  const fn = between(source, 'function cc(', 'function lc('), native = vm.runInNewContext(pathHelpers() + ';vr');
+  const fn = between(source, currentSource ? 'function rc(' : 'function cc(', currentSource ? 'function ic(' : 'function lc('), native = vm.runInNewContext(pathHelpers() + (currentSource ? ';yr' : ';vr'));
   const sandbox = {
     tc: { info: () => {}, warning: () => {} }, r: { Jo: () => true, Vt: () => servicePath.slice(0, -'/scripts/browser-service.mjs'.length), yo: 'browser', Bo: 'request', Wo: 'trusted-services', Go: options => options },
     o: { st: native, zt: value => value }, d: { t: { Dev: 'dev', resolve: () => 'release', isInternal: () => false } }, P: { default: { env: {} } },
     uc: value => value, lc: () => ({}), nc: {}, rc: {}, ha: () => ({}),
     Ui: 'trace', In: 'backends', Ln: 'tinysky', Vi: 'iab-origin', Hi: 'chrome-origin', da: 'sky-origin', Lee: 'flavor', Ree: 'version', ic: 'iab', ac: 'chrome', oc: 'sky', pa: 'sky-pipe', $s: 'host-pipe',
   };
+  if (currentSource) Object.assign(sandbox, { Xs: sandbox.tc, r: { Zo: () => true, Ut: () => servicePath.slice(0, -'/scripts/browser-service.mjs'.length), So: 'browser', Uo: 'request', qo: 'trusted-services', Jo: options => options }, ac: () => '', ic: () => ({}), Zs: [], Qs: [], Wi: 'trace', Gn: 'backends', Kn: 'tinysky', Hi: 'iab-origin', Ui: 'chrome-origin', xa: 'sky-origin', Dee: 'flavor', Oee: 'version', $s: 'iab', ec: 'chrome', tc: 'sky', Da: () => ({}) });
   const code = vm.runInNewContext('(' + fn + ')', sandbox);
   return code({ appVersion: 'version', codexHome: 'home', marketplaceName: 'market', availableBrowserUseBackends: backends, browserUseTinysky: false, computerUse: false, enforceModelCheck: true, computerUseNativePipePath: null, computerUsePaths: {}, hostServicesPipePath: null, includePrivateProcessEnv: false, runtimePaths: { platform, nodePath: 'node', nodeReplPath: 'repl', codexCliPath: 'cli', nodeModuleDirs: [] }, shouldUseWslPaths: useWsl });
 }
@@ -125,7 +137,7 @@ sourceTest('actual trusted-service generator fixes native Windows mount paths on
   for (const platform of ['win32', 'linux', 'darwin']) for (const useWsl of [false, true]) for (const root of ['/mnt/c/Profile User/.codex', '/mnt/d/Other/.codex', 'C:\\Profile User\\.codex', '/home/user/.codex', '\\\\wsl.localhost\\Ubuntu\\home\\user\\.codex']) for (const backends of [[], ['iab'], ['chrome']]) {
     const servicePath = root + '/scripts/browser-service.mjs', before = generator(source, platform, useWsl, servicePath, backends), after = generator(patched, platform, useWsl, servicePath, backends); cases++;
     const beforeServices = before.extraEnv['trusted-services'], afterServices = after.extraEnv['trusted-services'];
-    if (beforeServices !== afterServices) { changed++; assert.equal(platform, 'win32'); assert.equal(useWsl, true); assert(backends.length > 0); assert.equal(JSON.parse(afterServices).browser, vm.runInNewContext(pathHelpers() + ';vr')(servicePath, null)); }
+    if (beforeServices !== afterServices) { changed++; assert.equal(platform, 'win32'); assert.equal(useWsl, true); assert(backends.length > 0); assert.equal(JSON.parse(afterServices).browser, vm.runInNewContext(pathHelpers() + (currentSource ? ';yr' : ';vr'))(servicePath, null)); }
     after.extraEnv['trusted-services'] = beforeServices;
     assert.deepEqual(JSON.parse(JSON.stringify(after)), JSON.parse(JSON.stringify(before)), 'Unrelated generator option changed');
   }
@@ -135,10 +147,10 @@ sourceTest('actual trusted-service generator fixes native Windows mount paths on
 });
 sourceTest('actual native membership synchronizer migrates and persists explicit projects for new chats, moves and clearing', async () => {
   const source = packed(modulePath(membershipPatch)), patched = membershipPatch.apply(source, app.replaceExactlyOnce);
-  const gate = text => between(text, 'f=()=>{u.setThreadAssignmentsEnabled(', '};f(),this.disposables.add(ri(f))').slice('f=()=>{'.length);
+  const gate = text => between(text, 'f=()=>{u.setThreadAssignmentsEnabled(', currentSource ? '};f(),this.disposables.add(ii(f))' : '};f(),this.disposables.add(ri(f))').slice('f=()=>{'.length);
   const enable = (text, flag) => {
     let enabled;
-    vm.runInNewContext('(function(u,K){' + gate(text) + '})')({ setThreadAssignmentsEnabled: value => { enabled = value; } }, () => ({ localProjectTaskMembership: flag }));
+    vm.runInNewContext('(function(u,' + (currentSource ? 'q' : 'K') + '){' + gate(text) + '})')({ setThreadAssignmentsEnabled: value => { enabled = value; } }, () => ({ localProjectTaskMembership: flag }));
     return enabled;
   };
   assert.equal(enable(source, false), false); assert.equal(enable(source, true), true);
@@ -158,8 +170,9 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
     Xo: keys, es: id => id, u: ['cli', 'vscode', 'exec', 'mcp', 'unknown'],
     s: (left, right) => JSON.stringify(left ?? null) === JSON.stringify(right ?? null),
   } };
-  const synchronizerSource = between(source, 'pVe=class{', '},mVe=').slice('pVe='.length) + '}';
-  const helpers = between(source, 'async function m3(', 'var h3=');
+  if (currentSource) { context.l4 = 100; context.u4 = 8; context.r.$o = keys; }
+  const synchronizerSource = between(source, currentSource ? 'hBe=class{' : 'pVe=class{', currentSource ? '},gBe=' : '},mVe=').slice(4) + '}';
+  const helpers = between(source, currentSource ? 'async function c4(' : 'async function m3(', currentSource ? 'var l4=' : 'var h3=');
   const Synchronizer = vm.runInNewContext(helpers + '\n(' + synchronizerSource + ')', context);
   const state = { get: key => record[key], set: (key, value) => { record[key] = value; }, update: (key, fn) => { record[key] = fn(record[key]); } };
   const connection = { sendAppServerRequest: async (method, params) => {
@@ -213,7 +226,7 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
   assert.equal(await start.call(backend, { projectKind: 'remote', projectId: 'other' }), null);
   const rendererPath = asar.listEntries(archive.tree).find(entry => /^webview\/assets\/app-initial-[^/]+\.js$/.test(entry.path)).path;
   const creation = vm.runInNewContext('({' + between(packed(rendererPath), 'async readCreationInputs(e,t){', 'async readPrewarmInputs(') + '})', {
-    qc: { threadProjectAssignments: { getThreadStartProjectId: value => start.call(backend, value) } },
+    [currentSource ? 'Se' : 'qc']: { threadProjectAssignments: { getThreadStartProjectId: value => start.call(backend, value) } },
   }).readCreationInputs;
   const runtime = { params: { hostId: 'local' }, readInputs: async () => ({ hasDesktopRuntime: true }) };
   const inputs = { projectAssignment: assignment('legacy-research'), memoryPreferences: { useMemories: false } };
@@ -231,9 +244,18 @@ sourceTest('all valid app-patch combinations are deterministic, source-gated and
     for (const selected of combinations) {
       const result = compose(original, selected), resultAgain = compose(original, selected);
       assert(result.buffer.equals(resultAgain.buffer)); assert.equal(result.changes.length, selected.length);
+      const reviewed = result.build?.composedApp;
+      if (reviewed && JSON.stringify(selected) === JSON.stringify(reviewed.selectedIds)) {
+        assert.equal(result.outputArchiveHash, reviewed.archiveSha256);
+        assert.equal(result.outputHeaderHash, reviewed.headerSha256);
+        if (process.env.CODEX_SOURCE_EXE) {
+          const executable = asar.updateExecutableIntegrity(fs.readFileSync(process.env.CODEX_SOURCE_EXE), result.sourceHeaderHash, result.outputHeaderHash);
+          assert.equal(asar.sha256(executable), reviewed.executableSha256);
+        }
+      }
       for (const change of result.changes) {
         assert.equal(change.sourceHash, asar.sha256(asar.readEntry(archive, change.targetPath)));
-        const patch = require('../patches/' + change.id + '/index.cjs');
+        const patch = app.patchForSource(change.id, change.sourceHash);
         assert.equal(change.standaloneOutputHash, asar.sha256(Buffer.from(patch.apply(packed(change.targetPath), app.replaceExactlyOnce))));
       }
       const output = asar.parseArchive(result.buffer), changedPaths = new Set(result.changes.map(change => change.targetPath));
