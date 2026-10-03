@@ -15,3 +15,10 @@ module.exports.revisions = [{
   after: '{browser:_&&h.platform===`win32`?o.st(b,null):b}',
   apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?o.st(b,null):b}'),
 }];
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/main-C_jM0dPl.js',
+  sourceSha256: 'd940b7ba89557a640cf23967c60555fa2a2344d6899807478c69ffc304314302',
+  before: '{browser:b}', after: '{browser:_&&h.platform===`win32`?o.lt(b,null):b}',
+  apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?o.lt(b,null):b}'),
+});

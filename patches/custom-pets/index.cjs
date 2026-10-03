@@ -27,3 +27,14 @@ module.exports.revisions = [{
     return replace(source, 'async function lB(', helper + 'async function lB(');
   },
 }];
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/bootstrap-CZlEGA2m.js',
+  sourceSha256: '343072f02e604fe06f7864a72b1cbcc6004a8a318c66982995a188ee97430a3b',
+  apply(source, replace) {
+    assert(!source.includes('codexPetHome'), 'Pet helper is already present or collides');
+    for (const [before, after] of replacements) source = replace(source, before.replace('o.rt(', 'o.at('), after);
+    const currentHelper = helper.replace('o.rt(', 'o.at(').replace('o.zt(', 'o.Vt(');
+    return replace(source, 'async function cB(', currentHelper + 'async function cB(');
+  },
+});

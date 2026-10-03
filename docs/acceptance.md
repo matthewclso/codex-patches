@@ -32,6 +32,14 @@ The bundled stock CLI was exercised in Ubuntu 26.04 under WSL2 with temporary ho
 
 This review did not install or activate a generated app or relaunch the desktop. Interactive pet rendering/installation, agent browser control after relaunch, and real-phone reconnect/project labels remain pending for this build. The accepted Android project-label limitation remains in effect. Project memberships remain disabled by default. Initial parallel WSL checks exhausted available memory and hit startup timeouts; the separated runs passed.
 
+## October 3, 2026 compatibility review
+
+Package `26.930.3930.0` (app `26.930.31730`, bundled CLI `0.160.0`) was checked against the installed signed stock files. All seven archive/executable/runtime hashes match the signed candidate in PR #4; the installed executable signature is valid. Source-specific revisions cover its renamed pet home/conversion exports, browser predicates/service generator and project membership gate. Prior supported builds and opt-in defaults are preserved. [The review record](../compatibility/reviews/26.930.3930.0.json) records the separate validation evidence.
+
+Actual-source tests reproduce stock pet and browser failures and verify patched discovery, selection, installation, traversal guards, all 256 browser prerequisites, 90 service-path cases, native membership migration/writes and all 16 patch combinations. The allowlist pins independent patch outputs and the default composed archive/header/executable; source tests verify those pins. Windows and local Ubuntu 26.04 WSL2 toolkit/CI suites pass. The stock CLI still rejects matching WSL UNC project roots and omits projection-only chats from unfiltered native Remote Control listing; proxy/relay scenarios pass, including pairing reuse, filters, pagination, cursor reconnect, memberships, EOF and SIGTERM cleanup. Stock GraphQL quoting passes through Windows Node and `wsl.exe`, retaining its retirement.
+
+The candidate's hosted WSL probe remains **unsupported**: its official runtime initialization/update failed with HTTP 403. Successful local WSL2 guest checks are separate evidence, not a repaired hosted run. No generated app was installed or activated, and no user session was closed. Interactive desktop pet/browser acceptance and real-phone reconnect/project labels remain pending for this build; the Android project-label limitation remains documented.
+
 ## Browser troubleshooting
 
 An open browser panel does not prove that agents can control it. Follow the installed Browser skill and test navigation through its supported tool. If a chat's working directory was moved or deleted, restore it before refreshing that chat's tools: the backend starts local tool servers in the chat directory, and caches failed startup attempts. A fresh backend session is needed when the failed tool cannot be refreshed.

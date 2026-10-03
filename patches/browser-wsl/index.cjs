@@ -19,3 +19,11 @@ module.exports.revisions = [{
   before: currentBefore, after: currentAfter,
   apply: (source, replace) => replace(source, currentBefore, currentAfter),
 }];
+
+const latestBefore = before.replace('function xBr(', 'function GBr(');
+const latestAfter = latestBefore.replace('o?`wsl-disabled`:`available`', '`available`');
+module.exports.revisions.push({
+  targetPath: 'webview/assets/app-shared-2d992d47c83d.js',
+  sourceSha256: '5e3a36d643393af861d2009584f64289f2247928e793f1985fe12cfec803a40b', before: latestBefore, after: latestAfter,
+  apply: (source, replace) => replace(source, latestBefore, latestAfter),
+});
