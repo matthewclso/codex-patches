@@ -16,3 +16,10 @@ module.exports.revisions = [{
   after: 'u.setThreadAssignmentsEnabled(!0)',
   apply: (source, replace) => replace(source, 'u.setThreadAssignmentsEnabled(q().localProjectTaskMembership)', 'u.setThreadAssignmentsEnabled(!0)'),
 }];
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/main-C_jM0dPl.js',
+  sourceSha256: 'd940b7ba89557a640cf23967c60555fa2a2344d6899807478c69ffc304314302',
+  before: 'u.setThreadAssignmentsEnabled(K().localProjectTaskMembership)', after: 'u.setThreadAssignmentsEnabled(!0)',
+  apply: (source, replace) => replace(source, 'u.setThreadAssignmentsEnabled(K().localProjectTaskMembership)', 'u.setThreadAssignmentsEnabled(!0)'),
+});
