@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "status": "review-required",
+  "package": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-03T14:20:15.0007940Z",
+    "source": {
+      "documentationUrl": "https://learn.chatgpt.com/docs/enterprise/windows-deployment",
+      "downloadUrl": "https://persistent.oaistatic.com/codex-app-prod/ChatGPT-x64.msix",
+      "finalUrl": "https://persistent.oaistatic.com/codex-app-prod/ChatGPT-x64.msix"
+    },
+    "identity": {
+      "name": "OpenAI.Codex",
+      "packageVersion": "26.930.3930.0",
+      "architecture": "x64",
+      "publisher": "CN=50BDFD77-8903-4850-9FFE-6E8522F64D5B"
+    },
+    "hashes": {
+      "msixSha256": "f7b0266d6c00d4743da01d62bc82488f7ec5560c642501758119cb9885f67c87",
+      "archiveSha256": "af98213984ec4556778ef9276193d51460153fb9b30fded882d503637b84abba",
+      "executableSha256": "b35bf062c01d73da090c60e62186dc180c2a8545cb6fc9575b4403c8fa3db49e",
+      "cliLinuxSha256": "12eb3e81114588aca3b7998f4f19e8997b056aca08e57a7ca7c8a3ec8c652aad",
+      "cliWindowsSha256": "37762753b554982eef1c109303d1be652b6397f1479e844794353a85650199c6",
+      "codeModeLinuxSha256": "37cab1584302611e9936902219640ab5e7a79fcfccd2504c6e85ea8cb97d0e10",
+      "codeModeWindowsSha256": "614435312855b438ca566c0500464493c0a36ee084851a5cfcd443c5942b764f",
+      "nodeWindowsSha256": "44fe7e544d1c73c1d82d7ee42e438beca375b64d46437943b87cdb63f3c45656"
+    },
+    "versions": {
+      "cliVersion": "0.160.0",
+      "appVersion": "26.930.31730"
+    },
+    "files": {
+      "executableRelativePath": "ChatGPT.exe"
+    },
+    "verification": {
+      "msixSignature": "valid",
+      "executableSignature": "valid",
+      "identity": "verified",
+      "publisher": "matched-pin",
+      "architecture": "x64"
+    }
+  },
+  "candidate": null,
+  "audit": {
+    "schemaVersion": 1,
+    "supported": false,
+    "reviewRequired": true,
+    "sourceArchiveHash": "af98213984ec4556778ef9276193d51460153fb9b30fded882d503637b84abba",
+    "sourceHeaderHash": "fb9c9f69782fe51e94ea1946f8604daf520bbc3bef5bc19086be79e2cce096c9",
+    "build": null,
+    "selectedIds": [
+      "custom-pets",
+      "browser-wsl",
+      "browser-service-path",
+      "project-memberships"
+    ],
+    "patches": [
+      {
+        "id": "custom-pets",
+        "status": "review-required",
+        "targetPath": ".vite/build/bootstrap-Bj_1Kfw1.js",
+        "reason": "Missing ASAR entry: .vite/build/bootstrap-Bj_1Kfw1.js"
+      },
+      {
+        "id": "browser-wsl",
+        "status": "review-required",
+        "targetPath": "webview/assets/app-shared-6472dfc83b38.js",
+        "reason": "Missing ASAR entry: webview/assets/app-shared-6472dfc83b38.js"
+      },
+      {
+        "id": "browser-service-path",
+        "status": "review-required",
+        "targetPath": ".vite/build/main-BGDKyzfM.js",
+        "reason": "Missing ASAR entry: .vite/build/main-BGDKyzfM.js"
+      },
+      {
+        "id": "project-memberships",
+        "status": "review-required",
+        "targetPath": ".vite/build/main-BGDKyzfM.js",
+        "reason": "Missing ASAR entry: .vite/build/main-BGDKyzfM.js"
+      }
+    ],
+    "changes": []
+  },
+  "checks": [
+    {
+      "name": "windows-toolkit-module-tests",
+      "status": "passed"
+    },
+    {
+      "name": "compose-existing-patches",
+      "status": "blocked",
+      "reason": "Target source modules changed or are missing. Existing implementations cannot be assumed correct."
+    }
+  ],
+  "failureReason": null,
+  "wsl": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-03T14:20:20.8094531Z",
+    "status": "unsupported",
+    "target": {
+      "windows": "Windows x64",
+      "backend": "Ubuntu 26.04 LTS",
+      "wslVersion": 2
+    },
+    "host": {
+      "os": "Microsoft Windows NT 10.0.26100.0",
+      "runnerImage": "win25-vs2026",
+      "runnerVersion": "20260925.250.1",
+      "virtualization": [
+        {
+          "Name": "AMD EPYC 7763 64-Core Processor                ",
+          "VirtualizationFirmwareEnabled": true,
+          "SecondLevelAddressTranslationExtensions": false,
+          "VMMonitorModeExtensions": false
+        }
+      ],
+      "features": [
+        {
+          "name": "Microsoft-Windows-Subsystem-Linux",
+          "previous": "Enabled",
+          "requiredForWsl2": false,
+          "enabledForCi": false,
+          "restartRequired": false
+        },
+        {
+          "name": "VirtualMachinePlatform",
+          "previous": "Enabled",
+          "requiredForWsl2": true,
+          "enabledForCi": false,
+          "restartRequired": false
+        }
+      ],
+      "hypervisorPresent": true,
+      "services": [
+        {
+          "Name": "vmcompute",
+          "Status": 4
+        },
+        {
+          "Name": "WslService",
+          "Status": 4
+        }
+      ]
+    },
+    "stages": [
+      {
+        "name": "wsl-version",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "WSL version: 2.7.14.0\r\nKernel version: 6.18.33.2-2\r\nWSLg version: 1.0.73.2\r\nMSRDC version: 1.2.7214\r\nDirect3D version: 1.611.1-81528511\r\nDXCore version: 10.0.26100.1-240331-1435.ge-release\r\nWindows version: 10.0.26100.33438"
+      },
+      {
+        "name": "wsl-update",
+        "exitCode": -1,
+        "timedOut": false,
+        "output": "Checking for updates.\r\nForbidden (403). \r\nError code: Wsl/UpdatePackage/0x80190193"
+      }
+    ],
+    "limitations": [
+      "Authenticated desktop, browser UI, and phone reconnect require local acceptance."
+    ],
+    "reason": "The official WSL runtime could not initialize/update on this hosted image."
+  },
+  "evidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/37129164167",
+  "decisionRequired": "Reproduce stock behavior and review all acceptance evidence before changing compatibility/current.json. This file does not enable installation."
+}
