@@ -22,3 +22,9 @@ module.exports.revisions.push({
   before: '{browser:b}', after: '{browser:_&&h.platform===`win32`?o.lt(b,null):b}',
   apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?o.lt(b,null):b}'),
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/main-B5_S2vFm.js',
+  sourceSha256: 'e58e0124daa49b216ae8f6a656cc967e82b5b17204206c2c2b7dd38db003d9d6',
+});

@@ -38,3 +38,9 @@ module.exports.revisions.push({
     return replace(source, 'async function cB(', currentHelper + 'async function cB(');
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/bootstrap-BXPOZU-a.js',
+  sourceSha256: '8f9b7c13fe8868e4c03cee49f0b244adc673f4a4f619ed796d4ca4e5040ead43',
+});
