@@ -27,3 +27,11 @@ module.exports.revisions.push({
   sourceSha256: '5e3a36d643393af861d2009584f64289f2247928e793f1985fe12cfec803a40b', before: latestBefore, after: latestAfter,
   apply: (source, replace) => replace(source, latestBefore, latestAfter),
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: 'webview/assets/app-shared-e20a5fe9db04.js',
+  sourceSha256: 'ddb65d8470cdb5b3a44e9f53777b805b263c37441b07367fccd144df6c9ce92b',
+  before: currentBefore, after: currentAfter,
+  apply: (source, replace) => replace(source, currentBefore, currentAfter),
+});
