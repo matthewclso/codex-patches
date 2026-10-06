@@ -28,3 +28,9 @@ module.exports.revisions.push({
   targetPath: '.vite/build/main-B5_S2vFm.js',
   sourceSha256: 'e58e0124daa49b216ae8f6a656cc967e82b5b17204206c2c2b7dd38db003d9d6',
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/main-gtVueRkt.js',
+  sourceSha256: 'a4b72dcd241e8ee360aa960442cc585aa822685a42efd056c760937d9f8b623e',
+});

@@ -44,3 +44,15 @@ module.exports.revisions.push({
   targetPath: '.vite/build/bootstrap-BXPOZU-a.js',
   sourceSha256: '8f9b7c13fe8868e4c03cee49f0b244adc673f4a4f619ed796d4ca4e5040ead43',
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/bootstrap-C8gUBg5L.js',
+  sourceSha256: '1f726d0e3103d81501551546d3b6e70f1fc10646f9326e00fe68605f144c5f4f',
+  apply(source, replace) {
+    assert(!source.includes('codexPetHome'), 'Pet helper is already present or collides');
+    for (const [before, after] of replacements) source = replace(source, before.replace('o.rt(', 'o.at('), after);
+    const currentHelper = helper.replace('o.rt(', 'o.at(').replace('o.zt(', 'o.Vt(');
+    return replace(source, 'async function lB(', currentHelper + 'async function lB(');
+  },
+});
