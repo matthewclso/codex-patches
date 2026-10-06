@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "status": "review-required",
+  "package": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-06T15:59:16.7229058Z",
+    "source": {
+      "documentationUrl": "https://learn.chatgpt.com/docs/enterprise/windows-deployment",
+      "downloadUrl": "https://persistent.oaistatic.com/codex-app-prod/ChatGPT-x64.msix",
+      "finalUrl": "https://persistent.oaistatic.com/codex-app-prod/ChatGPT-x64.msix"
+    },
+    "identity": {
+      "name": "OpenAI.Codex",
+      "packageVersion": "26.930.7945.0",
+      "architecture": "x64",
+      "publisher": "CN=50BDFD77-8903-4850-9FFE-6E8522F64D5B"
+    },
+    "hashes": {
+      "msixSha256": "0fcd11295dfd239ef8b6a2cb088a4ead18316b80a87e0c0e1abbad9d830edef3",
+      "archiveSha256": "611d6da979d8bbabfec97dd90dcce27a9522e7016e6ccf135d59cab693ab08da",
+      "executableSha256": "746fc8e491616076dad7ae3348bc73748d27ee8471dc589844390d08f4fba25d",
+      "cliLinuxSha256": "f34a4d2301892ae96c90097786bfe5dc269f187b6f69faf42a7b357b8c081e35",
+      "cliWindowsSha256": "3b8f6e33caa75f232558a3cf76ff9b87bb5ef6dbcf4996372f24e55c78b1b916",
+      "codeModeLinuxSha256": "b33e8a5283f3c65c2a0aca6d43a59cfe850f624d8fa16992e3cad4fcc27c14e1",
+      "codeModeWindowsSha256": "802a4584a21eb953d30437928ac474e1eef1ed30c06c1b96e9973c6248b9dc58",
+      "nodeWindowsSha256": "90cc5f536370f8bac2d8121040465d64b2f40df555071660fe303eccfd68a47e"
+    },
+    "versions": {
+      "cliVersion": "0.160.1",
+      "appVersion": "26.930.61225"
+    },
+    "files": {
+      "executableRelativePath": "ChatGPT.exe"
+    },
+    "verification": {
+      "msixSignature": "valid",
+      "executableSignature": "valid",
+      "identity": "verified",
+      "publisher": "matched-pin",
+      "architecture": "x64"
+    }
+  },
+  "candidate": null,
+  "audit": {
+    "schemaVersion": 1,
+    "supported": false,
+    "reviewRequired": true,
+    "sourceArchiveHash": "611d6da979d8bbabfec97dd90dcce27a9522e7016e6ccf135d59cab693ab08da",
+    "sourceHeaderHash": "cc8f4def869f5ea59f1796fb19be56a6dbe60d81e6ec52c95f805865f9dbc8b4",
+    "build": null,
+    "selectedIds": [
+      "custom-pets",
+      "browser-wsl",
+      "browser-service-path",
+      "project-memberships"
+    ],
+    "patches": [
+      {
+        "id": "custom-pets",
+        "status": "review-required",
+        "targetPath": ".vite/build/bootstrap-Bj_1Kfw1.js",
+        "reason": "Missing ASAR entry: .vite/build/bootstrap-Bj_1Kfw1.js"
+      },
+      {
+        "id": "browser-wsl",
+        "status": "review-required",
+        "targetPath": "webview/assets/app-shared-6472dfc83b38.js",
+        "reason": "Missing ASAR entry: webview/assets/app-shared-6472dfc83b38.js"
+      },
+      {
+        "id": "browser-service-path",
+        "status": "review-required",
+        "targetPath": ".vite/build/main-BGDKyzfM.js",
+        "reason": "Missing ASAR entry: .vite/build/main-BGDKyzfM.js"
+      },
+      {
+        "id": "project-memberships",
+        "status": "review-required",
+        "targetPath": ".vite/build/main-BGDKyzfM.js",
+        "reason": "Missing ASAR entry: .vite/build/main-BGDKyzfM.js"
+      }
+    ],
+    "changes": []
+  },
+  "checks": [
+    {
+      "name": "windows-toolkit-module-tests",
+      "status": "passed"
+    },
+    {
+      "name": "compose-existing-patches",
+      "status": "blocked",
+      "reason": "Target source modules changed or are missing. Existing implementations cannot be assumed correct."
+    }
+  ],
+  "failureReason": null,
+  "wsl": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-06T16:00:17.3450502Z",
+    "status": "failed",
+    "target": {
+      "windows": "Windows x64",
+      "backend": "Ubuntu 26.04 LTS",
+      "wslVersion": 2
+    },
+    "host": {
+      "os": "Microsoft Windows NT 10.0.26100.0",
+      "runnerImage": "win25-vs2026",
+      "runnerVersion": "20260925.250.1",
+      "virtualization": [
+        {
+          "Name": "AMD EPYC 9V74 80-Core Processor                ",
+          "VirtualizationFirmwareEnabled": true,
+          "SecondLevelAddressTranslationExtensions": false,
+          "VMMonitorModeExtensions": false
+        }
+      ],
+      "features": [
+        {
+          "name": "Microsoft-Windows-Subsystem-Linux",
+          "previous": "Enabled",
+          "requiredForWsl2": false,
+          "enabledForCi": false,
+          "restartRequired": false
+        },
+        {
+          "name": "VirtualMachinePlatform",
+          "previous": "Enabled",
+          "requiredForWsl2": true,
+          "enabledForCi": false,
+          "restartRequired": false
+        }
+      ],
+      "hypervisorPresent": true,
+      "services": [
+        {
+          "Name": "vmcompute",
+          "Status": 4
+        },
+        {
+          "Name": "WslService",
+          "Status": 4
+        }
+      ]
+    },
+    "stages": [
+      {
+        "name": "wsl-version",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "WSL version: 2.7.14.0\r\nKernel version: 6.18.33.2-2\r\nWSLg version: 1.0.73.2\r\nMSRDC version: 1.2.7214\r\nDirect3D version: 1.611.1-81528511\r\nDXCore version: 10.0.26100.1-240331-1435.ge-release\r\nWindows version: 10.0.26100.33438"
+      },
+      {
+        "name": "wsl-update",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "Checking for updates.\r\nUpdating Windows Subsystem for Linux to version: 3.0.1."
+      },
+      {
+        "name": "wsl2-import",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "The operation completed successfully."
+      },
+      {
+        "name": "ubuntu-boot",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "PRETTY_NAME=\"Ubuntu 26.04.1 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"26.04\"\nVERSION=\"26.04.1 LTS (Resolute Raccoon)\"\nVERSION_CODENAME=resolute\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=resolute\nLOGO=ubuntu-logo\n6.18.40.1-microsoft-standard-WSL2"
+      },
+      {
+        "name": "node-setup",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "Reading package lists...\nBuilding dependency tree...\nReading state information...\nca-certificates is already the newest version (20260601~26.04.1).\nca-certificates set to manually installed.\nxz-utils is already the newest version (5.8.3-1).\nxz-utils set to manually installed.\npython3 is already the newest version (3.14.3-0ubuntu2).\npython3 set to manually installed.\nSolving dependencies...\nThe following additional packages will be installed:\n  libcurl3t64-gnutls libcurl4t64\nThe following packages will be upgraded:\n  curl libcurl3t64-gnutls libcurl4t64\n3 upgraded, 0 newly installed, 0 to remove and 96 not upgraded.\nNeed to get 1120 kB of archives.\nAfter this operation, 11.3 kB of additional disk space will be used.\nGet:1 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 curl amd64 8.18.0-1ubuntu2.7 [272 kB]\nGet:2 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libcurl4t64 amd64 8.18.0-1ubuntu2.7 [428 kB]\nGet:3 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libcurl3t64-gnutls amd64 8.18.0-1ubuntu2.7 [419 kB]\nFetched 1120 kB in 1s (968 kB/s)\n(Reading database ... \r(Reading database ... 5%\r(Reading database ... 10%\r(Reading database ... 15%\r(Reading database ... 20%\r(Reading database ... 25%\r(Reading database ... 30%\r(Reading database ... 35%\r(Reading database ... 40%\r(Reading database ... 45%\r(Reading database ... 50%\r(Reading database ... 55%\r(Reading database ... 60%\r(Reading database ... 65%\r(Reading database ... 70%\r(Reading database ... 75%\r(Reading database ... 80%\r(Reading database ... 85%\r(Reading database ... 90%\r(Reading database ... 95%\r(Reading database ... 100%\r(Reading database ... 35908 files and directories currently installed.)\r\nPreparing to unpack .../curl_8.18.0-1ubuntu2.7_amd64.deb ...\r\nUnpacking curl (8.18.0-1ubuntu2.7) over (8.18.0-1ubuntu2.4) ...\r\nPreparing to unpack .../libcurl4t64_8.18.0-1ubuntu2.7_amd64.deb ...\r\nUnpacking libcurl4t64:amd64 (8.18.0-1ubuntu2.7) over (8.18.0-1ubuntu2.4) ...\r\nPreparing to unpack .../libcurl3t64-gnutls_8.18.0-1ubuntu2.7_amd64.deb ...\r\nUnpacking libcurl3t64-gnutls:amd64 (8.18.0-1ubuntu2.7) over (8.18.0-1ubuntu2.4) ...\r\nSetting up libcurl4t64:amd64 (8.18.0-1ubuntu2.7) ...\r\nSetting up libcurl3t64-gnutls:amd64 (8.18.0-1ubuntu2.7) ...\r\nSetting up curl (8.18.0-1ubuntu2.7) ...\r\nProcessing triggers for man-db (2.13.1-1build1) ...\r\nProcessing triggers for libc-bin (2.43-2ubuntu2.3) ...\r\nnode.tar.xz: OK\nv24.21.0"
+      },
+      {
+        "name": "wsl-tests-and-stock-app-server",
+        "exitCode": 1,
+        "timedOut": false,
+        "output": "added 1 package, and audited 2 packages in 718ms\n\nfound 0 vulnerabilities\n\n> codex-patches@0.1.0 test\n> node --test tests/*.cjs\n\n✖ actual pet loader: stock fails Windows home under POSIX; patch fixes all three paths and retains traversal checks (6488.710336ms)\n✖ actual in-app eligibility preserves all prerequisites across 256 cases and external browser gate (0.758521ms)\n✖ actual trusted-service generator fixes native Windows mount paths only under WSL and retains all other generated fields (1.246634ms)\n✖ actual native membership synchronizer migrates and persists explicit projects for new chats, moves and clearing (1.883352ms)\n✖ all valid app-patch combinations are deterministic, source-gated and preserve unrelated entries (7038.547856ms)\n✖ actual executable integrity updater changes only the recorded header hash (653.007221ms)\n✔ ASAR replacement appends data and preserves other metadata and all original payload (6.610917ms)\n✔ ASAR parser and replacement reject malformed bounds and source integrity (5.647401ms)\n✔ PE updater locates named resource, preserves decoy and all bytes outside hash (5.185792ms)\n✔ unknown archive cannot be installed, and audit remains review required (6.255411ms)\n✔ modules sharing a target validate independent hashes before deterministic composition (8.776656ms)\n✔ reviewed source revisions select their own implementation while unknown revisions remain audit-only (7.455433ms)\n✔ shared-target CI candidates retain pristine source and independent output hashes (1.502727ms)\n✔ backend detection distinguishes actual subcommands from prompts, option values and help tooling (101.270297ms)\n﹣ Windows activation distinguishes old app/backend from independent tools and force closes only blockers (0.377406ms) # SKIP\n﹣ ForceClose is rejected outside install before any command runs (0.469409ms) # SKIP\n✔ WSL activation detects owned backends and protects independent review, worker and working-directory users (2113.844722ms)\n✔ WSL supervisor through stable symlink and relay runner block activation, and ForceClose handles a stuck backend (3635.46088ms)\n✔ selection honors independent auto/disabled states and rejects unsupported explicit requests (3.791168ms)\n✔ generic declared dependencies remain enforced (4.218075ms)\n✔ project memberships require explicit opt-in even for previously saved configurations (3.570864ms)\n✔ build rejects unsupported source, modified runtime binaries and output beneath source (6.280412ms)\n✔ inspection reports an unknown update without authorizing installation or changing source (25.592254ms)\n✔ generated snapshot is independent and detects app or runtime tampering (56.178997ms)\n✔ historical Rust source plan records absent manifests without creating paths (382.464289ms)\n✔ historical Rust source removal requires unchanged inventory and preserves unreferenced siblings (943.365745ms)\n✔ historical source links are refused without traversing external data (210.329634ms)\n✔ running processes prevent historical source removal (247.930701ms)\n﹣ Windows cleanup archives nested audits and probe state while excluding bundled app code (0.400507ms) # SKIP\n﹣ Windows cleanup refuses links inside excluded app directories (0.304206ms) # SKIP\n﹣ Windows wrapper inspection reads regular files and rejects directories (0.230504ms) # SKIP\n﹣ Windows wrapper cloud allowlist excludes redirecting and unknown reparse tags (0.452808ms) # SKIP\n﹣ Windows wrapper inspection refuses junction entries and ancestors before reading descendants (0.170503ms) # SKIP\n﹣ Windows wrapper inspection refuses live and dangling file symlinks (0.314206ms) # SKIP\n﹣ Windows PowerShell 5.1 preserves UTF8 JSON through initial creation and replacement (1.347324ms) # SKIP\n﹣ Windows native argument transport preserves empty, quoted, Unicode and trailing-backslash values (0.223604ms) # SKIP\n﹣ all shipped PowerShell files parse in Windows PowerShell 5.1 (0.176303ms) # SKIP\n﹣ private directory setup is repeatable without requiring audit-policy privileges (0.185803ms) # SKIP\n﹣ installed bootstrap checks the complete snapshot before execution without module discovery (0.253104ms) # SKIP\n✔ default backend origin remains upstream; residency, overrides and missing fields are untouched (11.678107ms)\n✔ runtime binds an explicit stock binary and rejects incompatible, public or aliased config (1284.959643ms)\n✔ default configure plan has no filesystem or enrollment side effects (465.167086ms)\n✔ stable relay route is independent of CLI updates, migrations are additive and rollback is conditional (540.660644ms)\n✔ an enrollment identity conflict rolls back every preceding candidate insertion (302.171941ms)\n✖ current stock GitHub and WSL command generators preserve GraphQL variables without the retired guard (5874.233518ms)\n✔ authoritative assignments distinguish two projects sharing one working directory (2.079957ms)\n✔ stale mappings do not rename projects or guess missing identities (0.270807ms)\n✔ SQLite repair is atomic, conditional, reversible and leaves other fields unchanged (18.914716ms)\n✔ stock project APIs persist initial, moved and cleared memberships independently of cwd (4468.105779ms)\n✔ unmodified CLI native flow, stock native unfiltered-list regression (2098.902513ms)\n✔ unmodified CLI native flow, fresh isolated enrollment (1876.983612ms)\n✔ unmodified CLI native flow, preserving an existing paired server (1593.361461ms)\nWARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"/tmp\" (codex_home: AbsolutePathBuf(\"/tmp/codex-patches-stack-MdcG1j/home\"))\n✔ stock project path regression crosses proxy, relay and unmodified CLI; eof cleans up owned children (12827.972403ms)\nWARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"/tmp\" (codex_home: AbsolutePathBuf(\"/tmp/codex-patches-stack-svYQlp/home\"))\n✔ stock project path regression crosses proxy, relay and unmodified CLI; signal cleans up owned children (12311.458977ms)\n✔ project roots translate discovered drive mounts and matching WSL UNC paths only (110.873007ms)\n✔ JSONL adapter preserves unrelated and malformed traffic, newline style and unsafe integer IDs (480.795306ms)\n✔ only a stdio app-server session is supervised (159.329678ms)\n✔ stock passthrough and both-disabled app-server use the canonical Linux home even with a Windows desktop environment (817.75874ms)\n✔ non-Remote-Control WebSockets remain byte-exact through the configured HTTP proxy (93.537752ms)\n✔ ordinary HTTP streams are delivered before the upstream response finishes (21.225456ms)\n✔ HTTP preserves method, query, body and native auth; rejects browsers and escaping paths (34.232498ms)\n✔ native WebSocket traffic is rewritten only upstream-to-CLI; ping/pong and bytes pass through (25.765376ms)\n✔ upstream handshake rejection preserves native status, retry headers and body (14.190872ms)\n✔ changes only request parameters; preserves unsafe integer IDs and cursors exactly (1.655843ms)\n✔ non-target, binary, notification, already-patched and malformed messages stay byte-exact (1.562741ms)\n✔ reassembles target chunks, retaining each segment's count, sequence and cursor (1.417238ms)\n✔ non-target chunks remain original bytes (0.511514ms)\n✔ chunk order, duplicates, corrupt sizes, bounds and timeout fail closed (1.016127ms)\nℹ tests 68\nℹ suites 0\nℹ pass 48\nℹ fail 7\nℹ cancelled 0\nℹ skipped 13\nℹ todo 0\nℹ duration_ms 42311.188604\n\n✖ failing tests:\n\ntest at tests/app-patches-source.cjs:51:34\n✖ actual pet loader: stock fails Windows home under POSIX; patch fixes all three paths and retains traversal checks (6488.710336ms)\n  AssertionError [ERR_ASSERTION]: Missing ASAR entry: .vite/build/bootstrap-Bj_1Kfw1.js\n      at lookup (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:26:5)\n      at Object.readEntry (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:32:17)\n      at packed (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:33:37)\n      at /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:99:21\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:51:153)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.start (node:internal/test_runner/test:1262:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/app-patches-source.cjs:51:34\n✖ actual in-app eligibility preserves all prerequisites across 256 cases and external browser gate (0.758521ms)\n  AssertionError [ERR_ASSERTION]: Missing ASAR entry: webview/assets/app-shared-6472dfc83b38.js\n      at lookup (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:26:5)\n      at Object.readEntry (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:32:17)\n      at packed (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:33:37)\n      at /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:111:18\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:51:153)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/app-patches-source.cjs:51:34\n✖ actual trusted-service generator fixes native Windows mount paths only under WSL and retains all other generated fields (1.246634ms)\n  AssertionError [ERR_ASSERTION]: Missing ASAR entry: .vite/build/main-BGDKyzfM.js\n      at lookup (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:26:5)\n      at Object.readEntry (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:32:17)\n      at packed (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:33:37)\n      at /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:141:18\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:51:153)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/app-patches-source.cjs:51:34\n✖ actual native membership synchronizer migrates and persists explicit projects for new chats, moves and clearing (1.883352ms)\n  AssertionError [ERR_ASSERTION]: Missing ASAR entry: .vite/build/main-BGDKyzfM.js\n      at lookup (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:26:5)\n      at Object.readEntry (/mnt/d/a/codex-patches/codex-patches/lib/asar.cjs:32:17)\n      at packed (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:33:37)\n      at /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:155:18\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:51:153)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/app-patches-source.cjs:51:34\n✖ all valid app-patch combinations are deterministic, source-gated and preserve unrelated entries (7038.547856ms)\n  AssertionError [ERR_ASSERTION]: Candidate modules changed; source audit must be updated before composing\n      at compose (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:23:3)\n      at /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:252:22\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:51:153)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/app-patches-source.cjs:51:34\n✖ actual executable integrity updater changes only the recorded header hash (653.007221ms)\n  AssertionError [ERR_ASSERTION]: Candidate modules changed; source audit must be updated before composing\n      at compose (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:23:3)\n      at /mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:284:78\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/app-patches-source.cjs:51:153)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/runtime-graphql.test.cjs:7:1\n✖ current stock GitHub and WSL command generators preserve GraphQL variables without the retired guard (5874.233518ms)\n  Error: GraphQL source boundary changed: function sQ(\n      at between (/mnt/d/a/codex-patches/codex-patches/tools/audit-graphql.cjs:13:37)\n      at auditGraphql (/mnt/d/a/codex-patches/codex-patches/tools/audit-graphql.cjs:22:18)\n      at TestContext.<anonymous> (/mnt/d/a/codex-patches/codex-patches/tests/runtime-graphql.test.cjs:10:24)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.start (node:internal/test_runner/test:1262:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\nnpm notice\nnpm notice New major version of npm available! 11.19.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice"
+      }
+    ],
+    "limitations": [
+      "Authenticated desktop, browser UI, and phone reconnect require local acceptance."
+    ],
+    "image": {
+      "index": "https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json",
+      "url": "https://releases.ubuntu.com/26.04.1/ubuntu-26.04.1-wsl-amd64.wsl",
+      "sha256": "48d56724b5c8e60f24893e83e73bbb58c60b3ca22fba3da977075420acd54104"
+    },
+    "reason": "One or more WSL tests or stock app-server probes failed."
+  },
+  "evidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/37491871310",
+  "decisionRequired": "Reproduce stock behavior and review all acceptance evidence before changing compatibility/current.json. This file does not enable installation."
+}
