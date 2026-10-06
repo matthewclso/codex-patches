@@ -35,3 +35,9 @@ module.exports.revisions.push({
   before: currentBefore, after: currentAfter,
   apply: (source, replace) => replace(source, currentBefore, currentAfter),
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: 'webview/assets/app-shared-e32c0e36d554.js',
+  sourceSha256: 'b9468897f9c8a96395322ae4b2a2446914f50670403466c0c8889a40eb23f3cf',
+});

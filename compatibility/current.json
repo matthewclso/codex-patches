@@ -382,6 +382,81 @@
           }
         }
       }
+    },
+    {
+      "packageVersion": "26.930.7945.0",
+      "appVersion": "26.930.61225",
+      "cliVersion": "0.160.1",
+      "archiveSha256": "611d6da979d8bbabfec97dd90dcce27a9522e7016e6ccf135d59cab693ab08da",
+      "executableSha256": "746fc8e491616076dad7ae3348bc73748d27ee8471dc589844390d08f4fba25d",
+      "cliLinuxSha256": "f34a4d2301892ae96c90097786bfe5dc269f187b6f69faf42a7b357b8c081e35",
+      "cliWindowsSha256": "3b8f6e33caa75f232558a3cf76ff9b87bb5ef6dbcf4996372f24e55c78b1b916",
+      "codeModeLinuxSha256": "b33e8a5283f3c65c2a0aca6d43a59cfe850f624d8fa16992e3cad4fcc27c14e1",
+      "codeModeWindowsSha256": "802a4584a21eb953d30437928ac474e1eef1ed30c06c1b96e9973c6248b9dc58",
+      "nodeWindowsSha256": "90cc5f536370f8bac2d8121040465d64b2f40df555071660fe303eccfd68a47e",
+      "headerSha256": "cc8f4def869f5ea59f1796fb19be56a6dbe60d81e6ec52c95f805865f9dbc8b4",
+      "executableRelativePath": "ChatGPT.exe",
+      "auditedAt": "2026-10-06",
+      "acceptance": "source-behavior and native WSL2 protocol verified; full desktop and real-phone acceptance pending",
+      "patches": {
+        "custom-pets": {
+          "status": "needed",
+          "targetPath": ".vite/build/bootstrap-C8gUBg5L.js",
+          "sourceSha256": "1f726d0e3103d81501551546d3b6e70f1fc10646f9326e00fe68605f144c5f4f",
+          "outputSha256": "89084c9b803696bb9a20c404750d688a05f44b0b4c2ee3b305d77463669afbb6",
+          "evidence": "Stock pet loader still joins a Windows home using POSIX paths. Actual-source tests verify patched discovery, selection and installation, POSIX/native Windows/WSL UNC homes, and traversal rejection. PET-1/2."
+        },
+        "browser-wsl": {
+          "status": "needed",
+          "targetPath": "webview/assets/app-shared-e32c0e36d554.js",
+          "sourceSha256": "b9468897f9c8a96395322ae4b2a2446914f50670403466c0c8889a40eb23f3cf",
+          "outputSha256": "064ef8a03e0de25ee7193f2625d3bc73eb9a578cf8f72c741fe6dbd114e8374b",
+          "evidence": "Stock KBr in-app gate still rejects WSL. All 256 prerequisite combinations change only its WSL rejection; external-browser predicate remains unchanged. BROWSER-1."
+        },
+        "browser-service-path": {
+          "status": "needed",
+          "targetPath": ".vite/build/main-gtVueRkt.js",
+          "sourceSha256": "a4b72dcd241e8ee360aa960442cc585aa822685a42efd056c760937d9f8b623e",
+          "outputSha256": "ad76c75797d896d7225ca653ce72553a0c3a92930f318d70dab233be07c25f40",
+          "evidence": "Stock rc generator registers a POSIX browser-service path for a Windows worker. Across 90 cases, the patch uses the existing native converter only with WSL paths on win32 and preserves every other generated field. BROWSER-3."
+        },
+        "project-memberships": {
+          "status": "needed",
+          "targetPath": ".vite/build/main-gtVueRkt.js",
+          "sourceSha256": "a4b72dcd241e8ee360aa960442cc585aa822685a42efd056c760937d9f8b623e",
+          "outputSha256": "2f20a63a3fb1c004b18b14b4b1d4873d444f026cf1bbb5504e57b1661b7f919b",
+          "evidence": "Native membership gate remains separately controlled by localProjectTaskMembership. Actual-source tests cover explicit migration, shared cwd, new assignments, moves, clearing and backend/host guards; stock CLI tests persist initial/moved/cleared IDs. Android display acceptance remains pending. PROJECT-2/3/4.",
+          "defaultMode": "disabled",
+          "nativeSynchronizerSha256": "427ae032e5938424788b87b77d9e6933c6bebd1e45e46803880656f5bb747ac1"
+        }
+      },
+      "verifiedPackedEntries": 20672,
+      "composedApp": {
+        "selectedIds": [
+          "custom-pets",
+          "browser-wsl",
+          "browser-service-path"
+        ],
+        "archiveSha256": "53673089495362374671926071fb2899d79b82aca3be9d2b5ae8e20ba312268d",
+        "headerSha256": "ec2c861c2222f5af64141fdebbe294a9aa23c32167bfd2c083abc0e5fc441ecb",
+        "executableSha256": "b960112232e36f2862dd99c753bf41afbd0611624d57c582dbada66f57416f6c"
+      },
+      "runtimePatches": {
+        "wsl-project-paths": {
+          "status": "needed",
+          "evidence": "Bundled stock CLI 0.160.1 rejects matching WSL UNC project/create roots. Proxy plus relay returns canonical POSIX roots in isolated home/database; EOF and SIGTERM release owned children and relay port. PATH-1/2."
+        },
+        "remote-fast-list": {
+          "status": "needed",
+          "evidence": "Bundled stock CLI 0.160.1 returns project-filtered SQLite witnesses but omits both witnesses from unfiltered native Remote Control requests with false or omitted useStateDbOnly. Relay returns both while preserving filters, pagination, pairing reuse and cursor reconnect. REMOTE-1/2/3; real-phone acceptance pending.",
+          "nativeMockWitnesses": {
+            "stateDbWitnesses": 2,
+            "stockProjectFiltered": 1,
+            "stockUnfiltered": 0,
+            "relayedUnfiltered": 2
+          }
+        }
+      }
     }
   ],
   "retired": [
@@ -406,14 +481,16 @@
         "26.928.2636.0",
         "26.930.2377.0",
         "26.930.3930.0",
-        "26.930.4958.0"
+        "26.930.4958.0",
+        "26.930.7945.0"
       ],
       "sourceSha256ByPackageVersion": {
         "26.928.1915.0": "99d12495c2a50e2a55b888ff0a5785563480614b345455ef56e1b100b5df7490",
         "26.928.2636.0": "355dd7dbc03aa6b1ae32fee2a6a35b66d8b0a096f7d4e068888706cf2c65b1b1",
         "26.930.2377.0": "23cb6abfcfe706cb571b80140a65b04b9a6a0a66b741439afde3d9e6cddf92d3",
         "26.930.3930.0": "290125797165e28c2b11e2b49031c605d55857007ea61c1352260d36a1fc195e",
-        "26.930.4958.0": "290125797165e28c2b11e2b49031c605d55857007ea61c1352260d36a1fc195e"
+        "26.930.4958.0": "290125797165e28c2b11e2b49031c605d55857007ea61c1352260d36a1fc195e",
+        "26.930.7945.0": "46b153e94466da15a8245dba0aecea0cc775b0b1688fe3b4cc9dd74d7805d7ad"
       }
     },
     {
@@ -425,7 +502,8 @@
         "26.928.2636.0",
         "26.930.2377.0",
         "26.930.3930.0",
-        "26.930.4958.0"
+        "26.930.4958.0",
+        "26.930.7945.0"
       ]
     }
   ]
