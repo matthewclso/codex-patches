@@ -24,6 +24,17 @@ function matchesReviewedPackage(build, packageReport) {
     'codeModeLinuxSha256', 'codeModeWindowsSha256', 'nodeWindowsSha256']
     .every(key => build[key] && build[key] === packageReport.hashes[key]);
 }
+function isVerifiedPackageSource(packageReport) {
+  const verification = packageReport.verification;
+  if (verification?.msixSignature === 'valid') return true;
+  // Local review may precede publication at the public MSIX URL. Require
+  // Store signing and Windows' actual package content-integrity verification;
+  // a signed executable or an installed package alone is insufficient.
+  return packageReport.source?.kind === 'installed-store-package' &&
+    verification?.msixSignature === 'not-run' && verification.executableSignature === 'valid' &&
+    verification.installedPackageSignature === 'Store' && verification.installedPackageStatus === 'Ok' &&
+    verification.installedPackageContentIntegrity === true;
+}
 function validate(appDirectory, packageReport, outDirectory) {
   fs.mkdirSync(outDirectory, { recursive: true });
   const report = { schemaVersion: 1, status: 'failed', reviewRequired: true,
@@ -33,7 +44,7 @@ function validate(appDirectory, packageReport, outDirectory) {
   try {
     assert.equal(packageReport.identity.name, 'OpenAI.Codex');
     assert.equal(packageReport.identity.architecture, 'x64');
-    assert.equal(packageReport.verification.msixSignature, 'valid');
+    assert(isVerifiedPackageSource(packageReport), 'Package signature/content verification is missing or failed.');
     assert.equal(packageReport.verification.publisher, 'matched-pin');
     const archivePath = path.join(appDirectory, 'resources', 'app.asar');
     const exeRelative = packageReport.files.executableRelativePath;
@@ -100,4 +111,4 @@ if (require.main === module) {
     if (report.status === 'failed') process.exitCode = 1;
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }
-module.exports = { validate, matchesReviewedPackage, candidatePatches };
+module.exports = { validate, matchesReviewedPackage, candidatePatches, isVerifiedPackageSource };
