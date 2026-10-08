@@ -34,3 +34,9 @@ module.exports.revisions.push({
   targetPath: '.vite/build/main-gtVueRkt.js',
   sourceSha256: 'a4b72dcd241e8ee360aa960442cc585aa822685a42efd056c760937d9f8b623e',
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/main-p91kJShj.js',
+  sourceSha256: 'aafd6a750458cb39b6202f9be00231482122d32ac14017b79d544c4ab741e889',
+});

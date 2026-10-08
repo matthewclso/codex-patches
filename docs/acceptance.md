@@ -60,6 +60,16 @@ Windows toolkit/CI tests passed 54 of 75 with 21 platform/source-specific skips;
 
 The original hosted candidate booted Ubuntu 26.04 under WSL2, but its six source tests and GraphQL audit failed with old fixtures; that report is preserved. Fresh desktop startup, interactive pets, agent browser navigation and real-phone reconnect remain pending. Android project-label mismatch remains an accepted limitation. No running deployment, saved selection or user state was changed.
 
+## October 8, 2026 compatibility review
+
+Package `26.1002.7124.0` (app `26.1002.52244`, bundled CLI `0.162.0-alpha.2`) was reviewed from the installed Windows Store package. Windows reports Store signing and package status OK; `VerifyContentIntegrityAsync` returned true, the publisher matches the pin, and the executable Authenticode signature is valid. Seven installed file hashes, source/output hashes, native synchronizer and composed archive/executable hashes are pinned. [The review record](../compatibility/reviews/26.1002.7124.0.json) distinguishes this evidence from a downloaded MSIX.
+
+Stock pet discovery and installation still join Windows home with POSIX paths. Patched discovery, selection and installation preserve traversal guards and pass Windows/POSIX/WSL UNC scenarios (PET-1/2). Browser WSL rejection remains; 256 prerequisite cases preserve other gates and the external-browser predicate. Ninety generator cases fix only Windows service paths for WSL tasks (BROWSER-1/2/3). Native membership migration, new assignments, shared working folders, moves, clearing and backend guards pass; project memberships remain opt-in (PROJECT-2/3/4). All six reviewed source tests and all 16 patch combinations pass.
+
+Windows toolkit/CI tests passed 55 of 76 with 21 platform/source-specific skips; Ubuntu 26.04 WSL2 passed 56 of 76 with 20 skips. Stock CLI 0.162.0-alpha.2 still reproduces matching-UNC project rejection and unfiltered Remote Control history failure; proxy/relay fixtures preserve canonical paths, pairing, pagination, reconnect and cleanup (PATH-1/2, REMOTE-1/2/3). Stock GraphQL arguments survive Windows Node-to-`wsl.exe` without the retired workaround. The reviewed package pipeline passes using verified Store-package evidence; missing, failed or incomplete evidence is rejected (SELECT-3/4, CI-3/4, VERIFY-1/2/3).
+
+The public MSIX URL and scheduled probe still return older package `26.930.7945.0`; those results are not current-build validation. Hosted WSL acceptance for this package was not run. Local WSL2 validation is recorded separately. Fresh desktop startup, interactive pets, actual agent browser navigation and real-phone reconnect remain pending; Android project-label mismatch remains an accepted limitation. The running app, saved settings and user state were not changed.
+
 ## Browser troubleshooting
 
 An open browser panel does not prove that agents can control it. Follow the installed Browser skill and test navigation through its supported tool. If a chat's working directory was moved or deleted, restore it before refreshing that chat's tools: the backend starts local tool servers in the chat directory, and caches failed startup attempts. A fresh backend session is needed when the failed tool cannot be refreshed.

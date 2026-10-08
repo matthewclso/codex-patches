@@ -58,3 +58,9 @@ A maintainer pushing a `v*` tag runs `Release source toolkit`, validates the tra
 - [WSL command reference](https://learn.microsoft.com/en-us/windows/wsl/basic-commands)
 - [Triggering workflows with GITHUB_TOKEN](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)
 - [GitHub schedule behavior](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
+
+## Reviewing an installed Store build before the public MSIX catches up
+
+When the installed Store version is newer than the public MSIX download, verify that exact installed package with `scripts/ci/Get-InstalledCodexVerification.ps1 -ExpectedPackageVersion <version>` in Windows PowerShell. This read-only check requires the pinned publisher, x64 architecture, Store signing, status OK, a valid executable signature and a successful Windows `Package.VerifyContentIntegrityAsync` result. Record the returned evidence in the local package report with `source.kind` set to `installed-store-package`; keep `verification.msixSignature` as `not-run`. Record the actual archive/app/CLI identities and all seven file hashes separately.
+
+The package validator accepts that evidence or a verified downloaded MSIX. Neither route adds the build to the runtime allowlist automatically. Review source behavior, runtime regressions and composed hashes before adding support. Keep hosted results for an older downloaded package separate from local current-build validation, and report interactive acceptance separately.

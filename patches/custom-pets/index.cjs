@@ -56,3 +56,15 @@ module.exports.revisions.push({
     return replace(source, 'async function lB(', currentHelper + 'async function lB(');
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/bootstrap-Dz9A8y86.js',
+  sourceSha256: 'a70497f5ffa764fe74f4de7ac05a5f73aff8d1e2f44de4476d1d9a684af43ddd',
+  apply(source, replace) {
+    assert(!source.includes('codexPetHome'), 'Pet helper is already present or collides');
+    for (const [before, after] of replacements) source = replace(source, before.replace('o.rt(', 'o.at('), after);
+    const currentHelper = helper.replace('o.rt(', 'o.at(').replace('o.zt(', 'o.Vt(');
+    return replace(source, 'async function Zz(', currentHelper + 'async function Zz(');
+  },
+});
