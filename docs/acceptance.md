@@ -101,13 +101,16 @@ Native remote fixtures exercise discovery before desktop discovery, chunked
 requests and hidden internal broadcasts alongside pairing reuse, filtering,
 pagination and cursor reconnect, including native request errors on startup
 timeout and segmentation of requests near the wire-size limit.
-Windows tests passed 69 of 93 with 24 skips;
-Ubuntu 26.04 WSL2 tests passed 73 of 93 with 20 skips. All six pristine-source
+Windows tests passed 73 of 97 with 24 skips;
+Ubuntu 26.04 WSL2 tests passed 77 of 97 with 20 skips. All six pristine-source
 tests passed separately, including all 16 app-patch combinations. Existing
 app-code transformations and their hashes are unchanged. Platform/source skips
 are not passes. Startup probes with a new database triggered history indexing;
 a concurrent source run exhausted a probe's memory allocation. The accepted
 checks ran separately and used the existing database for authenticated discovery.
+One combined run reported a wrapper exit in the WSL signal-shutdown fixture;
+the isolated signal check and complete WSL rerun passed. Test cleanup now
+preserves the initial failure. The original transient cause was not established.
 
 This change has not activated a generated copy, changed the active launcher or
 saved selection, or modified pairing state. Desktop agent tool discovery and

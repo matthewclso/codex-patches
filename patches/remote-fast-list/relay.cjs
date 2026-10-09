@@ -38,7 +38,8 @@ async function createRelay({ upstreamBase = "https://chatgpt.com/backend-api/", 
   const prefix = `/${capability}/backend-api/`;
   const pairs = new Set();
   const requests = new Set();
-  const counters = { rewrites: 0, websocketConnections: 0, rejected: 0, routingNormalizations: 0 };
+  const counters = { rewrites: 0, websocketConnections: 0, rejected: 0, routingNormalizations: 0,
+    routingFallbacks: 0, outgoingFilterFallbacks: 0 };
   function destination(req) {
     const allowedHost = `127.0.0.1:${server.address().port}`;
     if (req.headers.host !== allowedHost || req.headers.origin || !req.url?.startsWith(prefix)) return null;
@@ -146,9 +147,15 @@ async function createRelay({ upstreamBase = "https://chatgpt.com/backend-api/", 
         counters.websocketConnections++;
         const rewrite = new IncomingRewriter({ additionalRewrite });
         const outgoingFilter = additionalFilter && new IncomingRewriter({
-          additionalRewrite: additionalFilter, envelopeType: "server_message" });
+          additionalRewrite: additionalFilter, envelopeType: "server_message", passThroughOnError: true });
         const fail = () => { client.terminate(); upstream.terminate(); };
-        const timer = setInterval(() => { try { rewrite.expire(); outgoingFilter?.expire(); } catch { fail(); } }, 1000);
+        const timer = setInterval(() => {
+          try { rewrite.expire(); } catch { fail(); }
+          try { outgoingFilter?.expire(); } catch {
+            counters.outgoingFilterFallbacks++;
+            send(client, upstream, outgoingFilter.bypass());
+          }
+        }, 1000);
         timer.unref();
         function closePeer(peer, code, reason) {
           if (peer.readyState === WebSocket.OPEN)
@@ -178,11 +185,12 @@ async function createRelay({ upstreamBase = "https://chatgpt.com/backend-api/", 
             rewrite.expire();
             rewrite.suspendExpiry();
             try {
-            if (!remoteControl) { send(upstream, client, [{data, binary}]); return; }
-            const before = rewrite.rewritten;
-            const frames = await rewrite.pushAsync(data, binary);
-            counters.rewrites += rewrite.rewritten - before;
-            send(upstream, client, frames);
+              if (!remoteControl) { send(upstream, client, [{data, binary}]); return; }
+              const before = rewrite.rewritten, fallbacks = rewrite.routingFallbacks;
+              const frames = await rewrite.pushAsync(data, binary);
+              counters.rewrites += rewrite.rewritten - before;
+              counters.routingFallbacks += rewrite.routingFallbacks - fallbacks;
+              send(upstream, client, frames);
             } finally { rewrite.resumeExpiry(); }
           }).catch(fail);
         });
@@ -191,9 +199,17 @@ async function createRelay({ upstreamBase = "https://chatgpt.com/backend-api/", 
           if (!remoteControl || !outgoingFilter) { send(client, upstream, [{ data, binary }]); return; }
           client.pause();
           outgoingFrames = outgoingFrames.then(async () => {
-            outgoingFilter.expire();
+            let expiredFrames = [];
+            try { outgoingFilter.expire(); } catch {
+              expiredFrames = outgoingFilter.bypass();
+              counters.outgoingFilterFallbacks++;
+            }
             outgoingFilter.suspendExpiry();
-            try { send(client, upstream, await outgoingFilter.pushAsync(data, binary)); }
+            try {
+              const bypassed = outgoingFilter.bypassed;
+              send(client, upstream, [...expiredFrames, ...await outgoingFilter.pushAsync(data, binary)]);
+              if (!bypassed && outgoingFilter.bypassed) counters.outgoingFilterFallbacks++;
+            }
             finally { outgoingFilter.resumeExpiry(); }
           }).catch(fail);
         });

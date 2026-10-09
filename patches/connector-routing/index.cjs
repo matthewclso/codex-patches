@@ -45,7 +45,7 @@ class ConnectorRouting {
     if (this.closed) return Promise.reject(new Error("Connector routing closed"));
     if (this.contextId) return Promise.resolve(this.contextId);
     if (this.pending) return this.ready;
-    if (this.expired.size >= 128 || this.hidden.size >= 128) return Promise.reject(new Error("Too many outstanding connector contexts"));
+    if (this.expired.size >= 128) return Promise.reject(new Error("Too many outstanding connector contexts"));
     this.ready = new Promise((resolve, reject) => { this.resolve = resolve; this.reject = reject; });
     // Desktop callers use the bounded queue below rather than awaiting this promise.
     this.ready.catch(() => {});
@@ -70,7 +70,7 @@ class ConnectorRouting {
       this.sendNative({ ...message, params: { ...message.params, threadId: this.contextId } });
       return true;
     }
-    if (this.queue.length + this.remoteWaiting >= 128 || this.expired.size >= 128 || this.hidden.size >= 128 || this.closed) {
+    if (this.queue.length + this.remoteWaiting >= 128 || this.expired.size >= 128 || this.closed) {
       this.sendClient({ id: message.id, error: { code: -32603, message: "Connector routing startup queue is full" } });
       return true;
     }
@@ -87,7 +87,7 @@ class ConnectorRouting {
       const id = message.result?.thread?.id;
       if (message.error || typeof id !== "string" || !id) { this.settle(requestId); this.fail(); return true; }
       this.contextId = id;
-      this.hidden.add(id);
+      this.hide(id);
       this.settle(requestId);
       const queued = this.queue.splice(0);
       for (const request of queued)
@@ -105,7 +105,7 @@ class ConnectorRouting {
       this.expired.delete(message.id);
       const id = message.result?.thread?.id;
       if (typeof id === "string") {
-        this.hidden.add(id);
+        this.hide(id);
         this.unsubscribe(id);
       }
       this.settle(message.id);
@@ -142,8 +142,20 @@ class ConnectorRouting {
     if (message?.method || !Object.hasOwn(message ?? {}, "id")) return;
     const key = JSON.stringify(id), context = requests.get(key);
     requests.delete(key);
-    if (context === this.contextId && /thread.*(?:not found|not loaded|does not exist)/i.test(message.error?.message ?? ""))
+    // The pinned native CLI reports these invalid-request errors without a
+    // structured subtype. Require its code and exact bound context identity.
+    if (context === this.contextId && message.error?.code === -32600 &&
+        [`thread not found: ${context}`, `thread not loaded: ${context}`].includes(message.error.message))
       this.contextId = null;
+  }
+  hide(id) {
+    this.hidden.add(id);
+    // Recent lifecycle tombstones remain hidden without limiting the number
+    // of healthy recoveries in a long-lived desktop process.
+    if (this.hidden.size > 128) {
+      const oldest = [...this.hidden].find(item => item !== this.contextId);
+      this.hidden.delete(oldest);
+    }
   }
   settle(id) {
     this.settling.get(id)?.resolve();
@@ -162,19 +174,30 @@ class ConnectorRouting {
     // A native broadcast can reach the WebSocket before its stdio start reply.
     // Learn the context ID first, including late replies after startup timeout.
     this.observeReply(message, this.remoteRequests, [envelope?.client_id, message?.id]);
+    if (this.hiddenNotification(message)) return QUIET;
     if (message?.method === "thread/started" && !Object.hasOwn(message, "id") &&
         message.params?.thread?.ephemeral === true && this.settling.size) {
       let timer;
       try {
         await Promise.race([Promise.all([...this.settling.values()].map(item => item.promise)),
           new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("Connector context identity timeout")), this.timeoutMs); timer.unref(); })]);
+      } catch {
+        // An unknown notification belongs to the native client stream. A
+        // missing stdio identity must not disconnect an otherwise healthy
+        // remote session or suppress an ordinary ephemeral chat.
       } finally { clearTimeout(timer); }
     }
     return this.hiddenNotification(message) ? QUIET : false;
   }
   fail() {
     clearTimeout(this.timer);
-    if (this.pending) this.expired.add(this.pending);
+    if (this.pending) {
+      this.expired.add(this.pending);
+      // Resolve every waiter now. Retain this bounded, already-resolved
+      // identity tombstone until a late reply, so a simultaneous broadcast
+      // gets one asynchronous recheck without waiting on a missing response.
+      this.settling.get(this.pending)?.resolve();
+    }
     this.pending = null;
     this.reject?.(new Error("Native connector routing context could not start"));
     for (const message of this.queue.splice(0))

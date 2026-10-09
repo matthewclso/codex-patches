@@ -38,8 +38,8 @@
     {
       "name": "Ubuntu-26.04-WSL2-toolkit-and-CI",
       "status": "passed",
-      "tests": 93,
-      "passed": 73,
+      "tests": 97,
+      "passed": 77,
       "skipped": 20,
       "failed": 0,
       "skipScope": "Windows-only and separately executed pristine-source/GraphQL checks"
@@ -47,8 +47,8 @@
     {
       "name": "Windows-toolkit-and-CI",
       "status": "passed",
-      "tests": 93,
-      "passed": 69,
+      "tests": 97,
+      "passed": 73,
       "skipped": 24,
       "failed": 0,
       "skipScope": "WSL-only, separately executed pristine-source/GraphQL checks and unavailable file-symlink privilege"
@@ -84,7 +84,8 @@
       "resources": 95,
       "internalDesktopContextHidden": true,
       "eofExitCode": 0,
-      "relayPortReleased": true
+      "relayPortReleased": true,
+      "nativeEphemeralContext": true
     }
   ],
   "patchStatus": {
@@ -102,6 +103,17 @@
     "No running desktop deployment, launcher, saved selection or pairing state was changed. No hosted WSL run is claimed.",
     "Initial authenticated probes with empty SQLite triggered history indexing and timed out; the accepted probe uses the existing database with a separate process. Large source checks were run separately after a concurrent probe hit memory pressure.",
     "The first source-suite run selected Codex.exe rather than the pinned ChatGPT.exe and failed two hash assertions; the corrected six-test run passed.",
-    "Native residency and account routing gates are preserved in the pinned source; a live account with non-default residency was not available for acceptance."
-  ]
+    "Native residency and account routing gates are preserved in the pinned source; a live account with non-default residency was not available for acceptance.",
+    "Unexpected outgoing chunk shapes or stalls restore native byte-preserving transport for that connection; internal lifecycle hiding then becomes best-effort. Fallback counters contain no message content. Incoming validation remains strict.",
+    "Impossible near-limit routing expansion forwards original native frames and increments routingFallbacks; 128 unreplied context starts require a backend restart. Healthy recovery is not capped by historical context IDs.",
+    "One combined WSL/Windows run reported a wrapper exit in the WSL signal-shutdown fixture. The isolated signal check and full WSL rerun passed. Cleanup diagnostics now preserve the initial failure; the original transient cause was not established."
+  ],
+  "contextRecoveryErrorPin": {
+    "code": -32600,
+    "messageForms": [
+      "thread not found: <bound-context-id>",
+      "thread not loaded: <bound-context-id>"
+    ],
+    "scope": "Exact pinned native invalid-request messages; no structured missing-context subtype. Native timeout fixture asserts the exact code, literal and sentinel ID."
+  }
 }

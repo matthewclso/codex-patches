@@ -57,6 +57,9 @@ remote requests share it. No chat turns or persistent chats are created. Native
 authentication, account routing, server requests and tool execution remain in
 the bundled CLI. Internal context lifecycle notifications are hidden from the
 desktop and remote clients; ordinary chat notifications and connector responses pass through.
+Outgoing lifecycle filtering falls back to native byte-preserving transport on
+unexpected chunk shapes or stalls. That connection can then expose internal
+lifecycle events; the fallback is counted, and incoming validation stays strict.
 
 `primaryRuntimeCacheHome` is also optional. Installation derives it from the
 Windows desktop profile’s `.cache`, converted through the selected WSL mount

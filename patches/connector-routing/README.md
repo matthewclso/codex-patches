@@ -25,6 +25,13 @@ queue and a ten-second deadline. Desktop failures return an error; remote failur
 use an unavailable context so the native endpoint returns a request-scoped error
 while listing and reconnect stay available. Incomplete chunk expiry excludes time
 spent waiting on local context creation. Dead contexts recover on the next request.
+Historical context IDs are bounded independently of healthy recovery, so a long
+desktop session can recover repeatedly. Unknown ephemeral broadcasts can wait
+up to the same ten-second identity deadline during startup, then pass through.
+When outgoing chunks vary or stall, retained bytes are flushed in arrival order
+and lifecycle filtering yields to native pass-through for that connection.
+Incoming request validation remains strict. Relay counters expose filter and
+routing fallback without including message content.
 The context is unsubscribed at EOF and terminates with its owned CLI process.
 
 This module is independently selectable. With `remote-fast-list` disabled,

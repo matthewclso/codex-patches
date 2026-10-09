@@ -144,6 +144,20 @@ test("remote broadcasts wait for context identity, including late replies, and h
     routing.close();
   }
 });
+test("a context that never replies cannot stall or disconnect ordinary ephemeral broadcasts", async () => {
+  const {routing}=fixture({timeoutMs:5});
+  const keepAlive=setTimeout(()=>{},1000);
+  try {
+    routing.request({id:1,method:"app/installed",params:{}});
+    const ordinary={method:"thread/started",params:{thread:{id:"ordinary",ephemeral:true}}};
+    assert.equal(await routing.remoteResponse(ordinary),false);
+    await Promise.all([...routing.settling.values()].map(item=>item.promise));
+    assert.equal(await routing.remoteResponse(ordinary),false);
+    // Defensive identity timeout must also retain the native notification.
+    routing.settling.set("missing",{promise:new Promise(()=>{}),resolve:()=>{}});
+    assert.equal(await routing.remoteResponse(ordinary),false);
+  } finally {routing.close();clearTimeout(keepAlive);}
+});
 test("outgoing filtering preserves ordinary response bytes and native sequence boundaries for hidden lifecycle messages", async () => {
   const {routing,native}=fixture();
   routing.request({id:1,method:"app/installed",params:{}});
@@ -187,6 +201,42 @@ test("expired discovery contexts recover on the next request while ordinary repl
   await routing.remoteResponse({id:4,error:{code:-32600,message:"thread not found: unavailable"}},{client_id:"phone"});
   assert.equal(routing.contextId,"replacement");
   routing.close();
+});
+test("healthy recovery remains available beyond 128 historical contexts and retains bounded tombstones", () => {
+  const {routing,native,client}=fixture();
+  for(let i=0;i<260;i++) {
+    routing.request({id:i,method:"app/installed",params:{}});
+    const start=native.at(-1);
+    assert.equal(start.method,"thread/start");
+    routing.response({id:start.id,result:{thread:{id:`context-${i}`}}});
+    assert.equal(routing.contextId,`context-${i}`);
+    // A generic invalid-request error is not evidence of a missing context.
+    routing.response({id:i,error:{code:-32600,message:"invalid params"}});
+    assert.equal(routing.contextId,`context-${i}`);
+    routing.response({method:"thread/closed",params:{threadId:`context-${i}`}});
+    assert.equal(routing.contextId,null);
+  }
+  assert.equal(client.length,0);assert.equal(routing.hidden.size,128);
+  assert.equal(routing.hidden.has("context-259"),true);
+  routing.close();
+});
+test("outgoing shape changes and stalled chunks flush native bytes in order and restore pass-through", async () => {
+  const frame=(segment,stream="a")=>Buffer.from(JSON.stringify({type:"server_message_chunk",client_id:"phone",stream_id:stream,
+    seq_id:1,segment_id:segment,segment_count:2,message_size_bytes:4,message_chunk_base64:Buffer.from("{}").toString("base64")}));
+  for(const variation of [frame(0,"b"),frame(1,"b"),Buffer.from('{"type":"server_message","message":{"id":1,"result":null}}'),Buffer.from("malformed")]) {
+    const rewrite=new IncomingRewriter({envelopeType:"server_message",passThroughOnError:true});
+    const first=frame(0);
+    assert.deepEqual(await rewrite.pushAsync(first),[]);
+    const flushed=await rewrite.pushAsync(variation);
+    assert.deepEqual(flushed.map(f=>f.data),[first,variation]);
+    assert.equal(rewrite.bypassed,true);assert.equal(rewrite.buffered,0);assert.equal(rewrite.originals.size,0);
+    const next=frame(1);assert.equal((await rewrite.pushAsync(next))[0].data,next);
+  }
+  const rewrite=new IncomingRewriter({envelopeType:"server_message",passThroughOnError:true,ttlMs:5});
+  const first=frame(0);await rewrite.pushAsync(first);
+  assert.throws(()=>rewrite.expire(Date.now()+10),/expired/);
+  assert.deepEqual(rewrite.bypass().map(f=>f.data),[first]);
+  assert.equal(rewrite.assemblies.size,0);
 });
 test("a near-limit remote request is segmented without losing its native cursor, sequence or request ID", async () => {
   const {routing}=fixture();

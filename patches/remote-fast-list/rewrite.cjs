@@ -45,7 +45,7 @@ function rewriteRequest(message) {
 
 class IncomingRewriter {
   constructor({ ttlMs = 30000, maxBuffered = 128 * 1024 * 1024, additionalRewrite = () => false,
-      envelopeType = "client_message" } = {}) {
+      envelopeType = "client_message", passThroughOnError = false } = {}) {
     this.assemblies = new Map();
     this.buffered = 0;
     this.ttlMs = ttlMs;
@@ -54,6 +54,10 @@ class IncomingRewriter {
     this.additionalRewrite = additionalRewrite;
     this.envelopeType = envelopeType;
     this.expirySuspended = false;
+    this.passThroughOnError = passThroughOnError;
+    this.originals = new Set();
+    this.bypassed = false;
+    this.routingFallbacks = 0;
   }
   expire(now = Date.now()) {
     if (this.expirySuspended) return;
@@ -67,8 +71,17 @@ class IncomingRewriter {
     for (const assembly of this.assemblies.values()) assembly.started += elapsed;
     this.expirySuspended = false;
   }
+  bypass(extra) {
+    if (extra) this.originals.add(extra);
+    const frames = [...this.originals];
+    this.originals.clear(); this.assemblies.clear(); this.buffered = 0;
+    this.bypassed = true;
+    return frames;
+  }
   push(data, binary = false) {
-    const frames = this.frames(data, binary);
+    const original = { data, binary };
+    if (this.bypassed) return [original];
+    const frames = this.frames(data, binary, original);
     let step = frames.next();
     while (!step.done) {
       const changed = this.additionalRewrite(step.value.message, step.value.envelope);
@@ -78,17 +91,30 @@ class IncomingRewriter {
     return step.value;
   }
   async pushAsync(data, binary = false) {
-    const frames = this.frames(data, binary);
-    let step = frames.next();
-    while (!step.done) step = frames.next(await this.additionalRewrite(step.value.message, step.value.envelope));
-    return step.value;
-  }
-  *frames(data, binary = false) {
-    this.expire();
     const original = { data, binary };
-    if (binary) return [original];
+    if (this.bypassed) return [original];
+    try {
+      const frames = this.frames(data, binary, original);
+      let step = frames.next();
+      while (!step.done) step = frames.next(await this.additionalRewrite(step.value.message, step.value.envelope));
+      return step.value;
+    } catch (error) {
+      if (!this.passThroughOnError) throw error;
+      return this.bypass(original);
+    }
+  }
+  *frames(data, binary = false, original = { data, binary }) {
+    this.expire();
+    if (binary) return this.passThroughOnError && this.originals.size ? this.bypass(original) : [original];
     let envelope;
-    try { envelope = parse(data.toString()); } catch { return [original]; }
+    try { envelope = parse(data.toString()); }
+    catch { return this.passThroughOnError && this.originals.size ? this.bypass(original) : [original]; }
+    // Native events are normally segmented consecutively. If an outgoing
+    // stream varies, flush retained bytes in arrival order and resume native
+    // pass-through instead of adding a relay transport failure.
+    if (this.passThroughOnError && this.originals.size &&
+        (envelope?.type !== this.envelopeType + "_chunk" || !this.assemblies.has(envelope.client_id)))
+      return this.bypass(original);
     if (envelope?.type === this.envelopeType) {
       const listed = this.envelopeType === "client_message" && rewriteRequest(envelope.message);
       const changed = yield { message: envelope.message, envelope };
@@ -97,7 +123,7 @@ class IncomingRewriter {
       const encoded = Buffer.from(JSON.stringify(envelope));
       if (encoded.length > MAX_WIRE) {
         const frames = expandedChunks(Buffer.from(JSON.stringify(envelope.message)), [envelope], this.envelopeType);
-        if (!frames) return [original];
+        if (!frames) { this.routingFallbacks++; return [original]; }
         this.rewritten++;
         return frames;
       }
@@ -105,6 +131,7 @@ class IncomingRewriter {
       return [{ data: encoded, binary: false }];
     }
     if (envelope?.type !== this.envelopeType + "_chunk") return [original];
+    if (this.passThroughOnError) this.originals.add(original);
     const e = envelope;
     if (typeof e.client_id !== "string" || !Number.isInteger(e.segment_id) ||
         !Number.isInteger(e.segment_count) || e.segment_count < 1 || e.segment_count > 1024 ||
@@ -135,13 +162,18 @@ class IncomingRewriter {
     this.buffered -= a.retained;
     if (a.bytes !== e.message_size_bytes) throw new Error("Remote message size mismatch");
     let message;
-    try { message = parse(Buffer.concat(a.pieces).toString()); } catch { return a.frames.map(f => f.original); }
+    try { message = parse(Buffer.concat(a.pieces).toString()); }
+    catch {
+      for (const frame of a.frames) this.originals.delete(frame.original);
+      return a.frames.map(f => f.original);
+    }
     const listed = this.envelopeType === "client_message" && rewriteRequest(message);
     const changed = yield { message, envelope: a.frames.at(-1).envelope };
+    for (const frame of a.frames) this.originals.delete(frame.original);
     if (changed === QUIET) return [quietFrame(a.frames.at(-1).envelope)];
     if (!changed && !listed) return a.frames.map(f => f.original);
     const payload = Buffer.from(JSON.stringify(message));
-    if (payload.length > MAX_MESSAGE) return a.frames.map(frame => frame.original);
+    if (payload.length > MAX_MESSAGE) { this.routingFallbacks++; return a.frames.map(frame => frame.original); }
     // Keep the original segment count and each segment's delivery cursor/metadata.
     const encodedFrames = a.frames.map((frame, index) => {
       const start = Math.floor(payload.length * index / a.frames.length);
@@ -152,7 +184,7 @@ class IncomingRewriter {
     });
     if (encodedFrames.some(frame => frame.data.length > MAX_WIRE)) {
       const expanded = expandedChunks(payload, a.frames.map(frame => frame.envelope), this.envelopeType);
-      if (!expanded) return a.frames.map(frame => frame.original);
+      if (!expanded) { this.routingFallbacks++; return a.frames.map(frame => frame.original); }
       this.rewritten++;
       return expanded;
     }

@@ -176,22 +176,25 @@ for(const mode of ["stock", "fresh", "reuse", "connectors", "connector-error"])t
       const installed=await remote({id:109,method:"app/installed",params:{forceRefresh:true}},{chunked:true});
       if(failure) {
         assert.equal(installed.id,109);
-        assert.match(installed.error?.message ?? "",/thread not found/);
+        assert.equal(installed.error.code,-32600);
+        assert.equal(installed.error.message,`thread not found: ${routing.unavailableContext}`);
         assert.equal(observed.length,1,"A connector startup timeout must not drop the native socket");
       } else {
-      assert.ok(!installed.error,JSON.stringify(installed.error));
-      assert.deepEqual(installed.result.apps,[]);
-      assert.ok(routing.contextId,"Remote-first discovery must create the native context through stdio");
-      const loaded=await rpc.request("thread/loaded/list",{});
-      assert.ok(loaded.data.includes(routing.contextId));
-      assert.ok(!remoteNotifications.some(message=>message.params?.thread?.id===routing.contextId),
-        "Internal discovery context must stay hidden from remote clients");
+        assert.ok(!installed.error,JSON.stringify(installed.error));
+        assert.deepEqual(installed.result.apps,[]);
+        assert.ok(routing.contextId,"Remote-first discovery must create the native context through stdio");
+        const loaded=await rpc.request("thread/loaded/list",{});
+        assert.ok(loaded.data.includes(routing.contextId));
+        assert.ok(!remoteNotifications.some(message=>message.params?.thread?.id===routing.contextId),
+          "Internal discovery context must stay hidden from remote clients");
+      }
+      // A normal ephemeral chat still broadcasts after a context start that
+      // never replies, with the same native socket and reconnect boundary.
       const large=await remote({id:110,method:"thread/start",params:{ephemeral:true,developerInstructions:""}},{nearLimit:true});
       assert.ok(!large.error,JSON.stringify(large.error));
       assert.equal(large.result.thread.ephemeral,true);
       await notification(message=>message.params?.thread?.id===large.result.thread.id);
       await remote({id:111,method:"thread/unsubscribe",params:{threadId:large.result.thread.id}});
-      }
     }
     for(let i=0;i<2;i++) {
       const list=await remote({id:102+i,method:"thread/list",params:{useStateDbOnly:false,projectId:projects[i].id,limit:10}},
@@ -215,7 +218,7 @@ for(const mode of ["stock", "fresh", "reuse", "connectors", "connector-error"])t
     const denied=await remote({id:105,method:"userVerification/enroll",params:{}});
     assert.equal(denied.error.data.type,"unavailable");
     assert.equal(denied.error.data.reason,"providerUnavailable");
-    if (!stock) assert.equal(relay.counters.rewrites,4 + Number(connectors) + Number(connectors && !failure));
+    if (!stock) assert.equal(relay.counters.rewrites,4 + 2 * Number(connectors));
     assert.equal(observed.length,1,"Remote requests use native socket, not stdio forwarding");
     const reconnect=once(wss,"connection");
     backend.close(1000,"fixture reconnect");
@@ -228,7 +231,7 @@ for(const mode of ["stock", "fresh", "reuse", "connectors", "connector-error"])t
     const resumed=await remote({id:108,method:"thread/list",params:{limit:10}});
     assert.deepEqual(new Set(resumed.result.data.map(t=>t.id)),new Set(stock ? [] : ids));
     if (!stock) {
-      assert.equal(relay.counters.rewrites,5 + Number(connectors) + Number(connectors && !failure));
+      assert.equal(relay.counters.rewrites,5 + 2 * Number(connectors));
       assert.ok(relay.counters.routingNormalizations>=1);
     }
     await rpc.request("remoteControl/disable",{ephemeral:true});
@@ -264,7 +267,7 @@ for (const shutdown of ["eof", "signal"]) test(`stock project path regression cr
   const unc = "\\\\wsl.localhost\\FixtureUbuntu" + directory.replaceAll("/", "\\");
   const stock = new AppServerRpc(BINARY, stockHome, stockSqlite);
   const proxy = path.join(__dirname, "../patches/wsl-project-paths/proxy.py");
-  let rpc;
+  let rpc, primaryError;
   try {
     await stock.initialize();
     await assert.rejects(() => stock.request("project/create", { name: "Stock invalid root",
@@ -289,9 +292,15 @@ for (const shutdown of ["eof", "signal"]) test(`stock project path regression cr
     rpc = null;
     const rebound = await createRelay(relayConfig);
     await rebound.close();
+  } catch (error) {
+    primaryError = error;
+    throw error;
   } finally {
-    if (rpc) await rpc.close();
-    if (stock.child.exitCode == null) await stock.close();
-    fs.rmSync(directory, { recursive: true, force: true });
+    try {
+      if (rpc) await rpc.close();
+      if (stock.child.exitCode == null) await stock.close();
+    } catch (cleanupError) {
+      if (!primaryError) throw cleanupError;
+    } finally { fs.rmSync(directory, { recursive: true, force: true }); }
   }
 });

@@ -113,3 +113,29 @@ test("upstream handshake rejection preserves native status, retry headers and bo
     assert.deepEqual(await result,{status:401,retry:"42",body:"denied"});
   } finally {client?.terminate();await relay.close();await close(server);}
 });
+test("outgoing filtering variations preserve native bytes and keep remote listing available", {timeout:10000}, async () => {
+  const server=http.createServer(),wss=new WebSocketServer({server,perMessageDeflate:false});
+  await listen(server);
+  const relay=await createRelay({upstreamBase:`http://127.0.0.1:${server.address().port}/backend-api/`,
+    testLoopback:true,additionalFilter:()=>false});
+  let client,backend;
+  try {
+    const connected=once(wss,"connection");
+    client=new WebSocket(relay.baseUrl.replace("http:","ws:")+"wham/remote/control/server");
+    [backend]=await connected;await once(client,"open");
+    const chunk=stream=>Buffer.from(JSON.stringify({type:"server_message_chunk",client_id:"phone",stream_id:stream,
+      seq_id:1,segment_id:0,segment_count:2,message_size_bytes:4,message_chunk_base64:"e30="}));
+    const first=chunk("a"),variation=chunk("b"),received=[];
+    const flushed=new Promise(resolve=>backend.on("message",data=>{received.push(data);if(received.length===2)resolve();}));
+    client.send(first,{binary:false});client.send(variation,{binary:false});
+    await flushed;
+    assert.deepEqual(received,[first,variation]);assert.equal(relay.counters.outgoingFilterFallbacks,1);
+    const ordinary=Buffer.from(' {"type":"server_message","message":{"id":1,"result":null}} ');
+    const reply=once(backend,"message");client.send(ordinary,{binary:false});
+    assert.deepEqual((await reply)[0],ordinary);
+    const listing=once(client,"message");
+    backend.send(JSON.stringify({type:"client_message",message:{id:2,method:"thread/list",params:{limit:1}}}));
+    assert.equal(JSON.parse((await listing)[0]).message.params.useStateDbOnly,true);
+    assert.equal(client.readyState,WebSocket.OPEN);assert.equal(backend.readyState,WebSocket.OPEN);
+  } finally {client?.terminate();backend?.terminate();await relay.close();wss.close();await close(server);}
+});
