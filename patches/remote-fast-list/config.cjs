@@ -25,6 +25,9 @@ function readRuntimeConfig(file = process.env.CODEX_PATCHES_RUNTIME_CONFIG) {
     if (typeof config[field] !== "string" || !path.isAbsolute(config[field]))
       throw new Error(`Runtime ${field} must be an absolute path`);
   const override = process.env.CODEX_PATCHES_REAL_CLI;
+  if (config.connectorRouting != null && typeof config.connectorRouting !== "boolean") throw new Error("Runtime connectorRouting must be boolean");
+  if (config.primaryRuntimeCacheHome != null && (typeof config.primaryRuntimeCacheHome !== "string" || !path.isAbsolute(config.primaryRuntimeCacheHome)))
+    throw new Error("Runtime primaryRuntimeCacheHome must be absolute");
   if (override && fs.realpathSync(override) !== fs.realpathSync(config.realCli))
     throw new Error("The stock CLI override disagrees with the runtime configuration");
   return config;

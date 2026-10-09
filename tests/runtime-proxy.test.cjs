@@ -47,18 +47,19 @@ test("stock passthrough and both-disabled app-server use the canonical Linux hom
   fs.chmodSync(directory, 0o700);
   const binary = path.join(directory, "stock-cli-fixture");
   const log = path.join(directory, "calls.jsonl");
-  const program = "#!/usr/bin/env python3\nimport json,os,sys\nrecord={'args':sys.argv[1:],'home':os.environ.get('CODEX_HOME'),'sqlite':os.environ.get('CODEX_SQLITE_HOME')}\nwith open(os.environ['CODEX_PATCHES_FIXTURE_LOG'],'a') as f:f.write(json.dumps(record)+'\\n')\nprint('codex-cli fixture' if sys.argv[1:]==['--version'] else json.dumps(record))\n";
+  const program = "#!/usr/bin/env python3\nimport json,os,sys\nrecord={'args':sys.argv[1:],'home':os.environ.get('CODEX_HOME'),'sqlite':os.environ.get('CODEX_SQLITE_HOME'),'cache':os.environ.get('XDG_CACHE_HOME')}\nwith open(os.environ['CODEX_PATCHES_FIXTURE_LOG'],'a') as f:f.write(json.dumps(record)+'\\n')\nprint('codex-cli fixture' if sys.argv[1:]==['--version'] else json.dumps(record))\n";
   fs.writeFileSync(binary, program, { mode: 0o700 });
   const config = { schemaVersion: 1, realCli: binary,
     cliSha256: crypto.createHash("sha256").update(program).digest("hex"), cliVersion: "codex-cli fixture",
     codexHome: path.join(directory, "canonical-home"), sqliteHome: path.join(directory, "canonical-sqlite"),
     stateRoot: path.join(directory, "state"), node: process.execPath, distro: "FixtureUbuntu",
-    relayEnabled: false, rewriteProjectPaths: false };
+    relayEnabled: false, rewriteProjectPaths: false, primaryRuntimeCacheHome: path.join(directory, "desktop-cache") };
   const runtime = path.join(directory, "runtime.json");
   fs.writeFileSync(runtime, JSON.stringify(config), { mode: 0o600 });
   const env = { ...process.env, CODEX_HOME: "Q:\\Desktop\\.codex", CODEX_SQLITE_HOME: "Q:\\Desktop\\sqlite",
     CODEX_PATCHES_RUNTIME_CONFIG: runtime, CODEX_PATCHES_FIXTURE_LOG: log };
   delete env.CODEX_PATCHES_REAL_CLI;
+  delete env.XDG_CACHE_HOME;
   try {
     const invoke = args => execFileSync(PYTHON, [PROXY, ...args], { encoding: "utf8", env });
     assert.equal(invoke(["--version"]).trim(), config.cliVersion);
@@ -71,6 +72,7 @@ test("stock passthrough and both-disabled app-server use the canonical Linux hom
     for (const call of calls) {
       assert.equal(call.home, config.codexHome, "Every stock invocation, including its version probe, needs the backend home");
       assert.equal(call.sqlite, config.sqliteHome);
+      assert.equal(call.cache, config.primaryRuntimeCacheHome);
     }
     assert.equal(fs.existsSync(config.stateRoot), false, "Disabling optional modules creates no relay runtime");
   } finally { fs.rmSync(directory, { recursive: true, force: true }); }

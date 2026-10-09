@@ -5,17 +5,22 @@ const { spawn } = require("node:child_process");
 const { createRelay } = require("./relay.cjs");
 const { readConfig } = require("./runtime.cjs");
 const { readRuntimeConfig, validateBinary } = require("./config.cjs");
+const { ConnectorRouting } = require("../connector-routing/index.cjs");
+const { jsonLines, writer } = require("../connector-routing/stdio.cjs");
+const { cacheEnvironment } = require("../primary-runtime-cache/index.cjs");
 
 async function run(runtime, args) {
   validateBinary(runtime.realCli, runtime.cliSha256);
   if (!runtime.relayEnabled) throw new Error("Relay is disabled in this runtime");
   if (args.some(arg => /^chatgpt_base_url\s*=/.test(arg))) throw new Error("Existing backend override");
   const config = readConfig(path.join(runtime.stateRoot, "relay"));
-  let relay, child, stopping = false, orphanGuard, killTimer;
+  let relay, child, connector, inputRouter, outputRouter, writeNative, writeClient, stopping = false, orphanGuard, killTimer;
   const signals = new Map();
   try {
-    relay = await createRelay(config);
-    const env = { ...process.env, CODEX_HOME: runtime.codexHome, CODEX_SQLITE_HOME: runtime.sqliteHome };
+    relay = await createRelay({ ...config,
+      additionalRewrite: (message, envelope) => connector?.remoteRequest(message, envelope) ?? false,
+      additionalFilter: runtime.connectorRouting ? (message, envelope) => connector?.remoteResponse(message, envelope) ?? false : undefined });
+    const env = cacheEnvironment(runtime, { ...process.env, CODEX_HOME: runtime.codexHome, CODEX_SQLITE_HOME: runtime.sqliteHome });
     delete env.CODEX_REMOTE_CONTROL_RELAY_ENABLED;
     // The capability-bearing local hop must never be sent to a network proxy.
     env.NO_PROXY = [env.no_proxy || env.NO_PROXY || "", "127.0.0.1", "localhost"].filter(Boolean).join(",");
@@ -33,12 +38,26 @@ async function run(runtime, args) {
     };
     const onStdinError = () => child.stdin.destroy();
     const onOutputError = () => stop("SIGTERM");
-    const onEof = () => { killTimer = setTimeout(() => stop("SIGTERM"), 10000); killTimer.unref(); };
+    const onEof = () => {
+      if (connector) { connector.close(); child.stdin.end(); }
+      killTimer = setTimeout(() => stop("SIGTERM"), 10000); killTimer.unref();
+    };
     process.stdin.on("error", onStdinError);
     process.stdout.on("error", onOutputError);
+    if (runtime.connectorRouting) {
+      writeNative = writer(process.stdin, child.stdin);
+      writeClient = writer(child.stdout, process.stdout);
+      connector = new ConnectorRouting({
+        sendNative: message => writeNative(JSON.stringify(message) + "\n"),
+        sendClient: message => writeClient(JSON.stringify(message) + "\n"),
+      });
+      inputRouter = jsonLines(process.stdin, writeNative, message => connector.request(message));
+      outputRouter = jsonLines(child.stdout, writeClient, message => connector.response(message));
+    } else {
+      process.stdin.pipe(child.stdin);
+      child.stdout.pipe(process.stdout, { end: false });
+    }
     process.stdin.once("end", onEof);
-    process.stdin.pipe(child.stdin);
-    child.stdout.pipe(process.stdout, { end: false });
     child.stderr.pipe(process.stderr, { end: false });
     if (process.platform !== "win32") {
       orphanGuard = setInterval(() => { if (process.ppid === 1) stop("SIGTERM"); }, 1000);
@@ -57,6 +76,8 @@ async function run(runtime, args) {
       return code;
     } finally {
       process.stdin.unpipe(child.stdin);
+      inputRouter?.(); outputRouter?.();
+      writeNative?.close(); writeClient?.close();
       process.stdin.pause();
       process.stdin.removeListener("error", onStdinError);
       process.stdout.removeListener("error", onOutputError);
@@ -65,6 +86,7 @@ async function run(runtime, args) {
   } finally {
     clearInterval(orphanGuard);
     clearTimeout(killTimer);
+    connector?.close();
     for (const [name, handler] of signals) process.removeListener(name, handler);
     if (relay) await relay.close();
   }

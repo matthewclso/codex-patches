@@ -1,7 +1,7 @@
 # Native Remote Control task listing
 
 The stock CLI remains the Remote Control protocol owner. A capability-protected
-loopback relay changes only incoming remote `thread/list` requests to
+loopback relay changes incoming remote `thread/list` requests to
 `useStateDbOnly: true`. Pagination, filters, request IDs, delivery sequences,
 cursors, reconnects, authentication, and outgoing responses remain native.
 Chunked messages retain their segment metadata. Other HTTP requests and
@@ -19,6 +19,10 @@ The CLI needs a loopback backend URL to reach the relay. Account routing that
 reports the default `NO_CONSTRAINT` backend is translated back to the original
 `https://chatgpt.com` origin; explicit residency and account routing overrides
 remain as supplied by the backend.
+
+The independently selectable [connector-routing](../connector-routing/README.md)
+module restores native hosted connector authentication alongside this relay.
+Its additional chat/discovery overrides preserve the remote listing behavior.
 
 ## Pairing and updates
 

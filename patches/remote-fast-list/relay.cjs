@@ -15,7 +15,7 @@ function headers(input, websocket = false) {
 }
 async function createRelay({ upstreamBase = "https://chatgpt.com/backend-api/", testLoopback = false,
     capability = crypto.randomBytes(32).toString("hex"), port = 0,
-    proxyEnv = process.env } = {}) {
+    proxyEnv = process.env, additionalRewrite, additionalFilter } = {}) {
   const base = new URL(upstreamBase);
   const localTest = testLoopback && base.protocol === "http:" && base.hostname === "127.0.0.1";
   if (!localTest && !(base.protocol === "https:" && base.hostname === "chatgpt.com" && !base.port))
@@ -38,7 +38,8 @@ async function createRelay({ upstreamBase = "https://chatgpt.com/backend-api/", 
   const prefix = `/${capability}/backend-api/`;
   const pairs = new Set();
   const requests = new Set();
-  const counters = { rewrites: 0, websocketConnections: 0, rejected: 0, routingNormalizations: 0 };
+  const counters = { rewrites: 0, websocketConnections: 0, rejected: 0, routingNormalizations: 0,
+    routingFallbacks: 0, outgoingFilterFallbacks: 0 };
   function destination(req) {
     const allowedHost = `127.0.0.1:${server.address().port}`;
     if (req.headers.host !== allowedHost || req.headers.origin || !req.url?.startsWith(prefix)) return null;
@@ -144,9 +145,17 @@ async function createRelay({ upstreamBase = "https://chatgpt.com/backend-api/", 
       try { wss.handleUpgrade(req, socket, head, client => {
         pairs.add(client);
         counters.websocketConnections++;
-        const rewrite = new IncomingRewriter();
+        const rewrite = new IncomingRewriter({ additionalRewrite });
+        const outgoingFilter = additionalFilter && new IncomingRewriter({
+          additionalRewrite: additionalFilter, envelopeType: "server_message", passThroughOnError: true });
         const fail = () => { client.terminate(); upstream.terminate(); };
-        const timer = setInterval(() => { try { rewrite.expire(); } catch { fail(); } }, 1000);
+        const timer = setInterval(() => {
+          try { rewrite.expire(); } catch { fail(); }
+          try { outgoingFilter?.expire(); } catch {
+            counters.outgoingFilterFallbacks++;
+            send(client, upstream, outgoingFilter.bypass());
+          }
+        }, 1000);
         timer.unref();
         function closePeer(peer, code, reason) {
           if (peer.readyState === WebSocket.OPEN)
@@ -169,16 +178,41 @@ async function createRelay({ upstreamBase = "https://chatgpt.com/backend-api/", 
             });
           }
         }
+        let incoming = Promise.resolve();
         upstream.on("message", (data, binary) => {
-          try {
-            if (!remoteControl) { send(upstream, client, [{data, binary}]); return; }
-            const before = rewrite.rewritten;
-            const frames = rewrite.push(data, binary);
-            counters.rewrites += rewrite.rewritten - before;
-            send(upstream, client, frames);
-          } catch { fail(); }
+          upstream.pause();
+          incoming = incoming.then(async () => {
+            rewrite.expire();
+            rewrite.suspendExpiry();
+            try {
+              if (!remoteControl) { send(upstream, client, [{data, binary}]); return; }
+              const before = rewrite.rewritten, fallbacks = rewrite.routingFallbacks;
+              const frames = await rewrite.pushAsync(data, binary);
+              counters.rewrites += rewrite.rewritten - before;
+              counters.routingFallbacks += rewrite.routingFallbacks - fallbacks;
+              send(upstream, client, frames);
+            } finally { rewrite.resumeExpiry(); }
+          }).catch(fail);
         });
-        client.on("message", (data, binary) => send(client, upstream, [{ data, binary }]));
+        let outgoingFrames = Promise.resolve();
+        client.on("message", (data, binary) => {
+          if (!remoteControl || !outgoingFilter) { send(client, upstream, [{ data, binary }]); return; }
+          client.pause();
+          outgoingFrames = outgoingFrames.then(async () => {
+            let expiredFrames = [];
+            try { outgoingFilter.expire(); } catch {
+              expiredFrames = outgoingFilter.bypass();
+              counters.outgoingFilterFallbacks++;
+            }
+            outgoingFilter.suspendExpiry();
+            try {
+              const bypassed = outgoingFilter.bypassed;
+              send(client, upstream, [...expiredFrames, ...await outgoingFilter.pushAsync(data, binary)]);
+              if (!bypassed && outgoingFilter.bypassed) counters.outgoingFilterFallbacks++;
+            }
+            finally { outgoingFilter.resumeExpiry(); }
+          }).catch(fail);
+        });
         for (const [from, to] of [[client, upstream], [upstream, client]]) {
           from.on("ping", data => { if (to.readyState === WebSocket.OPEN) to.ping(data); });
           from.on("pong", data => { if (to.readyState === WebSocket.OPEN) to.pong(data); });

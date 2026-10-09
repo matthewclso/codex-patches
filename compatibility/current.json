@@ -503,6 +503,22 @@
           "evidence": "Native membership gate remains separately controlled by localProjectTaskMembership. Actual-source tests cover explicit migration, shared cwd, new assignments, moves, clearing and backend/host guards; stock CLI tests persist initial/moved/cleared IDs. Android display acceptance remains pending. PROJECT-2/3/4.",
           "defaultMode": "disabled",
           "nativeSynchronizerSha256": "cabedf120c77312fe132bd64898b1d7acab00e6ce3731e6f95b01f972e3befbe"
+        },
+        "browser-feature-recovery": {
+          "status": "needed",
+          "targetPath": "webview/assets/app-shared-40678a67f0e3.js",
+          "sourceSha256": "35b467c3a05695ec354eb1d0bb4572ad7e9d1480decc1cf0fae3d16b50aa5bd8",
+          "outputSha256": "f92c9b3bba6830f6b529ba8cb641d605fab9944802747e7f6339d3a6996e698f",
+          "evidence": "Retain confirmed Browser config across request errors, keep unknown first results pending, preserve explicit authorization/entitlement denial, feature disables and current workspace policy. Actual source descriptor/hook/publisher tested. BROWSER-1/2/3/4; live tool acceptance pending.",
+          "reviewRecord": "compatibility/reviews/26.1002.7124.0-browser-runtime.json"
+        },
+        "runtime-sync-recovery": {
+          "status": "needed",
+          "targetPath": ".vite/build/main-p91kJShj.js",
+          "sourceSha256": "aafd6a750458cb39b6202f9be00231482122d32ac14017b79d544c4ab741e889",
+          "outputSha256": "2bad57f59aefe33332c5c372a06f3056db74ece17ba767fd4eccba03ea1d24fa",
+          "evidence": "Retry transient native config sync with fresh paths and managed pipe; cache/coalesce successful local-chat recovery by reconciliation, sync and feature generation. Retain native post-reconcile work on partial marketplace results but invalidate failed signatures for focus retry. Actual helper coalescing/active-turn preservation tested. BROWSER-2/3/4; LIFECYCLE-3/4/5; live tools pending.",
+          "reviewRecord": "compatibility/reviews/26.1002.7124.0-browser-runtime.json"
         }
       },
       "verifiedPackedEntries": 20806,
@@ -510,11 +526,13 @@
         "selectedIds": [
           "custom-pets",
           "browser-wsl",
-          "browser-service-path"
+          "browser-service-path",
+          "browser-feature-recovery",
+          "runtime-sync-recovery"
         ],
-        "archiveSha256": "4cf1ce94a74d9d1267c72fe0ebca103d4a7bfe15f72b878b1965166ebee7865c",
-        "headerSha256": "ac56b3cd1af64db1481b989b528d2685bb81015ae19b5e8bbafbfac2a86fc63f",
-        "executableSha256": "d98769bc37728222d1de57bb061a09cb60389a9ce27c7aea0005ce88322159d1"
+        "archiveSha256": "76953ba2110cb7b3a00edb394cddca5b5d6497a125c994c797cbc96221293c33",
+        "headerSha256": "01e878ac7663d139dccf01a264e69c0e41415aaada89743402f81640a507f614",
+        "executableSha256": "37c80ca774c9a5e6b95130b844539829a129ea80d7d3664dc005f92230c611ac"
       },
       "runtimePatches": {
         "wsl-project-paths": {
@@ -530,6 +548,16 @@
             "stockUnfiltered": 0,
             "relayedUnfiltered": 2
           }
+        },
+        "connector-routing": {
+          "status": "needed",
+          "evidence": "CLI 0.162.0-alpha.2 treats the global loopback relay as OAuth instead of trusted ChatGPT authentication. Native per-thread chatgpt_base_url routing restores a connected hosted runtime and fresh installed connector discovery without copying credentials. Remote listing retains the existing relay.",
+          "reviewRecord": "compatibility/reviews/26.1002.7124.0-connectors.json"
+        },
+        "primary-runtime-cache": {
+          "status": "needed",
+          "evidence": "Desktop stages openai-primary-runtime under the Windows profile cache while the Linux CLI accepts that reserved name only at its native cache root. Process-local XDG_CACHE_HOME aligns the managed cache path without relaxing marketplace name or source checks.",
+          "reviewRecord": "compatibility/reviews/26.1002.7124.0-connectors.json"
         }
       }
     }

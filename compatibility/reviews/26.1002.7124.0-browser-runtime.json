@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-10-09",
+  "packageVersion": "26.1002.7124.0",
+  "appVersion": "26.1002.52244",
+  "cliVersion": "0.162.0-alpha.2",
+  "sourceArchiveSha256": "76fe7078248c00e4e03dd2177a4275ec9ce158a9dd43452a4f0427d39a4ed012",
+  "modules": [
+    "browser-feature-recovery",
+    "runtime-sync-recovery"
+  ],
+  "requirements": [
+    "BROWSER-1",
+    "BROWSER-2",
+    "BROWSER-3",
+    "BROWSER-4",
+    "SELECT-1",
+    "SELECT-2",
+    "SELECT-3",
+    "LIFECYCLE-3",
+    "LIFECYCLE-4",
+    "LIFECYCLE-5",
+    "VERIFY-1",
+    "VERIFY-2",
+    "VERIFY-4"
+  ],
+  "sourceTests": {
+    "windows": {
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "combinations": 64,
+      "durationSeconds": 378
+    },
+    "wsl": {
+      "recoveryPassed": 7,
+      "existingBehaviorPassed": 5,
+      "failed": 0,
+      "combinations": "validated separately on Windows"
+    }
+  },
+  "toolkitAndCiUnits": {
+    "windows": {
+      "passed": 73,
+      "failed": 0,
+      "skipped": 31,
+      "total": 104
+    },
+    "wsl": {
+      "passed": 77,
+      "failed": 0,
+      "skipped": 27,
+      "total": 104
+    }
+  },
+  "limitations": [
+    "Live acceptance covers one user installation/relaunch and the recorded Browser and Computer Use interactions; repeated reconnect stability and real-phone behavior were not tested.",
+    "Earlier concurrent archive loading hit ENOMEM; initial broad native fixtures stalled. Recorded acceptance uses sequential reruns.",
+    "The app copy loses the original executable signature; official installation is retained."
+  ],
+  "liveAcceptance": {
+    "testedAt": "2026-10-09",
+    "context": "User-installed and relaunched patched Windows desktop with WSL backend; both installed recovery modules matched reviewed source.",
+    "browser": {
+      "status": "passed",
+      "scenario": "Connect through supported client, open Example Domain, inspect accessibility state, click Learn more, verify IANA Example Domains destination and close temporary tab."
+    },
+    "computerUse": {
+      "status": "passed",
+      "scenario": "Discover Windows apps, launch installed Notepad, select returned window, capture state, click text editor, type harmless test sentence and verify document text and screenshot.",
+      "recovery": "Initial click geometry unavailable; refreshed and activated window with screenshot-backed state, then retried successfully.",
+      "notAccepted": "Calculator launch exposed no targetable window; no Calculator interaction was accepted."
+    },
+    "record": "docs/acceptance.md"
+  },
+  "composedApp": {
+    "selectedIds": [
+      "custom-pets",
+      "browser-wsl",
+      "browser-service-path",
+      "browser-feature-recovery",
+      "runtime-sync-recovery"
+    ],
+    "archiveSha256": "76953ba2110cb7b3a00edb394cddca5b5d6497a125c994c797cbc96221293c33",
+    "headerSha256": "01e878ac7663d139dccf01a264e69c0e41415aaada89743402f81640a507f614",
+    "executableSha256": "37c80ca774c9a5e6b95130b844539829a129ea80d7d3664dc005f92230c611ac"
+  },
+  "independentReview": {
+    "provider": "Claude review",
+    "status": "completed",
+    "remainingHigh": 0,
+    "remainingMedium": 0,
+    "optionalLow": 2,
+    "scope": "Source excerpts, final patch strings, failure recovery, permissions, generation cache, native helper and publisher semantics; no live desktop acceptance."
+  }
+}

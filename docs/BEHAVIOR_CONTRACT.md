@@ -46,7 +46,9 @@ Current module: `custom-pets`. The owner confirmed appearance and selection in t
 
 **BROWSER-3.** Verify this from an actual agent after the patched copy is running; do not ask the user to substitute a manual page-opening check for agent availability. Report a failed or unavailable tool session as unverified until it is resolved. A missing chat working directory was a diagnostic prerequisite encountered during migration, not a promise that this toolkit recreates arbitrary deleted workspaces.
 
-Current modules: `browser-wsl` and `browser-service-path`. Sources: U02 and U08; the accepted browser inventory covers both eligibility and service loading.
+**BROWSER-4.** A transient feature-discovery failure must not be treated as a confirmed Browser disable or cause its plugin to be removed. Retain a confirmed config feature value while preserving current workspace permissions and explicit disable settings; leave an unknown first result pending. Failed app-managed runtime synchronization must recover current executable, service and managed pipe settings on retry or chat recovery without embedding a launch-specific pipe or restarting active chats. Source: U20.
+
+Current modules: `browser-wsl`, `browser-service-path`, `browser-feature-recovery` and `runtime-sync-recovery`. Sources: U02 and U08; the accepted browser inventory covers both eligibility and service loading.
 
 ### Windows paths for WSL projects
 
@@ -65,6 +67,32 @@ Current module: `wsl-project-paths`, plus shared launch setup. Source: U01's exi
 **REMOTE-3.** Use the supported stock CLI/protocol and narrowly repair the affected listing path. Do not reintroduce obsolete custom Rust CLI distributions or alter unrelated commands, response content, pagination cursors or delivery semantics. Keep setup/state migration separate from ordinary launch. Report protocol-fixture results and real-phone behavior separately.
 
 Current module: `remote-fast-list`. Sources: U01–U03's accepted relay design, U08's successful loading report, and U14's real-phone refresh. Reconnect is a target and has separate observed evidence; U08 alone did not confirm every reconnect scenario.
+
+### Plugin connectors and bundled runtime
+
+**CONNECTOR-1.** With the connector fix enabled, using the Remote Control relay
+must preserve managed native connector authentication. Connected plugins must
+remain discoverable and expose their eligible tools in desktop chats. Preserve
+native permission checks, explicit endpoint/account routing, network proxies and
+TLS validation. Keep credentials and connector execution in the stock CLI.
+
+**CONNECTOR-2.** Desktop and remote chat start/resume/fork and current installed
+connector discovery must work together with the listing fix. Internal discovery
+contexts must create no saved chat or model turn and must stay out of ordinary
+chat lifecycle displays. Preserve normal chat events, request IDs, pagination
+and delivery metadata. Disabling the relay must retain native connector routing;
+disabling the connector fix must preserve the other selected patches.
+
+**RUNTIME-1.** The desktop's bundled runtime marketplace must be accepted across
+the Windows/WSL cache boundary using native marketplace source/name checks.
+Preserve existing cache files and user data. Discover the desktop cache path
+instead of hardcoding a user or drive. Do not silently replace an explicit,
+conflicting cache preference; explain the conflict and retain independent
+module selection.
+
+Current modules: `connector-routing` and `primary-runtime-cache`. Source: U19.
+These requirements do not turn a successful isolated inventory refresh into
+acceptance of tool availability in the running desktop before activation.
 
 ### Named project assignments and the Android limitation
 
@@ -120,6 +148,7 @@ Sources: U01–U03 and accepted update-proposal defaults. The current daily sche
 | Browser eligibility/service loading | Agent tool availability from a supported chat, page inspection, interaction and verified navigation after relaunch. |
 | Project paths/home selection | Project create/import/update at the intended directory; canonical data remains available with runtime modules toggled. |
 | Remote listing/routing | Existing chat listing, pagination and reconnect; preserve pairing and account preferences across updates. |
+| Plugin connectors/runtime | Fresh native connector inventory and authenticated status alongside the relay; desktop agent tool discovery after activation; bundled marketplace synchronization without weakening native source/name checks. |
 | Project membership | Distinct projects sharing a folder, creation/move/clear persistence, and conflict handling. Android label display remains a separate check. |
 | Installation/cleanup | Real shortcut target and activation, session protection, owned-file removal, retained data and operation without old paths. |
 | Compatibility/CI | Stock versus patched applicability, composed selections and an honest Windows/WSL result; reviewed support decisions. |
@@ -154,5 +183,7 @@ All times below are September 30, 2026, America/New_York; later follow-ups witho
 | U16 · 11:11 | Create this repo's complete user-visible behavior document from every user message; give it higher authority than every other repo source to prevent regressions. | This contract, its precedence, the coverage ledger and VERIFY-4. |
 | U17 · follow-up | Report that installing the latest build fails with “A prior toolkit deployment is in use” after exiting the app and stopping ChatGPT processes. | LIFECYCLE-3: diagnose actual activation blockers separately from independent users of retained files; actionable process details. |
 | U18 · follow-up | Add an install flag to force close processes considered still running and interfering. | LIFECYCLE-4: explicit `install -ForceClose`, scoped to confirmed activation blockers; preserve normal non-terminating behavior and cleanup protection. |
+| U19 · October 9, 2026 | Investigate plugins missing connector tools, add a patch to this repository, and continue implementation. | CONNECTOR-1/2, RUNTIME-1; preserve prior patches and prepare reviewable changes before live activation. |
+| U20 · October 9, 2026 | Investigate unavailable Browser and Computer Use, implement the diagnosed fixes, push to the same branch and test. | BROWSER-4; preserve BROWSER-1/2/3 and lifecycle safeguards. |
 
 “Accepted defaults” above refers to the two design responses preceding U02 and U03: a small modular toolkit and one composed app copy, reviewed build support, explicit stock fallback, deliberate preview/backup state repairs, reproducible downloads, deterministic update proposals, and cleanup only after validating independence from old code. Later explicit user decisions override those proposals. Unchosen alternatives and implementation details are not silently promoted into owner requests.
