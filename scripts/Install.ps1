@@ -22,6 +22,19 @@ if 'WSL2' not in platform.release(): raise SystemExit('WSL2 is required')
 home=str(pathlib.Path.home())
 print(json.dumps({'home':home,'stateRoot':home+'/.local/share/codex-patches','sqliteHome':home+'/.codex/sqlite','release':release['PRETTY_NAME']}))
 '@ | ConvertFrom-Json
+    $primaryRuntimeCacheHome = $null
+    if ($inspection.selection.selected -contains 'primary-runtime-cache') {
+        $primaryRuntimeCacheHome = Get-WslPath (Join-Path $env:USERPROFILE '.cache')
+        # Match the desktop's WSL login shell, including profile exports. Refuse
+        # before provisioning or changing the active deployment.
+        $cachePreflight = @'
+import os,pathlib,sys
+current=os.environ.get('XDG_CACHE_HOME')
+if current and pathlib.Path(current)!=pathlib.Path(sys.argv[1]):
+ raise SystemExit('XDG_CACHE_HOME conflicts with the desktop runtime cache. Set primary-runtime-cache to disabled in your patch selection, or align XDG_CACHE_HOME, then rerun install. The active deployment has not changed.')
+'@
+        Invoke-Wsl @('/usr/bin/bash','-lc','exec /usr/bin/python3 - "$@"','codex-cache-preflight',$primaryRuntimeCacheHome) $cachePreflight | Out-Null
+    }
     if (-not $CodexHome) {
         $CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }
     }
@@ -84,6 +97,10 @@ os.chdir(sys.argv[1]);subprocess.run([sys.argv[2],sys.argv[3],'ci','--omit=dev',
     Copy-Item -LiteralPath (Join-Path $deployment 'app\resources\codex.exe') -Destination (Join-Path $bin 'codex-patches-proxy.exe')
     $runtimeConfigPath = "$stateRoot/deployments/$id/runtime.json"
     $runtime = [ordered]@{schemaVersion=1;realCli="$deploymentLinux/app/resources/codex";cliSha256=$inspection.build.cliLinuxSha256;cliVersion="codex-cli $($receipt.cliVersion)";codexHome=(Get-WslPath $CodexHome);sqliteHome=$SqliteHome;stateRoot=$stateRoot;distro=$script:SelectedDistro;relayEnabled=($selected -contains 'remote-fast-list');rewriteProjectPaths=($selected -contains 'wsl-project-paths');node=$linuxNode}
+    $runtime.connectorRouting = ($selected -contains 'connector-routing')
+    if ($selected -contains 'primary-runtime-cache') {
+        $runtime.primaryRuntimeCacheHome = $primaryRuntimeCacheHome
+    }
     $payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(($runtime | ConvertTo-Json -Depth 8)))
     Invoke-WslPython @'
 import base64,os,pathlib,sys

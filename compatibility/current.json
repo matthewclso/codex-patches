@@ -530,6 +530,16 @@
             "stockUnfiltered": 0,
             "relayedUnfiltered": 2
           }
+        },
+        "connector-routing": {
+          "status": "needed",
+          "evidence": "CLI 0.162.0-alpha.2 treats the global loopback relay as OAuth instead of trusted ChatGPT authentication. Native per-thread chatgpt_base_url routing restores a connected hosted runtime and fresh installed connector discovery without copying credentials. Remote listing retains the existing relay.",
+          "reviewRecord": "compatibility/reviews/26.1002.7124.0-connectors.json"
+        },
+        "primary-runtime-cache": {
+          "status": "needed",
+          "evidence": "Desktop stages openai-primary-runtime under the Windows profile cache while the Linux CLI accepts that reserved name only at its native cache root. Process-local XDG_CACHE_HOME aligns the managed cache path without relaxing marketplace name or source checks.",
+          "reviewRecord": "compatibility/reviews/26.1002.7124.0-connectors.json"
         }
       }
     }

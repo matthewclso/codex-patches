@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "26.1002.7124.0",
+  "appVersion": "26.1002.52244",
+  "cliVersion": "0.162.0-alpha.2",
+  "reviewedAt": "2026-10-09",
+  "status": "runtime-validation-passed; desktop-activation-pending",
+  "baseReview": "26.1002.7124.0.json",
+  "cliLinuxSha256": "3b1015a94344ae22f8556b22ab86f22a2d66a436a36f493a1583088e0831efe1",
+  "affectedRequirements": [
+    "SELECT-1",
+    "SELECT-2",
+    "SELECT-3",
+    "CONNECTOR-1",
+    "CONNECTOR-2",
+    "RUNTIME-1",
+    "REMOTE-1",
+    "REMOTE-2",
+    "REMOTE-3",
+    "PATH-2",
+    "LIFECYCLE-4",
+    "VERIFY-1",
+    "VERIFY-2",
+    "VERIFY-4"
+  ],
+  "diagnosis": {
+    "connectorRouting": "The global loopback relay URL is outside the native managed ChatGPT authentication allowlist. The hosted codex_apps extension adopts that URL, falls back to OAuth and fails fresh discovery. Explicit mcp_servers.codex_apps overrides do not replace the hosted extension configuration.",
+    "primaryRuntimeCache": "Electron stages the reserved bundled marketplace beneath the Windows profile cache. Native Linux marketplace policy requires the native cache root. These differ when the supervisor inherits the Linux default cache.",
+    "upstreamSources": [
+      "https://github.com/openai/codex/blob/74e804deeb1241d5fe699b31fb319f7d46454c42/codex-rs/codex-mcp/src/mcp/mod.rs",
+      "https://github.com/openai/codex/blob/74e804deeb1241d5fe699b31fb319f7d46454c42/codex-rs/ext/mcp/src/lib.rs",
+      "https://github.com/openai/codex/blob/74e804deeb1241d5fe699b31fb319f7d46454c42/codex-rs/core-plugins/src/marketplace_policy.rs",
+      "https://github.com/openai/codex/blob/74e804deeb1241d5fe699b31fb319f7d46454c42/codex-rs/app-server/src/request_processors/thread_processor.rs",
+      "https://github.com/openai/codex/blob/74e804deeb1241d5fe699b31fb319f7d46454c42/codex-rs/app-server/src/request_processors/apps_processor/installed.rs"
+    ]
+  },
+  "checks": [
+    {
+      "name": "Ubuntu-26.04-WSL2-toolkit-and-CI",
+      "status": "passed",
+      "tests": 93,
+      "passed": 73,
+      "skipped": 20,
+      "failed": 0,
+      "skipScope": "Windows-only and separately executed pristine-source/GraphQL checks"
+    },
+    {
+      "name": "Windows-toolkit-and-CI",
+      "status": "passed",
+      "tests": 93,
+      "passed": 69,
+      "skipped": 24,
+      "failed": 0,
+      "skipScope": "WSL-only, separately executed pristine-source/GraphQL checks and unavailable file-symlink privilege"
+    },
+    {
+      "name": "pristine-source-regressions",
+      "status": "passed",
+      "tests": 6,
+      "skipped": 0,
+      "failed": 0,
+      "appPatchCombinations": 16,
+      "scope": "Pristine pinned app.asar and ChatGPT.exe; existing pet/browser/service/project-membership source scenarios and executable integrity"
+    },
+    {
+      "name": "native-reserved-marketplace",
+      "status": "passed",
+      "scope": "Disposable valid marketplace; stock mismatched cache rejected as reserved, aligned cache accepted. Existing Linux cache sentinel retained."
+    },
+    {
+      "name": "native-remote-first-discovery",
+      "status": "passed",
+      "scope": "Unmodified CLI, fake managed account and loopback service, apps disabled. Remote-first installed discovery uses the stdio ephemeral context. Internal broadcasts retain native sequence/ACK boundaries; near-limit requests resegment and reconnect; startup timeouts return native request errors while listing stays available. Filtering, pagination, enrollment, cursor reconnect and native restrictions preserved."
+    },
+    {
+      "name": "authenticated-launcher-inventory",
+      "status": "passed",
+      "scope": "Separate Python supervisor + Node relay + unmodified CLI, temporary relay/state and existing managed account/database. Remote Control enrollment disabled in the probe. No model turns. Fresh refresh requires native authentication rather than a cached inventory.",
+      "runtimeStatus": "connected",
+      "httpOrigin": "https://chatgpt.com",
+      "authStatus": "bearerToken",
+      "installedConnectors": 14,
+      "tools": 566,
+      "resources": 95,
+      "internalDesktopContextHidden": true,
+      "eofExitCode": 0,
+      "relayPortReleased": true
+    }
+  ],
+  "patchStatus": {
+    "connector-routing": "needed alongside remote-fast-list",
+    "primary-runtime-cache": "needed for desktop-staged runtime under WSL"
+  },
+  "pendingAcceptance": [
+    "Generated-copy activation and desktop runtime marketplace synchronization",
+    "Agent tool availability and read-only connector calls after desktop relaunch",
+    "Real-phone discovery/reconnect check with both fixes active"
+  ],
+  "limitations": [
+    "Legacy app/list ignores session backend routing in this CLI release and retains native behavior; the fix targets current app/installed and app/read APIs.",
+    "Inventory counts are dated provider responses, not a fixed contract or proof that every service tool action succeeded.",
+    "No running desktop deployment, launcher, saved selection or pairing state was changed. No hosted WSL run is claimed.",
+    "Initial authenticated probes with empty SQLite triggered history indexing and timed out; the accepted probe uses the existing database with a separate process. Large source checks were run separately after a concurrent probe hit memory pressure.",
+    "The first source-suite run selected Codex.exe rather than the pinned ChatGPT.exe and failed two hash assertions; the corrected six-test run passed.",
+    "Native residency and account routing gates are preserved in the pinned source; a live account with non-default residency was not available for acceptance."
+  ]
+}

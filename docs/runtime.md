@@ -22,6 +22,8 @@ must be private too. The schema is:
   "distro": "selected-distribution-name",
   "relayEnabled": true,
   "rewriteProjectPaths": true,
+  "connectorRouting": true,
+  "primaryRuntimeCacheHome": "/canonical/desktop/profile/.cache",
   "node": "/absolute/pinned/linux/node"
 }
 ```
@@ -39,10 +41,32 @@ selecting a backend. The adapter passes the canonical POSIX home and SQLite
 directory to its owned Linux child. The custom pet app patch chooses paths after
 selecting the execution platform; historical pet-home junctions are unnecessary.
 
-This startup adapter remains in place when both optional runtime modules are
+This startup adapter remains in place when the optional request routing modules are
 disabled. Every stock CLI invocation, including version discovery and non-stdio
 commands, receives the canonical backend home. Disabling request rewriting or
 the relay must not redirect the Linux CLI into the Windows-format desktop home.
+
+## Connector authentication and bundled runtime
+
+`connectorRouting` is optional and defaults to false in existing runtime files.
+When enabled alongside the relay, chat start/resume/fork requests receive the
+stock CLI’s supported per-thread `chatgpt_base_url` override for the official
+ChatGPT backend. Caller-supplied endpoint overrides remain intact. Threadless
+`app/installed`, `app/read` and MCP status/resource discovery use a single lazy, ephemeral native context; desktop and
+remote requests share it. No chat turns or persistent chats are created. Native
+authentication, account routing, server requests and tool execution remain in
+the bundled CLI. Internal context lifecycle notifications are hidden from the
+desktop and remote clients; ordinary chat notifications and connector responses pass through.
+
+`primaryRuntimeCacheHome` is also optional. Installation derives it from the
+Windows desktop profile’s `.cache`, converted through the selected WSL mount
+mapping. All supervised CLI invocations receive this process-local
+`XDG_CACHE_HOME`, including when request routing is disabled. The native reserved
+marketplace checks remain enabled. An explicitly conflicting `XDG_CACHE_HOME`
+is rejected during installer preflight through the desktop's WSL login shell
+and at runtime with an explanation;
+disable the cache module to retain that
+preference. No shell profile or existing Linux cache directory is modified.
 
 ## Explicit state maintenance
 

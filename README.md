@@ -57,6 +57,8 @@ Copy-Item config.example.json config.local.json
 | [project-memberships](patches/project-memberships/README.md) | Optional native synchronization of desktop project assignments to the backend; disabled by default. |
 | [wsl-project-paths](patches/wsl-project-paths/README.md) | Translate Windows drive and matching WSL UNC project roots at the JSONL boundary. |
 | [remote-fast-list](patches/remote-fast-list/README.md) | Add the required listing options on the Remote Control transport while running the unmodified bundled CLI. |
+| [connector-routing](patches/connector-routing/README.md) | Keep native connector authentication working alongside the Remote Control relay. |
+| [primary-runtime-cache](patches/primary-runtime-cache/README.md) | Align the Linux CLI cache with the desktop’s bundled runtime marketplace. |
 
 The audited build, source hashes, evidence and retired workarounds are in [compatibility/current.json](compatibility/current.json). Runtime injections, drag hooks and old custom Rust CLI binaries are not installed. Unknown builds fail closed; `.\codex-patches.ps1 stock` explicitly opens the signed app.
 

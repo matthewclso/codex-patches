@@ -104,6 +104,11 @@ def read_config() -> tuple[Path, dict]:
     for field in ("relayEnabled", "rewriteProjectPaths"):
         if not isinstance(config.get(field), bool):
             raise RuntimeError(f"runtime {field} must be boolean")
+    if "connectorRouting" in config and not isinstance(config["connectorRouting"], bool):
+        raise RuntimeError("runtime connectorRouting must be boolean")
+    cache_home = config.get("primaryRuntimeCacheHome")
+    if cache_home is not None and (not isinstance(cache_home, str) or not Path(cache_home).is_absolute()):
+        raise RuntimeError("runtime primaryRuntimeCacheHome must be absolute")
     if not isinstance(config.get("distro"), str) or not config["distro"]:
         raise RuntimeError("runtime distribution is required")
     real = Path(config["realCli"]).resolve()
@@ -128,12 +133,21 @@ def _copy_stream(source: BinaryIO, destination: BinaryIO) -> None:
         pass
 
 
+def backend_environment(config: dict) -> dict:
+    env = dict(os.environ, CODEX_HOME=config["codexHome"], CODEX_SQLITE_HOME=config["sqliteHome"])
+    if config.get("primaryRuntimeCacheHome"):
+        if env.get("XDG_CACHE_HOME") and Path(env["XDG_CACHE_HOME"]) != Path(config["primaryRuntimeCacheHome"]):
+            raise RuntimeError("explicit XDG_CACHE_HOME conflicts with the desktop primary runtime cache; disable primary-runtime-cache in the patch selection or align XDG_CACHE_HOME with the desktop cache before installing")
+        env["XDG_CACHE_HOME"] = config["primaryRuntimeCacheHome"]
+    return env
+
+
 def run_proxy(config_path: Path, config: dict, arguments: Sequence[str]) -> int:
     command = [config["realCli"], *arguments]
     if config["relayEnabled"]:
         runner = Path(__file__).resolve().parent.parent / "remote-fast-list" / "runner.cjs"
         command = [config["node"], str(runner), str(config_path), *arguments]
-    env = dict(os.environ, CODEX_HOME=config["codexHome"], CODEX_SQLITE_HOME=config["sqliteHome"])
+    env = backend_environment(config)
     child = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0, env=env)
     assert child.stdin and child.stdout and child.stderr
     stop_lock = threading.Lock()
@@ -200,7 +214,7 @@ def run_proxy(config_path: Path, config: dict, arguments: Sequence[str]) -> int:
 
 def main(arguments: Sequence[str]) -> int:
     config_path, config = read_config()
-    backend_env = dict(os.environ, CODEX_HOME=config["codexHome"], CODEX_SQLITE_HOME=config["sqliteHome"])
+    backend_env = backend_environment(config)
     if not should_proxy_app_server(arguments):
         os.execve(config["realCli"], [config["realCli"], *arguments], backend_env)
     version = subprocess.run([config["realCli"], "--version"], check=True, stdout=subprocess.PIPE,

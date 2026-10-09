@@ -5,17 +5,21 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const http = require("node:http");
-const { once } = require("node:events");
+const { once, EventEmitter } = require("node:events");
 const crypto = require("node:crypto");
 const { execFileSync } = require("node:child_process");
+const readline = require("node:readline");
 const { WebSocketServer } = require("ws");
 const { AppServerRpc } = require("../patches/remote-fast-list/rpc.cjs");
 const { createRelay } = require("../patches/remote-fast-list/relay.cjs");
 const { pairing, SOURCE, prepare } = require("../patches/remote-fast-list/runtime.cjs");
+const { ConnectorRouting } = require("../patches/connector-routing/index.cjs");
+const { MAX_WIRE } = require("../patches/remote-fast-list/rewrite.cjs");
 const BINARY = process.env.CODEX_RELAY_TEST_BINARY;
 
-for(const mode of ["stock", "fresh", "reuse"])test(`unmodified CLI native flow, ${mode === "stock" ? "stock native unfiltered-list regression" : mode === "reuse" ? "preserving an existing paired server" : "fresh isolated enrollment"}`, {timeout:30000,skip:!BINARY || process.platform === "win32"}, async () => {
+for(const mode of ["stock", "fresh", "reuse", "connectors", "connector-error"])test(`unmodified CLI native flow, ${mode === "stock" ? "stock native unfiltered-list regression" : mode === "reuse" ? "preserving an existing paired server" : mode === "connectors" ? "remote-first connector discovery alongside listing and reconnect" : mode === "connector-error" ? "connector startup timeout preserves native Remote Control errors and listing" : "fresh isolated enrollment"}`, {timeout:30000,skip:!BINARY || process.platform === "win32"}, async () => {
   const reuse = mode === "reuse", stock = mode === "stock";
+  const connectors = mode.startsWith("connector"), failure = mode === "connector-error";
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),"codex-relay-native-"));
   const home=path.join(dir,"home"),sqlite=path.join(dir,"sqlite");
   fs.mkdirSync(home,{mode:0o700});fs.mkdirSync(sqlite,{mode:0o700});
@@ -43,11 +47,33 @@ for(const mode of ["stock", "fresh", "reuse"])test(`unmodified CLI native flow, 
   let connectedResolve;
   const connected=new Promise(resolve=>{connectedResolve=resolve;});
   const observed=[];
+  const remoteNotifications=[];
+  const remoteEvents=new EventEmitter();
+  const sequenceByStream=new Map();
+  const responseChunks=new Map();
   wss.on("connection",(ws,req)=>{
     backend=ws;
     observed.push({url:req.url,headers:req.headers});
     ws.on("message",data=>{
       const envelope=JSON.parse(data);
+      if(connectors && envelope.stream_id && envelope.seq_id) {
+        const key=JSON.stringify([envelope.client_id,envelope.stream_id]);
+        assert.equal(envelope.seq_id,(sequenceByStream.get(key) ?? 0)+(envelope.segment_id > 0 ? 0 : 1),"Hidden context events must not create transport sequence gaps");
+        sequenceByStream.set(key,envelope.seq_id);
+        ws.send(JSON.stringify({type:"ack",client_id:envelope.client_id,stream_id:envelope.stream_id,seq_id:envelope.seq_id,
+          ...(envelope.type.endsWith("_chunk") ? {segment_id:envelope.segment_id} : {})}));
+      }
+      if(envelope.type==="server_message_chunk") {
+        const key=JSON.stringify([envelope.client_id,envelope.stream_id,envelope.seq_id]);
+        const pieces=responseChunks.get(key) ?? [];
+        pieces.push(Buffer.from(envelope.message_chunk_base64,"base64"));responseChunks.set(key,pieces);
+        if(pieces.length<envelope.segment_count)return;
+        responseChunks.delete(key);
+        envelope.type="server_message";envelope.message=JSON.parse(Buffer.concat(pieces).toString());
+      }
+      if(envelope.type==="server_message" && envelope.message?.method) {
+        remoteNotifications.push(envelope.message);remoteEvents.emit("notification",envelope.message);
+      }
       if(envelope.type==="server_message" && envelope.message?.id != null) {
         const p=pending.get(envelope.message.id);
         if(p){clearTimeout(p.timer);pending.delete(envelope.message.id);p.resolve(envelope.message);}
@@ -57,12 +83,34 @@ for(const mode of ["stock", "fresh", "reuse"])test(`unmodified CLI native flow, 
   });
   await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
   const upstreamBase = `http://127.0.0.1:${server.address().port}/backend-api/`;
+  let routing, observer;
   const relay=stock ? { baseUrl: upstreamBase, close: async () => {} }
-    : await createRelay({testLoopback:true,upstreamBase});
+    : await createRelay({testLoopback:true,upstreamBase, additionalRewrite: (message, envelope) => routing?.remoteRequest(message, envelope) ?? false,
+      additionalFilter: connectors ? (message, envelope) => routing.remoteResponse(message, envelope) : undefined});
   const rpc=new AppServerRpc(BINARY,home,sqlite,["-c",`chatgpt_base_url=${JSON.stringify(relay.baseUrl)}`,
-    "-c",'cli_auth_credentials_store="file"'],{isolatedRemoteControl:true});
+    "-c",'cli_auth_credentials_store="file"', ...(connectors ? ["-c","features.apps=false"] : [])],{isolatedRemoteControl:true});
+  if(connectors) {
+    routing=new ConnectorRouting({timeoutMs: failure ? 5 : 10000,
+      sendNative: message => { if (!failure) rpc.child.stdin.write(JSON.stringify(message)+"\n"); },
+      sendClient: () => { throw new Error("No desktop discovery requests in this fixture"); }});
+    observer=readline.createInterface({input:rpc.child.stdout});
+    observer.on("line",line=>{try{routing.response(JSON.parse(line));}catch{}});
+  }
   let seq=0;
-  function remote(message,{chunked=false}={}) {
+  function notification(predicate) {
+    if(remoteNotifications.some(predicate))return Promise.resolve();
+    return new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>{remoteEvents.off("notification",listener);reject(new Error("Native notification timed out"));},5000);
+      const listener=message=>{if(predicate(message)){clearTimeout(timer);remoteEvents.off("notification",listener);resolve();}};
+      remoteEvents.on("notification",listener);
+    });
+  }
+  function remote(message,{chunked=false,nearLimit=false}={}) {
+    if(nearLimit) {
+      const sample={type:"client_message",client_id:"fixture-phone",stream_id:"fixture-stream",
+        seq_id:seq+1,cursor:`fixture-cursor-${seq+1}`,message};
+      message.params.developerInstructions="x".repeat(MAX_WIRE-Buffer.byteLength(JSON.stringify(sample))-1);
+    }
     const envelope={type:"client_message",client_id:"fixture-phone",stream_id:"fixture-stream",
       seq_id:++seq,cursor:`fixture-cursor-${seq}`,message};
     const result=new Promise((resolve,reject)=>{
@@ -124,6 +172,27 @@ for(const mode of ["stock", "fresh", "reuse"])test(`unmodified CLI native flow, 
     assert.ok(init.result);
     backend.send(JSON.stringify({type:"client_message",client_id:"fixture-phone",stream_id:"fixture-stream",
       seq_id:++seq,cursor:`fixture-cursor-${seq}`,message:{method:"initialized"}}));
+    if(connectors) {
+      const installed=await remote({id:109,method:"app/installed",params:{forceRefresh:true}},{chunked:true});
+      if(failure) {
+        assert.equal(installed.id,109);
+        assert.match(installed.error?.message ?? "",/thread not found/);
+        assert.equal(observed.length,1,"A connector startup timeout must not drop the native socket");
+      } else {
+      assert.ok(!installed.error,JSON.stringify(installed.error));
+      assert.deepEqual(installed.result.apps,[]);
+      assert.ok(routing.contextId,"Remote-first discovery must create the native context through stdio");
+      const loaded=await rpc.request("thread/loaded/list",{});
+      assert.ok(loaded.data.includes(routing.contextId));
+      assert.ok(!remoteNotifications.some(message=>message.params?.thread?.id===routing.contextId),
+        "Internal discovery context must stay hidden from remote clients");
+      const large=await remote({id:110,method:"thread/start",params:{ephemeral:true,developerInstructions:""}},{nearLimit:true});
+      assert.ok(!large.error,JSON.stringify(large.error));
+      assert.equal(large.result.thread.ephemeral,true);
+      await notification(message=>message.params?.thread?.id===large.result.thread.id);
+      await remote({id:111,method:"thread/unsubscribe",params:{threadId:large.result.thread.id}});
+      }
+    }
     for(let i=0;i<2;i++) {
       const list=await remote({id:102+i,method:"thread/list",params:{useStateDbOnly:false,projectId:projects[i].id,limit:10}},
         {chunked:i===1});
@@ -146,7 +215,7 @@ for(const mode of ["stock", "fresh", "reuse"])test(`unmodified CLI native flow, 
     const denied=await remote({id:105,method:"userVerification/enroll",params:{}});
     assert.equal(denied.error.data.type,"unavailable");
     assert.equal(denied.error.data.reason,"providerUnavailable");
-    if (!stock) assert.equal(relay.counters.rewrites,4);
+    if (!stock) assert.equal(relay.counters.rewrites,4 + Number(connectors) + Number(connectors && !failure));
     assert.equal(observed.length,1,"Remote requests use native socket, not stdio forwarding");
     const reconnect=once(wss,"connection");
     backend.close(1000,"fixture reconnect");
@@ -159,12 +228,13 @@ for(const mode of ["stock", "fresh", "reuse"])test(`unmodified CLI native flow, 
     const resumed=await remote({id:108,method:"thread/list",params:{limit:10}});
     assert.deepEqual(new Set(resumed.result.data.map(t=>t.id)),new Set(stock ? [] : ids));
     if (!stock) {
-      assert.equal(relay.counters.rewrites,5);
+      assert.equal(relay.counters.rewrites,5 + Number(connectors) + Number(connectors && !failure));
       assert.ok(relay.counters.routingNormalizations>=1);
     }
     await rpc.request("remoteControl/disable",{ephemeral:true});
   } finally {
     for(const p of pending.values())clearTimeout(p.timer);
+    routing?.close();observer?.close();
     await rpc.close();
     backend?.terminate();
     await relay.close();
@@ -186,7 +256,8 @@ for (const shutdown of ["eof", "signal"]) test(`stock project path regression cr
     cliSha256: crypto.createHash("sha256").update(fs.readFileSync(BINARY)).digest("hex"),
     cliVersion: execFileSync(BINARY, ["--version"], { encoding: "utf8" }).trim(),
     codexHome: home, sqliteHome: sqlite, stateRoot: path.join(directory, "state"), node: process.execPath,
-    distro: "FixtureUbuntu", relayEnabled: true, rewriteProjectPaths: true };
+    distro: "FixtureUbuntu", relayEnabled: true, rewriteProjectPaths: true, connectorRouting: true,
+    primaryRuntimeCacheHome: path.join(directory, "desktop-cache") };
   const runtimeFile = path.join(directory, "runtime.json");
   fs.writeFileSync(runtimeFile, JSON.stringify(runtime), { mode: 0o600 });
   const relayConfig = await prepare(path.join(runtime.stateRoot, "relay"));
@@ -200,8 +271,8 @@ for (const shutdown of ["eof", "signal"]) test(`stock project path regression cr
       roots: [{ path: unc }], idempotencyKey: crypto.randomUUID() }),
       error => Boolean(error.rpcError), "Stock CLI must reject the Windows UNC root before this workaround is classified needed");
     await stock.close();
-    assert.equal(execFileSync(proxy, ["--version"], { encoding: "utf8", env: { ...process.env, CODEX_PATCHES_RUNTIME_CONFIG: runtimeFile } }).trim(), runtime.cliVersion);
-    rpc = new AppServerRpc(proxy, home, sqlite, [], { processEnv: { CODEX_PATCHES_RUNTIME_CONFIG: runtimeFile } });
+    assert.equal(execFileSync(proxy, ["--version"], { encoding: "utf8", env: { ...process.env, XDG_CACHE_HOME: runtime.primaryRuntimeCacheHome, CODEX_PATCHES_RUNTIME_CONFIG: runtimeFile } }).trim(), runtime.cliVersion);
+    rpc = new AppServerRpc(proxy, home, sqlite, [], { processEnv: { XDG_CACHE_HOME: runtime.primaryRuntimeCacheHome, CODEX_PATCHES_RUNTIME_CONFIG: runtimeFile } });
     await rpc.initialize();
     const result = await rpc.request("project/create", { name: "Proxy fixture",
       roots: [{ path: unc }], idempotencyKey: crypto.randomUUID() });

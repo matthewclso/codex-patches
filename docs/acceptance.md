@@ -75,3 +75,45 @@ The public MSIX URL and scheduled probe still return older package `26.930.7945.
 An open browser panel does not prove that agents can control it. Follow the installed Browser skill and test navigation through its supported tool. If a chat's working directory was moved or deleted, restore it before refreshing that chat's tools: the backend starts local tool servers in the chat directory, and caches failed startup attempts. A fresh backend session is needed when the failed tool cannot be refreshed.
 
 The browser worker runs on Windows even for a WSL chat. Use the installed plugin's same `scripts/browser-client.mjs` entrypoint with its native Windows absolute file URL when importing it there; a `/mnt/...` path names the WSL mount instead. Resolve the path for the current machine rather than copying another user's path. Successful import alone is not acceptance: browser discovery, page inspection and navigation must also succeed.
+
+## October 9, 2026 connector and bundled runtime fixes
+
+For the already reviewed package `26.1002.7124.0` / CLI `0.162.0-alpha.2`,
+the relay's loopback URL reproduces the hosted connector authentication failure.
+Native per-thread routing restores managed authentication while retaining the
+remote listing relay. The separate Windows/Linux cache mismatch reproduces the
+reserved bundled marketplace rejection; process-local cache alignment accepts
+the managed source without weakening the native source/name checks.
+[The supplemental record](../compatibility/reviews/26.1002.7124.0-connectors.json)
+contains sources, test counts and limitations (CONNECTOR-1/2, RUNTIME-1,
+REMOTE-1/2/3, SELECT-1/2/3, PATH-2, VERIFY-1/2/4).
+
+The separate authenticated launcher process refreshed all 14 installed connectors
+and exposed 566 tools and 95 resources with native `bearerToken` authentication
+at the official HTTPS origin. It used the Python supervisor, Node relay and
+unmodified bundled CLI with temporary relay state and the existing managed
+account/database. Its internal ephemeral context stayed hidden from desktop
+notifications, created no model turns, and EOF exited cleanly and released the
+relay port. Inventory counts are dated responses, not a guarantee that every
+provider action has been executed.
+
+Native remote fixtures exercise discovery before desktop discovery, chunked
+requests and hidden internal broadcasts alongside pairing reuse, filtering,
+pagination and cursor reconnect, including native request errors on startup
+timeout and segmentation of requests near the wire-size limit.
+Windows tests passed 69 of 93 with 24 skips;
+Ubuntu 26.04 WSL2 tests passed 73 of 93 with 20 skips. All six pristine-source
+tests passed separately, including all 16 app-patch combinations. Existing
+app-code transformations and their hashes are unchanged. Platform/source skips
+are not passes. Startup probes with a new database triggered history indexing;
+a concurrent source run exhausted a probe's memory allocation. The accepted
+checks ran separately and used the existing database for authenticated discovery.
+
+This change has not activated a generated copy, changed the active launcher or
+saved selection, or modified pairing state. Desktop agent tool discovery and
+bundled runtime synchronization after relaunch, plus real-phone behavior with
+both fixes active, remain pending. Legacy `app/list` retains native behavior
+because this CLI ignores its session routing override. The current installed
+connector APIs are covered. The accepted Android project-label limitation remains.
+Native residency and account routing gates are preserved in the pinned source;
+a live account with non-default residency was not available for acceptance.
