@@ -54,10 +54,25 @@
     }
   },
   "limitations": [
-    "No recovery deployment activated or desktop relaunched; actual agent Browser and Computer Use tools remain unverified.",
+    "Live acceptance covers one user installation/relaunch and the recorded Browser and Computer Use interactions; repeated reconnect stability and real-phone behavior were not tested.",
     "Earlier concurrent archive loading hit ENOMEM; initial broad native fixtures stalled. Recorded acceptance uses sequential reruns.",
     "The app copy loses the original executable signature; official installation is retained."
   ],
+  "liveAcceptance": {
+    "testedAt": "2026-10-09",
+    "context": "User-installed and relaunched patched Windows desktop with WSL backend; both installed recovery modules matched reviewed source.",
+    "browser": {
+      "status": "passed",
+      "scenario": "Connect through supported client, open Example Domain, inspect accessibility state, click Learn more, verify IANA Example Domains destination and close temporary tab."
+    },
+    "computerUse": {
+      "status": "passed",
+      "scenario": "Discover Windows apps, launch installed Notepad, select returned window, capture state, click text editor, type harmless test sentence and verify document text and screenshot.",
+      "recovery": "Initial click geometry unavailable; refreshed and activated window with screenshot-backed state, then retried successfully.",
+      "notAccepted": "Calculator launch exposed no targetable window; no Calculator interaction was accepted."
+    },
+    "record": "docs/acceptance.md"
+  },
   "composedApp": {
     "selectedIds": [
       "custom-pets",

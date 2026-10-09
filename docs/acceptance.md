@@ -135,4 +135,14 @@ The final toolkit/CI-unit run passes 77 of 104 checks on WSL (27 skips) and 73 o
 
 Initial concurrent source loading exhausted WSL memory, and a broad native run stalled two existing proxy shutdown fixtures. Sequential source/native reruns passed. Source-heavy test files now run serially, with a 15-minute validator timeout. A Windows run initially selected the Python Store alias; acceptance uses the configured bundled Python. Neither environment failure was counted as a pass.
 
-No new app copy has been activated and no user chat/backend has been closed for this recovery work. Agent Browser navigation/link interaction and Computer Use connection after relaunch remain **unverified** until the generated copy is installed and running (BROWSER-2/3/4). Passing source/protocol tests does not establish live desktop tool acceptance or real-phone behavior.
+At source/protocol validation time, no new app copy had been activated and no user chat/backend had been closed for this recovery work. Agent Browser navigation/link interaction and Computer Use connection after relaunch remained **unverified** until installation and relaunch; the later live check is recorded below (BROWSER-2/3/4). Passing source/protocol tests does not establish live desktop tool acceptance or real-phone behavior.
+
+## October 9, 2026 live Browser and Computer Use acceptance
+
+After the user installed and relaunched the patched desktop, the active receipt selected both recovery modules for package `26.1002.7124.0`. The installed module source matched the reviewed branch. This later observation resolves the live Browser and Computer Use gap above (BROWSER-2/3/4, VERIFY-1/2).
+
+An agent connected through the supported in-app Browser client, opened Example Domain in a temporary tab, inspected its accessibility state, clicked the observed Learn more link, and verified the Example Domains page at `https://www.iana.org/help/example-domains`. The agent closed the temporary tab after verification.
+
+Through the supported Computer Use client, the agent discovered Windows applications, launched installed Notepad, selected its returned window, and captured accessibility and screenshot state. It clicked the blank text editor, typed a harmless test sentence, and verified the exact document text and screenshot. The first click reported unavailable coordinate geometry; refreshing the window, activating it and capturing screenshot-backed state allowed one successful retry. An earlier Calculator launch exposed no targetable window, so Calculator interaction was not accepted. Notepad was left open with the unsaved test sentence; no user document was modified or file saved.
+
+These checks establish live Browser navigation and Computer Use discovery, window capture, activation, click and text input after this relaunch. They do not establish every connector, repeated reconnect stability, pet behavior or real-phone behavior. The executable-signature and Android project-label limitations remain documented.
