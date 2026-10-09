@@ -8,6 +8,6 @@ A local chat config request with no successful sync result coalesces one recover
 
 Disable independently and rebuild to restore stock behavior. Use with the Browser eligibility/path/recovery modules where needed. Source tests cover bounded retries, fresh pipe generation, concurrent chat recovery, remote-host exclusion, reconciliation failures and subsequent explicit feature disables. Actual Browser and Computer Use tools must be tested after relaunch.
 
-Bundled marketplace reconciliation uses the native throw-on-failure option so a partial marketplace failure cannot be recorded as a successful configuration. Recovery waits for an ordinary focus or the next relevant feature publication; it does not create a background polling loop.
+Bundled marketplace reconciliation retains native migration, config-sync, skill-notification and remote-sync work after a partial failure. It then marks that configuration incomplete so the next focus can retry; a partial failure is never cached as successful reconciliation. Recovery waits for an ordinary focus or the next relevant feature publication; it does not create a background polling loop.
 
 Successful chat recovery is cached for the current connection, reconciliation, sync and feature snapshot. A later native sync or feature publication invalidates that cache; a failed recovery is never cached as success.

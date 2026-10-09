@@ -30,7 +30,7 @@
       "failed": 0,
       "skipped": 0,
       "combinations": 64,
-      "durationSeconds": 384
+      "durationSeconds": 378
     },
     "wsl": {
       "recoveryPassed": 7,
@@ -66,8 +66,16 @@
       "browser-feature-recovery",
       "runtime-sync-recovery"
     ],
-    "archiveSha256": "339aba2c58ce4b3b2e03fa874ea34d67c2f8ffe665eac6eac9adeb70a1cdd997",
-    "headerSha256": "85231ed2560edaaefffcd2b08e594ad5dd37ea26a2897f98967c551bf6e53aba",
-    "executableSha256": "c38bddafc9e13036fdf0a9ebcbe333e6e1bc69f9d84265f8456e59b4d9f71b0a"
+    "archiveSha256": "76953ba2110cb7b3a00edb394cddca5b5d6497a125c994c797cbc96221293c33",
+    "headerSha256": "01e878ac7663d139dccf01a264e69c0e41415aaada89743402f81640a507f614",
+    "executableSha256": "37c80ca774c9a5e6b95130b844539829a129ea80d7d3664dc005f92230c611ac"
+  },
+  "independentReview": {
+    "provider": "Claude review",
+    "status": "completed",
+    "remainingHigh": 0,
+    "remainingMedium": 0,
+    "optionalLow": 2,
+    "scope": "Source excerpts, final patch strings, failure recovery, permissions, generation cache, native helper and publisher semantics; no live desktop acceptance."
   }
 }

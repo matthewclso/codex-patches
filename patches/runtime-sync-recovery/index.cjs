@@ -9,8 +9,8 @@ const failureBefore = 'throw gd().warning(`bundled_plugins_reconcile_failed`,{sa
 const failureAfter = 'throw g===c&&(g=null),gd().warning(`bundled_plugins_reconcile_failed`,{safe:{hasExternalPluginStateSync:l,reason:n},sensitive:{error:e}}),e';
 const focusBefore = 'reconcileExternalPluginState:(e=`focus`)=>N(e)';
 const focusAfter = 'reconcileExternalPluginState:(e=`focus`)=>A({force:!1,reason:e}).then(()=>N(e))';
-const reconcileBefore = 'marketplacePluginNames:t.marketplacePluginNames,forceInstallPluginNames:s';
-const reconcileAfter = 'marketplacePluginNames:t.marketplacePluginNames,throwOnReconcileFailure:!0,forceInstallPluginNames:s';
+const reconcileBefore = 'S=m,w=g,C=!1,D(t.marketplacePluginDescriptors)};return{reconcileComputerHistoryPluginInstallation:';
+const reconcileAfter = 'S=m,w=g,C=!1,D(t.marketplacePluginDescriptors);if(y.hadReconcileFailure)throw Error(`Bundled plugin reconciliation incomplete`)};return{reconcileComputerHistoryPluginInstallation:';
 module.exports = {
   id: 'runtime-sync-recovery', title: 'Recover app-managed Browser and Computer Use configuration after startup failures',
   targetPath: '.vite/build/main-p91kJShj.js',

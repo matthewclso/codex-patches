@@ -46,7 +46,11 @@ sourceTest('actual browser capability: transient errors retain confirmed config,
   assert.deepEqual(capability(patched,q,allowed),{isLoading:false,isError:true,isCapable:true});
   assert.deepEqual(capability(patched,{...q,data:undefined},allowed),{isLoading:true,isError:true,isCapable:false});
   assert.equal(capability(patched,{...q,data:[{name:'in_app_browser',enabled:false}]},allowed).isCapable,false);
-  assert.equal(capability(patched,{...q,error:Error('Permission denied')},allowed).isCapable,false);
+  for(const message of ['Permission denied','Unauthorized','HTTP 403 Forbidden','HTTP 401'])assert.equal(capability(patched,{...q,error:Error(message)},allowed).isCapable,false);
+  for(const message of ['fetch failed','ECONNRESET','socket hang up','service unavailable','aborted'])assert.equal(capability(patched,{...q,error:Error(message)},allowed).isCapable,true);
+  const workspace=vm.runInNewContext('('+between(stock,'function lkn(','var ukn;')+')',{zK:()=>true});
+  const pendingPolicy=workspace({getAccount:()=>({authMethod:'chatgpt',accountId:'account',authenticatedAccountId:'account',plan:'enterprise'}),getAccountInfoError:()=>false,permissions:['browser'],getWorkspaceSettings:()=>({isLoading:true,isError:false})});
+  assert.equal(pendingPolicy.isLoading,true);assert.equal(capability(patched,{...q,data:undefined},pendingPolicy).isLoading,true);
   for (const data of [undefined,q.data]) {
     const denied=capability(patched,{...q,data},{...allowed,isCapable:false});
     assert.equal(denied.isCapable,false);assert.equal(denied.isLoading,false);
@@ -97,12 +101,12 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
 });
 sourceTest('actual bundled reconciler retries failed signature on focus, skips successful signature and follows latest disables',async()=>{
   const stock=source(runtime),patched=runtime.apply(stock,app.replaceExactlyOnce);
-  async function exercise(text,keepFail=false) {
-    let count=0,syncs=0,external=0,names=[],failed=true;
+  async function exercise(text,keepFail=false,partial=false) {
+    let count=0,syncs=0,external=0,migrations=0,names=[],failed=true;
     const sandbox={process:{env:{},platform:'win32'},r:{Zo:()=> 'market'},La:()=> 'root',Ia:()=> 'resources',Ra:()=>new Set(),s:{},u:{t:{Dev:'dev',Prod:'prod'}},
-      hd:[{name:'browser',isAvailable:({features})=>features.inAppBrowserUseAllowed}],Yr:{},ai:()=>true,gd:()=>({info(){},warning(){}}),
+      hd:[{name:'browser',migrate:async()=>{migrations++},isAvailable:({features})=>features.inAppBrowserUseAllowed}],Yr:{},ai:()=>true,gd:()=>({info(){},warning(){}}),
       yd:()=>undefined,ac:()=>{},Kc:async()=>{},cc:async()=>{syncs++},Oie:async()=>{},sne:async()=>{external++;return null},
-      Lo:async e=>{if(text!==stock)assert.equal(e.throwOnReconcileFailure,true);count++;names.push(e.marketplacePluginNames);if(failed){failed=keepFail;throw Error('Timed out waiting for MCP response to marketplace/add')}return{hadReconcileFailure:false,hadUnknownChromeExtensionSyncState:false}},
+      Lo:async e=>{count++;names.push(e.marketplacePluginNames);if(failed){failed=keepFail;if(partial)return{hadReconcileFailure:true,hadUnknownChromeExtensionSyncState:false};throw Error('Timed out waiting for MCP response to marketplace/add')}return{hadReconcileFailure:false,hadUnknownChromeExtensionSyncState:false}},
       Cne:async()=>{},_d:new Set(),ua:{},kie:'dev'};
     const factory=vm.runInNewContext('('+between(text,'function jie(','function yd(')+')',sandbox);
     const instance=factory({env:{},resourcesPath:'r',runtimeMarketplaceRoot:'m',codexHome:'home',buildFlavor:'prod',isPackaged:true,appVersion:'version',globalState:{get:()=>null},getLocalAppServerConnection:()=>({listPlugins:async()=>({marketplaces:[]})})});
@@ -111,14 +115,14 @@ sourceTest('actual bundled reconciler retries failed signature on focus, skips s
     await instance.reconcileExternalPluginState();
     if(text===stock) return {count};
     if(keepFail){assert.equal(count,2);assert.equal(syncs,0);assert.equal(external,1,'Focus must retain stock external reconciliation even when recovery fails');return{count};}
-    assert.equal(count,2);assert.equal(syncs,1);
-    await instance.reconcileExternalPluginState();assert.equal(count,2);assert.equal(syncs,1);
+    assert.equal(count,2);assert.equal(syncs,partial?2:1);assert.equal(migrations,partial?2:1);
+    await instance.reconcileExternalPluginState();assert.equal(count,2);assert.equal(syncs,partial?2:1);assert.equal(migrations,partial?2:1);
     await instance.setDesktopFeatureAvailability({inAppBrowserUseAllowed:false});assert.equal(count,3);assert.deepEqual(Array.from(names.at(-1)),[]);
     await Promise.all([instance.setDesktopFeatureAvailability({inAppBrowserUseAllowed:true}),instance.setDesktopFeatureAvailability({inAppBrowserUseAllowed:false}),instance.reconcileExternalPluginState()]);
     assert.deepEqual(Array.from(names.at(-1)),[],'Serialized reconciliation must finish with the latest confirmed feature state');
     return {count};
   }
-  assert.equal((await exercise(stock)).count,1);await exercise(patched);await exercise(patched,true);
+  assert.equal((await exercise(stock)).count,1);await exercise(patched);await exercise(patched,true);await exercise(patched,false,true);
 });
 sourceTest('actual sync and native config generator refresh current executable and managed pipe after timed-out write',async()=>{
   const patched=runtime.apply(source(runtime),app.replaceExactlyOnce);

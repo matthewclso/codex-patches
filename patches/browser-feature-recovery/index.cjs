@@ -2,7 +2,7 @@
 // Retain the last confirmed browser config feature during discovery errors.
 // A first failed query stays pending; workspace policy and explicit false win.
 const capabilityBefore = 'let i=t(f6,r),a=i.isError,o=i.isLoading||!a&&i.data==null,s=i.data?.find(e=>e.name===n.key);return{isLoading:o,isError:a,isCapable:!o&&!a&&s?.enabled!==!1}';
-const capabilityAfter = 'let i=t(f6,r),a=i.isError,o=i.isLoading||!a&&i.data==null,s=i.data?.find(e=>e.name===n.key);if(e.name===`browser.in-app`&&a&&/timed out|expired while queued|app server.*(?:disconnected|not connected|connection.*closed)/i.test(String(i.error?.message??i.error)))return{isLoading:i.data==null,isError:a,isCapable:i.data!=null&&s?.enabled!==!1};return{isLoading:o,isError:a,isCapable:!o&&!a&&s?.enabled!==!1}';
+const capabilityAfter = 'let i=t(f6,r),a=i.isError,o=i.isLoading||!a&&i.data==null,s=i.data?.find(e=>e.name===n.key);if(e.name===`browser.in-app`&&a&&!/unauthorized|forbidden|permission denied|access denied|not authorized|entitlement.*(?:denied|disabled)|(?:^|[^0-9])(?:401|403)(?:[^0-9]|$)/i.test(String(i.error?.message??i.error)))return{isLoading:i.data==null,isError:a,isCapable:i.data!=null&&s?.enabled!==!1};return{isLoading:o,isError:a,isCapable:!o&&!a&&s?.enabled!==!1}';
 const pendingBefore = 'let o=Ik(Q8,a).isCapable,s=IU(`410262010`)';
 const pendingAfter = 'let o=(()=>{let e=Ik(Q8,a);return e.isLoading?null:e.isCapable})(),s=IU(`410262010`)';
 const requirementsBefore = 'y=i&&(!!u?.isLoading||m.isPending),b=!i||m.allowed';
