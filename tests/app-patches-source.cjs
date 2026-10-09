@@ -35,7 +35,8 @@ function setup() {
   if (original) return;
   original = fs.readFileSync(sourcePath);
   archive = asar.parseArchive(original);
-  sourcePlan = app.inspectArchive(original, app.listPatches().map(p => p.id), { allowUnknownForAudit: true });
+  const known = require('../compatibility/current.json').builds.find(b => b.archiveSha256 === asar.sha256(original));
+  sourcePlan = app.inspectArchive(original, app.listPatches().filter(p => !known || known.patches[p.id]?.status === 'needed').map(p => p.id), { allowUnknownForAudit: true });
   // Fixture names are selected only for the exact reviewed source archive.
   source1002 = sourcePlan.sourceArchiveHash === '76fe7078248c00e4e03dd2177a4275ec9ce158a9dd43452a4f0427d39a4ed012';
   source7945 = source1002 || sourcePlan.sourceArchiveHash === '611d6da979d8bbabfec97dd90dcce27a9522e7016e6ccf135d59cab693ab08da';
@@ -252,7 +253,7 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
   runtime.params.hostId = 'remote-host'; assert.equal((await creation.call(runtime, inputs)).projectId, undefined);
 });
 sourceTest('all valid app-patch combinations are deterministic, source-gated and preserve unrelated entries', () => {
-  const ids = app.listPatches().map(p => p.id);
+  const ids = sourcePlan.patches.map(p => p.id);
   const combinations = Array.from({ length: 1 << ids.length }, (_, mask) => ids.filter((_, index) => mask & (1 << index)));
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-patch-syntax-'));
   try {
@@ -278,7 +279,7 @@ sourceTest('all valid app-patch combinations are deterministic, source-gated and
         if (!changedPaths.has(name)) { assert.deepEqual(asar.lookup(output.tree, name), entry); if (!entry.unpacked && !entry.link) assert(asar.readEntry(archive, name).equals(asar.readEntry(output, name))); }
       }
       for (const change of result.changes) {
-        const patch = app.listPatches().find(p => p.id === change.id), extension = patch.id === 'browser-wsl' ? '.mjs' : '.cjs', filename = path.join(directory, patch.id + extension);
+        const patch = app.listPatches().find(p => p.id === change.id), extension = app.patchForSource(patch.id, change.sourceHash).sourceType === 'commonjs' ? '.cjs' : '.mjs', filename = path.join(directory, patch.id + extension);
         fs.writeFileSync(filename, asar.readEntry(output, change.targetPath));
         const syntax = spawnSync(process.execPath, ['--check', filename], { encoding: 'utf8' });
         assert.equal(syntax.status, 0, syntax.stderr);
@@ -289,7 +290,7 @@ sourceTest('all valid app-patch combinations are deterministic, source-gated and
 });
 sourceTest('actual executable integrity updater changes only the recorded header hash', () => {
   if (!process.env.CODEX_SOURCE_EXE) return;
-  const executable = fs.readFileSync(process.env.CODEX_SOURCE_EXE), result = compose(original, app.listPatches().map(p => p.id));
+  const executable = fs.readFileSync(process.env.CODEX_SOURCE_EXE), result = compose(original, sourcePlan.patches.map(p => p.id));
   if (result.build) assert.equal(asar.sha256(executable), result.build.executableSha256);
   else assert.equal(auditUnknown, true);
   const corrected = asar.updateExecutableIntegrity(executable, result.sourceHeaderHash, result.outputHeaderHash);

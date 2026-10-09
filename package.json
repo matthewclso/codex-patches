@@ -8,7 +8,7 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "test": "node --test tests/*.cjs",
+    "test": "node --test --test-concurrency=1 tests/*.cjs",
     "inspect": "node bin/toolkit.cjs inspect",
     "verify": "node bin/toolkit.cjs verify"
   },

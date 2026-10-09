@@ -56,7 +56,8 @@ function validate(appDirectory, packageReport, outDirectory) {
     for (const [filename, key] of [['codex', 'cliLinuxSha256'], ['codex.exe', 'cliWindowsSha256'],
       ['codex-code-mode-host', 'codeModeLinuxSha256'], ['codex-code-mode-host.exe', 'codeModeWindowsSha256'], ['cua_node/bin/node.exe', 'nodeWindowsSha256']])
       assert.equal(sha256(fs.readFileSync(path.join(appDirectory, 'resources', filename))), packageReport.hashes[key]);
-    const audit = auditArchive(archive, listPatches().map(p => p.id));
+    const reviewed = compatibility.builds.find(b => b.archiveSha256 === sha256(archive));
+    const audit = auditArchive(archive, listPatches().filter(p => !reviewed || reviewed.patches[p.id]?.status === 'needed').map(p => p.id));
     report.audit = audit.report;
     report.reviewedPackage = matchesReviewedPackage(audit.report.build, packageReport);
     if (!audit.buffer) {
@@ -68,9 +69,9 @@ function validate(appDirectory, packageReport, outDirectory) {
     report.checks.push({ name: 'archive-and-executable-composition', status: 'passed', outputArchiveSha256: audit.outputArchiveHash, outputExecutableSha256: sha256(updatedExe), outputHeaderSha256: audit.outputHeaderHash });
     // Tests execute functions taken from this downloaded stock archive. Hash/anchor
     // matching is only the prerequisite; it is not itself behavior evidence.
-    const tests = spawnSync(process.execPath, ['--test', 'tests/app-patches-source.cjs'], {
+    const tests = spawnSync(process.execPath, ['--test', '--test-concurrency=1', 'tests/app-patches-source.cjs', 'tests/plugin-recovery-source.cjs'], {
       cwd: path.resolve(__dirname, '../..'), env: { ...process.env, CODEX_SOURCE_ASAR: archivePath, CODEX_SOURCE_EXE: exePath, CODEX_AUDIT_UNKNOWN: audit.report.supported ? '' : '1' },
-      encoding: 'utf8', timeout: 180000,
+      encoding: 'utf8', timeout: 900000,
     });
     fs.writeFileSync(path.join(outDirectory, 'app-source-tests.txt'), String(tests.stdout || '') + String(tests.stderr || ''));
     report.checks.push({ name: 'stock-and-patched-source-behavior', status: tests.status === 0 && !tests.error ? 'passed' : 'failed' });

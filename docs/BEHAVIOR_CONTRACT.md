@@ -46,7 +46,9 @@ Current module: `custom-pets`. The owner confirmed appearance and selection in t
 
 **BROWSER-3.** Verify this from an actual agent after the patched copy is running; do not ask the user to substitute a manual page-opening check for agent availability. Report a failed or unavailable tool session as unverified until it is resolved. A missing chat working directory was a diagnostic prerequisite encountered during migration, not a promise that this toolkit recreates arbitrary deleted workspaces.
 
-Current modules: `browser-wsl` and `browser-service-path`. Sources: U02 and U08; the accepted browser inventory covers both eligibility and service loading.
+**BROWSER-4.** A transient feature-discovery failure must not be treated as a confirmed Browser disable or cause its plugin to be removed. Retain a confirmed config feature value while preserving current workspace permissions and explicit disable settings; leave an unknown first result pending. Failed app-managed runtime synchronization must recover current executable, service and managed pipe settings on retry or chat recovery without embedding a launch-specific pipe or restarting active chats. Source: U20.
+
+Current modules: `browser-wsl`, `browser-service-path`, `browser-feature-recovery` and `runtime-sync-recovery`. Sources: U02 and U08; the accepted browser inventory covers both eligibility and service loading.
 
 ### Windows paths for WSL projects
 
@@ -182,5 +184,6 @@ All times below are September 30, 2026, America/New_York; later follow-ups witho
 | U17 · follow-up | Report that installing the latest build fails with “A prior toolkit deployment is in use” after exiting the app and stopping ChatGPT processes. | LIFECYCLE-3: diagnose actual activation blockers separately from independent users of retained files; actionable process details. |
 | U18 · follow-up | Add an install flag to force close processes considered still running and interfering. | LIFECYCLE-4: explicit `install -ForceClose`, scoped to confirmed activation blockers; preserve normal non-terminating behavior and cleanup protection. |
 | U19 · October 9, 2026 | Investigate plugins missing connector tools, add a patch to this repository, and continue implementation. | CONNECTOR-1/2, RUNTIME-1; preserve prior patches and prepare reviewable changes before live activation. |
+| U20 · October 9, 2026 | Investigate unavailable Browser and Computer Use, implement the diagnosed fixes, push to the same branch and test. | BROWSER-4; preserve BROWSER-1/2/3 and lifecycle safeguards. |
 
 “Accepted defaults” above refers to the two design responses preceding U02 and U03: a small modular toolkit and one composed app copy, reviewed build support, explicit stock fallback, deliberate preview/backup state repairs, reproducible downloads, deterministic update proposals, and cleanup only after validating independence from old code. Later explicit user decisions override those proposals. Unchosen alternatives and implementation details are not silently promoted into owner requests.

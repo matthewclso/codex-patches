@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-10-09",
+  "packageVersion": "26.1002.7124.0",
+  "appVersion": "26.1002.52244",
+  "cliVersion": "0.162.0-alpha.2",
+  "sourceArchiveSha256": "76fe7078248c00e4e03dd2177a4275ec9ce158a9dd43452a4f0427d39a4ed012",
+  "modules": [
+    "browser-feature-recovery",
+    "runtime-sync-recovery"
+  ],
+  "requirements": [
+    "BROWSER-1",
+    "BROWSER-2",
+    "BROWSER-3",
+    "BROWSER-4",
+    "SELECT-1",
+    "SELECT-2",
+    "SELECT-3",
+    "LIFECYCLE-3",
+    "LIFECYCLE-4",
+    "LIFECYCLE-5",
+    "VERIFY-1",
+    "VERIFY-2",
+    "VERIFY-4"
+  ],
+  "sourceTests": {
+    "windows": {
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "combinations": 64,
+      "durationSeconds": 384
+    },
+    "wsl": {
+      "recoveryPassed": 7,
+      "existingBehaviorPassed": 5,
+      "failed": 0,
+      "combinations": "validated separately on Windows"
+    }
+  },
+  "toolkitAndCiUnits": {
+    "windows": {
+      "passed": 73,
+      "failed": 0,
+      "skipped": 31,
+      "total": 104
+    },
+    "wsl": {
+      "passed": 77,
+      "failed": 0,
+      "skipped": 27,
+      "total": 104
+    }
+  },
+  "limitations": [
+    "No recovery deployment activated or desktop relaunched; actual agent Browser and Computer Use tools remain unverified.",
+    "Earlier concurrent archive loading hit ENOMEM; initial broad native fixtures stalled. Recorded acceptance uses sequential reruns.",
+    "The app copy loses the original executable signature; official installation is retained."
+  ],
+  "composedApp": {
+    "selectedIds": [
+      "custom-pets",
+      "browser-wsl",
+      "browser-service-path",
+      "browser-feature-recovery",
+      "runtime-sync-recovery"
+    ],
+    "archiveSha256": "339aba2c58ce4b3b2e03fa874ea34d67c2f8ffe665eac6eac9adeb70a1cdd997",
+    "headerSha256": "85231ed2560edaaefffcd2b08e594ad5dd37ea26a2897f98967c551bf6e53aba",
+    "executableSha256": "c38bddafc9e13036fdf0a9ebcbe333e6e1bc69f9d84265f8456e59b4d9f71b0a"
+  }
+}
