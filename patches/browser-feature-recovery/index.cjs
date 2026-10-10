@@ -22,3 +22,18 @@ module.exports = {
     return replace(source, requirementsBefore, requirementsAfter);
   },
 };
+
+const currentCapabilityBefore = capabilityBefore.replace('t(f6,', 't(p6,');
+const currentCapabilityAfter = capabilityAfter.replace('t(f6,', 't(p6,');
+const currentPendingBefore = pendingBefore.replace('Ik(Q8,', 'pA($8,').replace('IU(', 'nW(');
+const currentPendingAfter = pendingAfter.replace('Ik(Q8,', 'pA($8,').replace('IU(', 'nW(');
+module.exports.revisions = [{
+  targetPath: 'webview/assets/app-shared-737655e1fb23.js',
+  sourceSha256: 'a1daa891e89a395b8db399ff6eaa365f12a86880c3d8cf891caf4ccbcb9eebf5',
+  capabilityBefore: currentCapabilityBefore, capabilityAfter: currentCapabilityAfter,
+  pendingBefore: currentPendingBefore, pendingAfter: currentPendingAfter,
+  apply(source, replace) {
+    for (const [before, after] of [[policyBefore, policyAfter], [currentCapabilityBefore, currentCapabilityAfter], [currentPendingBefore, currentPendingAfter], [requirementsBefore, requirementsAfter]]) source = replace(source, before, after);
+    return source;
+  },
+}];

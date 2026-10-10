@@ -17,15 +17,16 @@ function between(source, start, end) {
 async function auditGraphql(asarPath, { wslDistro, windowsNode } = {}) {
   const source = readEntry(parseArchive(fs.readFileSync(asarPath)), ".vite/build/worker.js").toString();
   const workerHash = crypto.createHash('sha256').update(source).digest('hex');
+  const source1007 = workerHash === 'df97ab945ce9850480ccdd0317b2d194febcc580c81ab25adfcfa6d265a00ae1';
   const source1002 = workerHash === 'e22f56b0fcd68492cd5d0cc445b1103dfab0f54c456b2fe838a4aeef6b02f64e';
   const source7945 = source1002 || workerHash === '46b153e94466da15a8245dba0aecea0cc775b0b1688fe3b4cc9dd74d7805d7ad';
   const latestSource = source7945 || workerHash === '290125797165e28c2b11e2b49031c605d55857007ea61c1352260d36a1fc195e';
   const currentSource = latestSource || workerHash === '23cb6abfcfe706cb571b80140a65b04b9a6a0a66b741439afde3d9e6cddf92d3';
-  const quotes = between(source, source1002 ? "function $Z(" : "function sQ(", source1002 ? "var Cbe=" : source7945 ? "var pbe=" : currentSource ? "var dbe=" : "var ube=");
-  const execute = between(source, source1002 ? "async function Eje(" : source7945 ? "async function cje(" : latestSource ? "async function oje(" : currentSource ? "async function aje(" : "async function ije(", source1002 ? "function Dje(" : source7945 ? "function lje(" : latestSource ? "function sje(" : currentSource ? "function oje(" : "function aje(");
-  const wrap = between(source, source1002 ? "function Dxe(" : "function _xe(", source1002 ? "function Mxe(" : source7945 ? "function Sxe(" : currentSource ? "function bxe(" : "function yxe(");
-  const wslArgs = between(source, source1002 ? "function mU(" : source7945 ? "function _U(" : "function yU(", source1002 ? "function hU(" : source7945 ? "function vU(" : "function bU(");
-  const shell = source.match(source1002 ? /cU=`([^`]+)`/ : source7945 ? /dU=`([^`]+)`/ : /pU=`([^`]+)`/)?.[1];
+  const quotes = between(source, source1007 ? "function ZZ(" : source1002 ? "function $Z(" : "function sQ(", source1007 ? "var Abe=" : source1002 ? "var Cbe=" : source7945 ? "var pbe=" : currentSource ? "var dbe=" : "var ube=");
+  const execute = between(source, source1007 ? "async function xje(" : source1002 ? "async function Eje(" : source7945 ? "async function cje(" : latestSource ? "async function oje(" : currentSource ? "async function aje(" : "async function ije(", source1007 ? "function Sje(" : source1002 ? "function Dje(" : source7945 ? "function lje(" : latestSource ? "function sje(" : currentSource ? "function oje(" : "function aje(");
+  const wrap = between(source, source1007 ? "function Ixe(" : source1002 ? "function Dxe(" : "function _xe(", source1007 ? "G({autoResolutionMs:" : source1002 ? "function Mxe(" : source7945 ? "function Sxe(" : currentSource ? "function bxe(" : "function yxe(");
+  const wslArgs = between(source, source1007 ? "function jU(" : source1002 ? "function mU(" : source7945 ? "function _U(" : "function yU(", source1007 ? "function MU(" : source1002 ? "function hU(" : source7945 ? "function vU(" : "function bU(");
+  const shell = source.match(source1007 ? /CU=`([^`]+)`/ : source1002 ? /cU=`([^`]+)`/ : source7945 ? /dU=`([^`]+)`/ : /pU=`([^`]+)`/)?.[1];
   if (!shell?.startsWith("/")) throw new Error("WSL shell boundary changed");
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "codex-graphql-audit-"));
   const bin = path.join(directory, "bin");
@@ -35,13 +36,14 @@ async function auditGraphql(asarPath, { wslDistro, windowsNode } = {}) {
   // Resolve the disposable fake gh in both login shells. The old variable
   // guard is deliberately absent, even if this audit runs from a patched app.
   fs.writeFileSync(hook, `export PATH=${JSON.stringify(bin)}:$PATH\nunset searchQuery first after owner repo number search threadId body\n`);
-  const context = { [source1002 ? "Tje" : source7945 ? "sje" : latestSource ? "aje" : currentSource ? "ije" : "rje"]: { GIT_TERMINAL_PROMPT: "0", GH_PROMPT_DISABLED: "1" },
+  const context = { [source1007 ? "bje" : source1002 ? "Tje" : source7945 ? "sje" : latestSource ? "aje" : currentSource ? "ije" : "rje"]: { GIT_TERMINAL_PROMPT: "0", GH_PROMPT_DISABLED: "1" },
     tF: () => true, QP: () => null, oU: value => value, fP: async value => value,
     lF: () => true, aF: () => null, tU: value => value, EP: async value => value,
     $P: () => true, XP: () => null, iU: value => value, uP: async value => value,
     [source1002 ? "Mxe" : source7945 ? "Sxe" : currentSource ? "bxe" : "yxe"]: () => false, pU: shell, dU: shell, cU: shell, process: { cwd: () => directory, env: {} } };
+  if (source1007) Object.assign(context, { uP: () => true, sP: () => null, hU: value => value, UP: async value => value, vV: () => false, xV: value => value, CU: shell });
   vm.createContext(context);
-  vm.runInContext(quotes + execute + wrap + wslArgs + (source1002 ? ";globalThis.auditExec=Eje;globalThis.auditWrap=jxe;" : source7945 ? ";globalThis.auditExec=cje;globalThis.auditWrap=xxe;" : latestSource ? ";globalThis.auditExec=oje;globalThis.auditWrap=yxe;" : currentSource ? ";globalThis.auditExec=aje;globalThis.auditWrap=yxe;" : ";globalThis.auditExec=ije;globalThis.auditWrap=vxe;") + (source1002 ? "globalThis.auditWsl=mU;" : source7945 ? "globalThis.auditWsl=_U;" : "globalThis.auditWsl=yU;"), context);
+  vm.runInContext(quotes + execute + wrap + wslArgs + (source1007 ? ";globalThis.auditExec=xje;globalThis.auditWrap=Rxe;" : source1002 ? ";globalThis.auditExec=Eje;globalThis.auditWrap=jxe;" : source7945 ? ";globalThis.auditExec=cje;globalThis.auditWrap=xxe;" : latestSource ? ";globalThis.auditExec=oje;globalThis.auditWrap=yxe;" : currentSource ? ";globalThis.auditExec=aje;globalThis.auditWrap=yxe;" : ";globalThis.auditExec=ije;globalThis.auditWrap=vxe;") + (source1007 ? "globalThis.auditWsl=jU;" : source1002 ? "globalThis.auditWsl=mU;" : source7945 ? "globalThis.auditWsl=_U;" : "globalThis.auditWsl=yU;"), context);
   const query = "query($searchQuery:String!,$first:Int,$after:String){ search(query:$searchQuery,first:$first,after:$after,type:ISSUE){issueCount} }";
   const args = ["api", "graphql", "-f", `query=${query}`, "-f", "searchQuery=fixture's query"];
   let captured;
