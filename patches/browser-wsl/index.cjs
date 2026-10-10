@@ -50,3 +50,11 @@ module.exports.revisions.push({
   after: after.replace('function xBr(', 'function cGr('),
   apply: (source, replace) => replace(source, before.replace('function xBr(', 'function cGr('), after.replace('function xBr(', 'function cGr(')),
 });
+
+module.exports.revisions.push({
+  targetPath: 'webview/assets/app-shared-737655e1fb23.js',
+  sourceSha256: 'a1daa891e89a395b8db399ff6eaa365f12a86880c3d8cf891caf4ccbcb9eebf5',
+  before: before.replace('function xBr(', 'function KJr('),
+  after: after.replace('function xBr(', 'function KJr('),
+  apply: (source, replace) => replace(source, before.replace('function xBr(', 'function KJr('), after.replace('function xBr(', 'function KJr(')),
+});

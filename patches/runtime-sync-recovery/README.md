@@ -1,6 +1,6 @@
 # App-managed runtime synchronization recovery
 
-Reviewed for package 26.1002.7124.0 only. This app-code module is `auto` when needed.
+Reviewed for packages 26.1002.7124.0 and 26.1007.2314.0. This app-code module is `auto` when needed.
 
 The desktop generates its worker executable, service paths and managed Computer Use pipe during synchronization. A timed-out write can leave a previous deployment's settings saved. This module serializes the existing sync and makes up to three attempts for request timeout, queued expiry or disconnected-app-server errors, waiting one and two seconds. Each attempt re-runs native selection and pipe discovery. Permanent errors retain normal failure behavior.
 

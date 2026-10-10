@@ -40,3 +40,10 @@ module.exports.revisions.push({
   targetPath: '.vite/build/main-p91kJShj.js',
   sourceSha256: 'aafd6a750458cb39b6202f9be00231482122d32ac14017b79d544c4ab741e889',
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/main-BklS_2Y2.js',
+  sourceSha256: '5cf1544463be9497b85b69051aa5ad32320f9ebdca063ec2ab41abb75b6cadf7',
+  before: '{browser:b}', after: '{browser:_&&h.platform===`win32`?c.ut(b,null):b}',
+  apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?c.ut(b,null):b}'),
+});

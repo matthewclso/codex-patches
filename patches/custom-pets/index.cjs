@@ -68,3 +68,15 @@ module.exports.revisions.push({
     return replace(source, 'async function Zz(', currentHelper + 'async function Zz(');
   },
 });
+
+// 26.1007 split pet support out of bootstrap; retain all three path fixes.
+module.exports.revisions.push({
+  targetPath: '.vite/build/src-BJv5Mk7n.js',
+  sourceSha256: '72e2b366d574206f76fc079c79b64c31ce378970a797475ded8709908d338f08',
+  apply(source, replace) {
+    assert(!source.includes('codexPetHome'), 'Pet helper is already present or collides');
+    for (const [before, after] of replacements) source = replace(source, before.replace('o.rt(', 'o.ot('), after);
+    const currentHelper = helper.replace('o.rt(', 'o.ot(').replace('o.zt(', 'o.Ut(');
+    return replace(source, 'async function XK(', currentHelper + 'async function XK(');
+  },
+});

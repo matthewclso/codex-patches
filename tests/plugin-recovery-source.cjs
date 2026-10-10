@@ -5,10 +5,35 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const asar = require('../lib/asar.cjs');
 const app = require('../lib/app-patches.cjs');
-const feature = require('../patches/browser-feature-recovery/index.cjs');
-const runtime = require('../patches/runtime-sync-recovery/index.cjs');
+let feature = require('../patches/browser-feature-recovery/index.cjs');
+let runtime = require('../patches/runtime-sync-recovery/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
-let archive;
+let archive, source1007, selected;
+// Fixture aliases are bound to one exact reviewed archive, never guessed.
+const currentNames = { Q8:'$8', Ck:'Xk', Q:'X', Kgi:'bbi', Jgi:'Sbi', Qgi:'Ebi', $gi:'Dbi', yI:'II', f6:'p6', Wgi:'vbi', e_i:'Obi',
+  sGr:'GJr', cGr:'KJr', lGr:'qJr', Ik:'pA', DHr:'tKr', IU:'nW', IHr:'uKr', D2:'S2', QN:'cP', JOn:'$kn', uzt:'pzt',
+  lkn:'mAn', ukn:'hAn', zK:'qK',
+  rc:'lc', ic:'uc', cc:'mc', lc:'hc', oc:'fc', ws:'ks', Qs:'ic', Aa:'Ia', dc:'_c', fc:'vc',
+  jie:'sie', yd:'vf', La:'za', Ia:'Ra', Ra:'one', u:'p', hd:'mf', Yr:'xa', ai:'Ai', gd:'hf', ac:'dc', Kc:'Qc',
+  Oie:'aie', sne:'Ane', Lo:'Ho', Cne:'yne', _d:'gf', ua:'bi', kie:'aie',
+  M:'P', Ts:'As', Hs:'Js', Ks:'Qs', $s:'ac', Na:'rne', Mne:'tre', Ma:'La', nc:'cc',
+  Us:'Ys', Ws:'Xs', Vs:'qs', Bs:'Ks' };
+const named = text => source1007 ? text.replace(/[A-Za-z_$][\w$]*/g, name => currentNames[name] ?? name) : text;
+const context = values => source1007 ? Object.fromEntries(Object.entries(values).map(([key,value]) => [currentNames[key] ?? key, value])) : values;
+function setup(t) {
+  if (selected) return true;
+  const bytes=fs.readFileSync(sourcePath); archive=asar.parseArchive(bytes);
+  source1007=asar.sha256(bytes)==='c5fdef328cfa2ad9095786f9c3a7aaa447e68834d31299d6ef2592da02029038';
+  const entries=asar.listEntries(archive.tree);
+  if (![feature,...feature.revisions??[]].some(p=>entries.some(e=>e.path===p.targetPath))) {
+    const known=require('../compatibility/current.json').builds.find(b=>b.archiveSha256===asar.sha256(bytes));
+    assert(known && !known.patches[feature.id], 'Missing recovery source in an unknown or recovery-enabled build');
+    t.skip('This older reviewed build predates the recovery patches'); return false;
+  }
+  const plan=app.inspectArchive(bytes,[feature.id,runtime.id],{allowUnknownForAudit:true});
+  [feature,runtime]=[feature,runtime].map(p=>{const row=plan.patches.find(r=>r.id===p.id);assert(row?.sourceHash,'Missing reviewed recovery module');return app.patchForSource(p.id,row.sourceHash)});
+  selected=true; return true;
+}
 function source(patch) {
   archive ??= asar.parseArchive(fs.readFileSync(sourcePath));
   const bytes = asar.readEntry(archive, patch.targetPath);
@@ -16,26 +41,26 @@ function source(patch) {
   return bytes.toString();
 }
 function between(s, first, last) {
+  first=named(first);last=named(last);
   const i=s.indexOf(first), j=s.indexOf(last,i+first.length);
   assert(i>=0&&j>i, 'Missing reviewed source boundary: '+first);
   return s.slice(i,j);
 }
-const sourceTest = (name, fn) => test(name, {skip: !sourcePath && 'Set CODEX_SOURCE_ASAR to pristine 26.1002 archive'}, t => {
-  archive ??= asar.parseArchive(fs.readFileSync(sourcePath));
-  if (!asar.listEntries(archive.tree).some(e => e.path === feature.targetPath)) { t.skip('Recovery modules apply only to reviewed 26.1002 source'); return; }
+const sourceTest = (name, fn) => test(name, {skip: !sourcePath && 'Set CODEX_SOURCE_ASAR to a pristine reviewed archive'}, t => {
+  if (!setup(t)) return;
   return fn();
 });
 function capability(s, query, policy, name='browser.in-app') {
-  const expr = between(s,'Q8=Ck(Q,',';function n_i(').replace(/^Q8=/,'').replace(/\}\)\)\)\(\)\}var t_i$/,'');
-  // Extract the actual capability callback, including aggregate policy checks.
-  const code=expr.slice(0,expr.indexOf('},{isEqual:$gi})')+'},{isEqual:$gi})'.length);
+  const expr = between(s,'Q8=Ck(Q,','},{isEqual:$gi})').slice(named('Q8=').length);
+  // Extract the actual callback with its current policy and config dependencies.
+  const code=expr+named('},{isEqual:$gi})');
   const raw=vm.runInNewContext('('+between(s,'"browser.in-app":','"chatgpt.seat-access":').slice('"browser.in-app":'.length).replace(/,$/,'')+')');
-  const flatten=vm.runInNewContext(between(s,'function Kgi(','var Jgi;')+';Kgi');
+  const flatten=vm.runInNewContext(between(s,'function Kgi(','var Jgi;')+named(';Kgi'));
   const descriptors=flatten({'browser.in-app':raw,other:raw});
   assert.deepEqual(Array.from(descriptors['browser.in-app'].accessPolicies),['workspace-in-app-browser']);
   assert.equal(descriptors['browser.in-app'].settings.length,0);assert.equal(descriptors['browser.in-app'].statsig.length,0);
   assert(between(s,'function sGr(','function cGr(').includes('a={name:`browser.in-app`}'));
-  const sandbox = { Q:{},Ck:(_q,fn)=>fn,Qgi:vm.runInNewContext('('+between(s,'function Qgi(','function $gi(')+')'),$gi:()=>{},yI:'local',f6:'features',Wgi:{'workspace-in-app-browser':'policy'},e_i:descriptors };
+  const sandbox = context({ Q:{},Ck:(_q,fn)=>fn,Qgi:vm.runInNewContext('('+between(s,'function Qgi(','function $gi(')+')'),$gi:()=>{},yI:'local',f6:'features',Wgi:{'workspace-in-app-browser':'policy'},e_i:descriptors });
   const fn=vm.runInNewContext(code,sandbox);
   return JSON.parse(JSON.stringify(fn({name},{get:(key,host)=>{if(key==='features'){assert.equal(host,'local');return query}return policy}})));
 }
@@ -48,7 +73,7 @@ sourceTest('actual browser capability: transient errors retain confirmed config,
   assert.equal(capability(patched,{...q,data:[{name:'in_app_browser',enabled:false}]},allowed).isCapable,false);
   for(const message of ['Permission denied','Unauthorized','HTTP 403 Forbidden','HTTP 401'])assert.equal(capability(patched,{...q,error:Error(message)},allowed).isCapable,false);
   for(const message of ['fetch failed','ECONNRESET','socket hang up','service unavailable','aborted'])assert.equal(capability(patched,{...q,error:Error(message)},allowed).isCapable,true);
-  const workspace=vm.runInNewContext('('+between(stock,'function lkn(','var ukn;')+')',{zK:()=>true});
+  const workspace=vm.runInNewContext('('+between(stock,'function lkn(','var ukn;')+')',context({zK:()=>true}));
   const pendingPolicy=workspace({getAccount:()=>({authMethod:'chatgpt',accountId:'account',authenticatedAccountId:'account',plan:'enterprise'}),getAccountInfoError:()=>false,permissions:['browser'],getWorkspaceSettings:()=>({isLoading:true,isError:false})});
   assert.equal(pendingPolicy.isLoading,true);assert.equal(capability(patched,{...q,data:undefined},pendingPolicy).isLoading,true);
   for (const data of [undefined,q.data]) {
@@ -61,9 +86,9 @@ sourceTest('actual browser capability: transient errors retain confirmed config,
   // Unknown query must become a loading Browser gate, so the stock publisher
   // cannot send a false disable event to destructive plugin reconciliation.
   const run=(text,cap)=>{
-    const sandbox={lGr:{c:()=>Array(22).fill(Symbol.for('react.memo_cache_sentinel'))}, Q8:'cap', DHr:'requirements', QN:{},
+    const sandbox=context({lGr:{c:()=>Array(22).fill(Symbol.for('react.memo_cache_sentinel'))}, Q8:'cap', DHr:'requirements', QN:{},
       Ik:key=>key==='cap'?cap:{allowed:true,isPending:false}, IU:()=>true, IHr:()=>({enabled:true,isLoading:false}), D2:()=>({}),JOn:()=>false,uzt:()=>({kind:'local'}),
-      cGr:vm.runInNewContext('('+between(text,'function cGr(','var lGr;')+')')};
+      cGr:vm.runInNewContext('('+between(text,'function cGr(','var lGr;')+')')});
     return vm.runInNewContext('('+between(text,'function sGr(','function cGr(')+')',sandbox)({hostId:'local'});
   };
   assert.deepEqual(JSON.parse(JSON.stringify(run(patched,{isLoading:true,isCapable:false}))),{allowed:false,available:false,isLoading:true,reason:'loading'});
@@ -73,9 +98,9 @@ sourceTest('actual browser capability: transient errors retain confirmed config,
 function syncSandbox(text, options={}) {
   let calls=0, delays=[], pipe='expired', writes=[];
   const connection={hostConfig:{kind:'local'}};
-  const sandbox={rc:new WeakMap,ic:new WeakMap,setTimeout:(fn,ms)=>{delays.push(ms);pipe='current';queueMicrotask(fn)},
-    lc:async e=>{calls++;writes.push({pipe,reload:e.reloadUserConfig});if(options.failAlways||calls<=(options.failures??1))throw Error(options.message??'Timed out waiting for MCP response to config/batchWrite');return{selection:{pipe},cuaReplEnabled:false}}};
-  vm.runInNewContext(between(text,'function cc(','async function lc(')+';globalThis.sync=cc;',sandbox);
+  const sandbox=context({rc:new WeakMap,ic:new WeakMap,setTimeout:(fn,ms)=>{delays.push(ms);pipe='current';queueMicrotask(fn)},
+    lc:async e=>{calls++;writes.push({pipe,reload:e.reloadUserConfig});if(options.failAlways||calls<=(options.failures??1))throw Error(options.message??'Timed out waiting for MCP response to config/batchWrite');return{selection:{pipe},cuaReplEnabled:false}}});
+  vm.runInNewContext(between(text,'function cc(','async function lc(')+named(';globalThis.sync=cc;'),sandbox);
   return {sandbox,connection,calls:()=>calls,delays,writes};
 }
 sourceTest('actual runtime sync: retry fresh pipe, bound timeout retries, keep permanent failures and serialize writes', async()=>{
@@ -90,24 +115,25 @@ sourceTest('actual runtime sync: retry fresh pipe, bound timeout retries, keep p
 sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-managed config and preserves remote hosts', async()=>{
   const patched=runtime.apply(source(runtime),app.replaceExactlyOnce), ctx=syncSandbox(patched,{failures:0});
   let features={browserUseTinysky:false};
-  Object.assign(ctx.sandbox,{oc:async()=>null,K:()=>features,ws:async()=>({}),Qs:async()=>({worker:'current'}),Aa:{legacy:'disabled'}});
-  vm.runInNewContext(between(patched,'async function dc(','var fc=')+';globalThis.config=dc;',ctx.sandbox);
+  Object.assign(ctx.sandbox,context({oc:async()=>null,K:()=>features,ws:async()=>({}),Qs:async()=>({worker:'current'}),Aa:{legacy:'disabled'}}));
+  vm.runInNewContext(between(patched,'async function dc(','var fc=')+named(';globalThis.config=dc;'),ctx.sandbox);
   const requests=Array.from({length:5},()=>ctx.sandbox.config({appServerConnection:ctx.connection}));
   await Promise.all(requests);assert.equal(ctx.calls(),1);assert.equal(ctx.writes[0].reload,true);
   await ctx.sandbox.config({appServerConnection:ctx.connection});assert.equal(ctx.calls(),1,'Failed reconciliation must not force a new write on every chat after recovery succeeds');
   features={browserUseTinysky:false};await ctx.sandbox.config({appServerConnection:ctx.connection});assert.equal(ctx.calls(),2,'Current features invalidate a previous recovery');
-  ctx.sandbox.ic.set(ctx.connection,Promise.resolve());await ctx.sandbox.config({appServerConnection:ctx.connection});assert.equal(ctx.calls(),3,'New reconciliation generation invalidates recovery');
+  ctx.sandbox[named('ic')].set(ctx.connection,Promise.resolve());await ctx.sandbox.config({appServerConnection:ctx.connection});assert.equal(ctx.calls(),3,'New reconciliation generation invalidates recovery');
   await ctx.sandbox.config({appServerConnection:{hostConfig:{kind:'ssh'}},desktopFeatureAvailability:{browserUseTinysky:false}});assert.equal(ctx.calls(),3);
 });
 sourceTest('actual bundled reconciler retries failed signature on focus, skips successful signature and follows latest disables',async()=>{
   const stock=source(runtime),patched=runtime.apply(stock,app.replaceExactlyOnce);
   async function exercise(text,keepFail=false,partial=false) {
     let count=0,syncs=0,external=0,migrations=0,names=[],failed=true;
-    const sandbox={process:{env:{},platform:'win32'},r:{Zo:()=> 'market'},La:()=> 'root',Ia:()=> 'resources',Ra:()=>new Set(),s:{},u:{t:{Dev:'dev',Prod:'prod'}},
+    const sandbox=context({process:{env:{},platform:'win32'},r:{Zo:()=> 'market'},La:()=> 'root',Ia:()=> 'resources',Ra:()=>new Set(),s:{},u:{t:{Dev:'dev',Prod:'prod'}},
       hd:[{name:'browser',migrate:async()=>{migrations++},isAvailable:({features})=>features.inAppBrowserUseAllowed}],Yr:{},ai:()=>true,gd:()=>({info(){},warning(){}}),
       yd:()=>undefined,ac:()=>{},Kc:async()=>{},cc:async()=>{syncs++},Oie:async()=>{},sne:async()=>{external++;return null},
       Lo:async e=>{count++;names.push(e.marketplacePluginNames);if(failed){failed=keepFail;if(partial)return{hadReconcileFailure:true,hadUnknownChromeExtensionSyncState:false};throw Error('Timed out waiting for MCP response to marketplace/add')}return{hadReconcileFailure:false,hadUnknownChromeExtensionSyncState:false}},
-      Cne:async()=>{},_d:new Set(),ua:{},kie:'dev'};
+      Cne:async()=>{},_d:new Set(),ua:{},kie:'dev'});
+    if (source1007) Object.assign(sandbox,{r:{$o:()=> 'market'},l:{S:'managed'},mf:sandbox.mf,Qc:async()=>{},aie:'dev',iie:async()=>{}});
     const factory=vm.runInNewContext('('+between(text,'function jie(','function yd(')+')',sandbox);
     const instance=factory({env:{},resourcesPath:'r',runtimeMarketplaceRoot:'m',codexHome:'home',buildFlavor:'prod',isPackaged:true,appVersion:'version',globalState:{get:()=>null},getLocalAppServerConnection:()=>({listPlugins:async()=>({marketplaces:[]})})});
     await instance.reconcileExternalPluginState();assert.equal(count,0,'Focus before availability must skip destructive reconciliation');
@@ -131,10 +157,11 @@ sourceTest('actual sync and native config generator refresh current executable a
     assert.equal(method,'config/batchWrite');calls.push(JSON.parse(JSON.stringify(request)));
     if(calls.length===1){pipe='current-pipe';throw Error('Timed out waiting for MCP response to config/batchWrite')}
   }};
-  const sandbox={rc:new WeakMap,M:{default:{env:{}}},K:()=>({}),Ts(){},o:{_t:()=>true},ua:{},r:{ts:'cua_repl',as:'node_repl'},nc:[],Aa:{'mcp_servers.cua_repl':{enabled:false}},
+  const sandbox=context({rc:new WeakMap,M:{default:{env:{}}},K:()=>({}),Ts(){},o:{_t:()=>true},ua:{},r:{ts:'cua_repl',as:'node_repl'},nc:[],Aa:{'mcp_servers.cua_repl':{enabled:false}},
     ws:async()=>({codexHome:'home',marketplaceName:'market',browserServicePluginVersion:'version',desktopFeatureAvailability:{},runtimePaths:{platform:'win32',nodeReplPath:'current-repl-'+(++generation)},shouldUseWslPaths:true,browserBackends:['iab'],computerUse:true,computerUsePaths:{},cuaReplSurfaces:[]}),
-    Hs:async()=>pipe,Ks:{info(){}},$s:options=>({'mcp_servers.node_repl':{command:options.runtimePaths.nodeReplPath,env:{SKY_CUA_NATIVE_PIPE_DIRECTORY:options.computerUseNativePipePath}}}),Na:async()=>false,Mne:async()=>{},Ma(){},Ia:()=> 'resources',setTimeout:fn=>queueMicrotask(fn)};
-  vm.runInNewContext(between(patched,'async function Qs(','function $s(')+between(patched,'function cc(','async function dc(')+';globalThis.sync=cc;',sandbox);
+    Hs:async()=>pipe,Ks:{info(){}},$s:options=>({'mcp_servers.node_repl':{command:options.runtimePaths.nodeReplPath,env:{SKY_CUA_NATIVE_PIPE_DIRECTORY:options.computerUseNativePipePath}}}),Na:async()=>false,Mne:async()=>{},Ma(){},Ia:()=> 'resources',setTimeout:fn=>queueMicrotask(fn)});
+  if (source1007) Object.assign(sandbox,{c:{yt:()=>true},r:{rs:'cua_repl',ss:'node_repl'},xa:{}});
+  vm.runInNewContext(between(patched,'async function Qs(','function $s(')+between(patched,'function cc(','async function dc(')+named(';globalThis.sync=cc;'),sandbox);
   await sandbox.sync({appServerConnection:connection,appVersion:'version'});
   assert.equal(calls.length,2);
   const worker=request=>request.edits.find(e=>e.keyPath==='mcp_servers.node_repl').value;
@@ -144,7 +171,8 @@ sourceTest('actual sync and native config generator refresh current executable a
 });
 sourceTest('actual managed pipe runtime coalesces repeated readiness requests without restarting an active turn',async()=>{
   const stock=source(runtime);let starts=0,disposed=0,closed=0;
-  const sandbox={process:{env:{},platform:'win32'},Vs:null,o:{bt:()=> 'helper',xt:()=> 'transport'},Bs:()=>({info(){},warning(){}})};
+  const sandbox=context({process:{env:{},platform:'win32'},Vs:null,o:{bt:()=> 'helper',xt:()=> 'transport'},Bs:()=>({info(){},warning(){}})});
+  if (source1007) sandbox.c={St:()=> 'helper',Ct:()=> 'transport'};
   const factory=vm.runInNewContext('('+between(stock,'function Us(','var Ws=')+')',sandbox);
   const server={pipePath:'fixture-pipe',dispose:async()=>{disposed++},closeActiveTurn:async()=>{closed++;return true},hasActiveTurn:()=>true};
   const bridge=factory({codexHome:'fixture',platform:'win32',resourcesPath:'resources',ensureNotifyConfig:async()=>({configChanged:false}),startServer:async()=>{starts++;return server}});
@@ -157,11 +185,11 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
 sourceTest('actual availability publisher does not send a Browser disable while capability discovery is pending',()=>{
   const entry=asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
   const initial=asar.readEntry(archive,entry.path).toString();
-  const condition=between(initial,'s||se.isLoading||ce.isLoading||le.isLoading||','||(oh.dispatchMessage(`electron-desktop-features-changed`');
+  const condition=between(initial,source1007?'s||le.isLoading||ue.isLoading||de.isLoading||':'s||se.isLoading||ce.isLoading||le.isLoading||',source1007?'||(Ho.dispatchMessage(`electron-desktop-features-changed`':'||(oh.dispatchMessage(`electron-desktop-features-changed`');
   let published=0;
-  const run=pending=>vm.runInNewContext(condition+'||publish()',{
+  const run=pending=>vm.runInNewContext(condition+'||publish()',source1007 ? {s:false,le:{isLoading:pending},ue:{isLoading:false},de:{isLoading:false},ve:{isLoading:false},be:{isLoading:false},I:'available',A:{status:'allowed'},Ve:{status:'allowed'},He:{status:'allowed'},publish:()=>{published++}} : {
     s:false,se:{isLoading:pending},ce:{isLoading:false},le:{isLoading:false},ge:{isLoading:false},ve:{isLoading:false},P:'available',O:{status:'allowed'},ze:{status:'allowed'},Be:{status:'allowed'},publish:()=>{published++},
   });
   run(true);assert.equal(published,0);run(false);assert.equal(published,1);
-  assert(initial.includes('inAppBrowserUse:se.available')&&initial.includes('inAppBrowserUseAllowed:se.allowed'));
+  assert(initial.includes(source1007?'inAppBrowserUse:le.available':'inAppBrowserUse:se.available')&&initial.includes(source1007?'inAppBrowserUseAllowed:le.allowed':'inAppBrowserUseAllowed:se.allowed'));
 });

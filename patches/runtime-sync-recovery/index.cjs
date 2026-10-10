@@ -22,3 +22,21 @@ module.exports = {
     return source;
   },
 };
+
+// Identifiers are mapped only inside the previously reviewed replacement text.
+const currentNames = { cc: 'mc', rc: 'lc', lc: 'hc', ic: 'uc', oc: 'fc', gd: 'hf' };
+const currentText = text => text.replace(/\b(?:cc|rc|lc|ic|oc|gd)\b/g, name => currentNames[name]);
+const currentReplacements = [[reconcileBefore,reconcileAfter],[syncBefore,syncAfter],[resumeBefore,resumeAfter],[failureBefore,failureAfter],[focusBefore,focusAfter]].map(pair => pair.map(currentText));
+module.exports.revisions = [{
+  targetPath: '.vite/build/main-BklS_2Y2.js',
+  sourceSha256: '5cf1544463be9497b85b69051aa5ad32320f9ebdca063ec2ab41abb75b6cadf7',
+  reconcileBefore: currentText(reconcileBefore), reconcileAfter: currentText(reconcileAfter),
+  syncBefore: currentText(syncBefore), syncAfter: currentText(syncAfter),
+  resumeBefore: currentText(resumeBefore), resumeAfter: currentText(resumeAfter),
+  failureBefore: currentText(failureBefore), failureAfter: currentText(failureAfter),
+  focusBefore, focusAfter,
+  apply(source, replace) {
+    for (const [before, after] of currentReplacements) source = replace(source, before, after);
+    return source;
+  },
+}];

@@ -43,3 +43,9 @@ module.exports.revisions.push({
   before: 'd.setThreadAssignmentsEnabled(K().localProjectTaskMembership)', after: 'd.setThreadAssignmentsEnabled(!0)',
   apply: (source, replace) => replace(source, 'd.setThreadAssignmentsEnabled(K().localProjectTaskMembership)', 'd.setThreadAssignmentsEnabled(!0)'),
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/main-BklS_2Y2.js',
+  sourceSha256: '5cf1544463be9497b85b69051aa5ad32320f9ebdca063ec2ab41abb75b6cadf7',
+});
