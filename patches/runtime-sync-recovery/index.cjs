@@ -40,3 +40,20 @@ module.exports.revisions = [{
     return source;
   },
 }];
+
+const latestNames = { cc: 'Ic', rc: 'jc', lc: 'Lc', ic: 'Mc', oc: 'Pc', gd: 'Ld' };
+const latestText = text => text.replace(/\b(?:cc|rc|lc|ic|oc|gd)\b/g, name => latestNames[name]);
+const latestReplacements = [[reconcileBefore,reconcileAfter],[syncBefore,syncAfter],[resumeBefore,resumeAfter],[failureBefore,failureAfter],[focusBefore,focusAfter]].map(pair => pair.map(latestText));
+module.exports.revisions.push({
+  targetPath: '.vite/build/main-Bgi5Xaw-.js',
+  sourceSha256: 'e8923725ad6357380ac7bb25818f78eb4d97e522ebbde2ddf6ff5a2a93032e54',
+  reconcileBefore: latestText(reconcileBefore), reconcileAfter: latestText(reconcileAfter),
+  syncBefore: latestText(syncBefore), syncAfter: latestText(syncAfter),
+  resumeBefore: latestText(resumeBefore), resumeAfter: latestText(resumeAfter),
+  failureBefore: latestText(failureBefore), failureAfter: latestText(failureAfter),
+  focusBefore, focusAfter,
+  apply(source, replace) {
+    for (const [before, after] of latestReplacements) source = replace(source, before, after);
+    return source;
+  },
+});

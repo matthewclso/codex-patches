@@ -47,3 +47,9 @@ module.exports.revisions.push({
   before: '{browser:b}', after: '{browser:_&&h.platform===`win32`?c.ut(b,null):b}',
   apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?c.ut(b,null):b}'),
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/main-Bgi5Xaw-.js',
+  sourceSha256: 'e8923725ad6357380ac7bb25818f78eb4d97e522ebbde2ddf6ff5a2a93032e54',
+});

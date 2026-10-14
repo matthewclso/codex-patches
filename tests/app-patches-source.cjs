@@ -27,7 +27,7 @@ function compose(bytes, selected) {
   }
   return { ...result, changes: result.report.changes, build: result.report.build };
 }
-let original, archive, sourcePlan, currentSource, latestSource, newestSource, source7945, source1002, source1007;
+let original, archive, sourcePlan, currentSource, latestSource, newestSource, source7945, source1002, source1007, source9446;
 
 function modulePath(patch) { return sourcePlan.patches.find(p => p.id === patch.id).targetPath; }
 function packed(name) { return asar.readEntry(archive, name).toString('utf8'); }
@@ -38,7 +38,8 @@ function setup() {
   const known = require('../compatibility/current.json').builds.find(b => b.archiveSha256 === asar.sha256(original));
   sourcePlan = app.inspectArchive(original, app.listPatches().filter(p => !known || known.patches[p.id]?.status === 'needed').map(p => p.id), { allowUnknownForAudit: true });
   // Fixture names are selected only for the exact reviewed source archive.
-  source1007 = sourcePlan.sourceArchiveHash === 'c5fdef328cfa2ad9095786f9c3a7aaa447e68834d31299d6ef2592da02029038';
+  source9446 = sourcePlan.sourceArchiveHash === '356c13dc715816436fa1cf31e9f77863f62ea7b7cacc465b397313246eb29325';
+  source1007 = source9446 || sourcePlan.sourceArchiveHash === 'c5fdef328cfa2ad9095786f9c3a7aaa447e68834d31299d6ef2592da02029038';
   source1002 = source1007 || sourcePlan.sourceArchiveHash === '76fe7078248c00e4e03dd2177a4275ec9ce158a9dd43452a4f0427d39a4ed012';
   source7945 = source1002 || sourcePlan.sourceArchiveHash === '611d6da979d8bbabfec97dd90dcce27a9522e7016e6ccf135d59cab693ab08da';
   newestSource = source7945 || sourcePlan.sourceArchiveHash === '644fec616f2fbd203266d806c2ed9a26869abb84e76fbd6f5a33469e8cfd1686';
@@ -61,7 +62,7 @@ function packedRequire(name, cache = new Map()) {
   return module.exports;
 }
 function pathHelpers() {
-  const network = packed(source1007 ? '.vite/build/application-network-startup-CfAQmSYg.js' : source1002 ? '.vite/build/application-network-startup-Bt0a8E1L.js' : newestSource ? '.vite/build/application-network-startup-BEAX-hka.js' : latestSource ? '.vite/build/application-network-startup-ouXbhtc5.js' : currentSource ? '.vite/build/application-network-startup-DN7Ktmlk.js' : '.vite/build/application-network-startup-D74LEWDz.js');
+  const network = packed(source9446 ? '.vite/build/application-network-startup-YSC7OAs0.js' : source1007 ? '.vite/build/application-network-startup-CfAQmSYg.js' : source1002 ? '.vite/build/application-network-startup-Bt0a8E1L.js' : newestSource ? '.vite/build/application-network-startup-BEAX-hka.js' : latestSource ? '.vite/build/application-network-startup-ouXbhtc5.js' : currentSource ? '.vite/build/application-network-startup-DN7Ktmlk.js' : '.vite/build/application-network-startup-D74LEWDz.js');
   if (source1007) return between(network, 'function de(', 'var ge=class') + between(network, 'function br(', 'function xr(');
   if (currentSource) return between(network, 'function pe(', 'var ve=class') + between(network, 'function yr(', 'function br(');
   return between(network, 'function fe(', 'var _e=class') + between(network, 'function vr(', 'function yr(');
@@ -127,7 +128,7 @@ sourceTest('actual in-app eligibility preserves all prerequisites across 256 cas
   assert(patched.includes(external), 'External browser gate changed');
 });
 function generator(source, platform, useWsl, servicePath, backends) {
-  const fn = between(source, source1007 ? 'function ac(' : source1002 ? 'function $s(' : currentSource ? 'function rc(' : 'function cc(', source1007 ? 'function oc(' : source1002 ? 'function ec(' : currentSource ? 'function ic(' : 'function lc('), native = vm.runInNewContext(pathHelpers() + (source1007 ? ';br' : currentSource ? ';yr' : ';vr'));
+  const fn = between(source, source9446 ? 'function Dc(' : source1007 ? 'function ac(' : source1002 ? 'function $s(' : currentSource ? 'function rc(' : 'function cc(', source9446 ? 'function Oc(' : source1007 ? 'function oc(' : source1002 ? 'function ec(' : currentSource ? 'function ic(' : 'function lc('), native = vm.runInNewContext(pathHelpers() + (source1007 ? ';br' : currentSource ? ';yr' : ';vr'));
   const sandbox = {
     tc: { info: () => {}, warning: () => {} }, r: { Jo: () => true, Vt: () => servicePath.slice(0, -'/scripts/browser-service.mjs'.length), yo: 'browser', Bo: 'request', Wo: 'trusted-services', Go: options => options },
     o: { st: native, zt: value => value }, d: { t: { Dev: 'dev', resolve: () => 'release', isInternal: () => false } }, P: { default: { env: {} } },
@@ -150,6 +151,10 @@ function generator(source, platform, useWsl, servicePath, backends) {
     r: { ms: () => true, Gt: () => servicePath.slice(0, -'/scripts/browser-service.mjs'.length), zo: 'browser', os: 'request', us: 'trusted-services', ds: options => options },
     Un: 'backends', Wn: 'tinysky', na: 'iab-origin', ra: 'chrome-origin', ka: 'sky-origin', jee: 'flavor', Mee: 'version', tc: 'iab', nc: 'chrome', rc: 'sky', ene: () => ({}),
   });
+  if (source9446) Object.assign(sandbox, {
+    bc: sandbox.Qs, kc: () => '', Oc: () => ({}), xc: [], Sc: [], aa: 'trace',
+    Xn: 'backends', Zn: 'tinysky', ra: 'iab-origin', ia: 'chrome-origin', Ua: 'sky-origin', wee: 'flavor', Tee: 'version', Cc: 'iab', wc: 'chrome', Tc: 'sky', Ya: () => ({}),
+  });
   const code = vm.runInNewContext('(' + fn + ')', sandbox);
   return code({ appVersion: 'version', codexHome: 'home', marketplaceName: 'market', availableBrowserUseBackends: backends, browserUseTinysky: false, computerUse: false, enforceModelCheck: true, computerUseNativePipePath: null, computerUsePaths: {}, hostServicesPipePath: null, includePrivateProcessEnv: false, runtimePaths: { platform, nodePath: 'node', nodeReplPath: 'repl', codexCliPath: 'cli', nodeModuleDirs: [] }, shouldUseWslPaths: useWsl });
 }
@@ -169,7 +174,7 @@ sourceTest('actual trusted-service generator fixes native Windows mount paths on
 });
 sourceTest('actual native membership synchronizer migrates and persists explicit projects for new chats, moves and clearing', async () => {
   const source = packed(modulePath(membershipPatch)), patched = membershipPatch.apply(source, app.replaceExactlyOnce);
-  const gate = text => between(text, source1002 ? 'f=()=>{d.setThreadAssignmentsEnabled(' : 'f=()=>{u.setThreadAssignmentsEnabled(', source1007 ? '};f(),this.disposables.add(Oi(f))' : source1002 ? '};f(),this.disposables.add(ri(f))' : latestSource ? '};f(),this.disposables.add(oi(f))' : currentSource ? '};f(),this.disposables.add(ii(f))' : '};f(),this.disposables.add(ri(f))').slice('f=()=>{'.length);
+  const gate = text => between(text, source1002 ? 'f=()=>{d.setThreadAssignmentsEnabled(' : 'f=()=>{u.setThreadAssignmentsEnabled(', source9446 ? '};f(),this.disposables.add(Ti(f))' : source1007 ? '};f(),this.disposables.add(Oi(f))' : source1002 ? '};f(),this.disposables.add(ri(f))' : latestSource ? '};f(),this.disposables.add(oi(f))' : currentSource ? '};f(),this.disposables.add(ii(f))' : '};f(),this.disposables.add(ri(f))').slice('f=()=>{'.length);
   const enable = (text, flag) => {
     let enabled;
     vm.runInNewContext('(function(' + (source1002 ? 'd' : 'u') + ',' + (latestSource ? 'K' : currentSource ? 'q' : 'K') + '){' + gate(text) + '})')({ setThreadAssignmentsEnabled: value => { enabled = value; } }, () => ({ localProjectTaskMembership: flag }));
@@ -200,8 +205,9 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
     const common = packed('.vite/build/src-CP7XXlpZ.js');
     Object.assign(context.r, vm.runInNewContext(between(common, 'function Nm(', 'function Pm(') + between(common, 'function Fm(', 'var Rm=') + ';({u:Nm,d:Fm})'));
   }
-  const synchronizerSource = between(source, source1007 ? 'DHe=class{' : source1002 ? 'hVe=class{' : latestSource ? 'gBe=class{' : currentSource ? 'hBe=class{' : 'pVe=class{', source1007 ? '},OHe=' : source1002 ? '},gVe=' : latestSource ? '},_Be=' : currentSource ? '},gBe=' : '},mVe=').slice(4) + '}';
-  const helpers = between(source, source1007 ? 'async function d4(' : source1002 ? 'async function u4(' : currentSource ? 'async function c4(' : 'async function m3(', source1007 ? 'var f4=' : source1002 ? 'var d4=' : currentSource ? 'var l4=' : 'var h3=');
+  if (source9446) { context.d4 = 100; context.f4 = 8; }
+  const synchronizerSource = between(source, source9446 ? 'kHe=class{' : source1007 ? 'DHe=class{' : source1002 ? 'hVe=class{' : latestSource ? 'gBe=class{' : currentSource ? 'hBe=class{' : 'pVe=class{', source9446 ? '},AHe=' : source1007 ? '},OHe=' : source1002 ? '},gVe=' : latestSource ? '},_Be=' : currentSource ? '},gBe=' : '},mVe=').slice(4) + '}';
+  const helpers = between(source, source9446 ? 'async function u4(' : source1007 ? 'async function d4(' : source1002 ? 'async function u4(' : currentSource ? 'async function c4(' : 'async function m3(', source9446 ? 'var d4=' : source1007 ? 'var f4=' : source1002 ? 'var d4=' : currentSource ? 'var l4=' : 'var h3=');
   const Synchronizer = vm.runInNewContext(helpers + '\n(' + synchronizerSource + ')', context);
   const state = { get: key => record[key], set: (key, value) => { record[key] = value; }, update: (key, fn) => { record[key] = fn(record[key]); } };
   const connection = { sendAppServerRequest: async (method, params) => {
