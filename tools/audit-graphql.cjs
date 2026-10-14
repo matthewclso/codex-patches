@@ -17,7 +17,7 @@ function between(source, start, end) {
 async function auditGraphql(asarPath, { wslDistro, windowsNode } = {}) {
   const source = readEntry(parseArchive(fs.readFileSync(asarPath)), ".vite/build/worker.js").toString();
   const workerHash = crypto.createHash('sha256').update(source).digest('hex');
-  const source1007 = workerHash === 'df97ab945ce9850480ccdd0317b2d194febcc580c81ab25adfcfa6d265a00ae1';
+  const source1007 = workerHash === '0874df6a424d1d6a1adb85931964c2e0cec128790a835c35e96b529624896fc2' || workerHash === 'df97ab945ce9850480ccdd0317b2d194febcc580c81ab25adfcfa6d265a00ae1';
   const source1002 = workerHash === 'e22f56b0fcd68492cd5d0cc445b1103dfab0f54c456b2fe838a4aeef6b02f64e';
   const source7945 = source1002 || workerHash === '46b153e94466da15a8245dba0aecea0cc775b0b1688fe3b4cc9dd74d7805d7ad';
   const latestSource = source7945 || workerHash === '290125797165e28c2b11e2b49031c605d55857007ea61c1352260d36a1fc195e';

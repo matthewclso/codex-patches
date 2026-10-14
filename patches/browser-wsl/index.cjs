@@ -58,3 +58,9 @@ module.exports.revisions.push({
   after: after.replace('function xBr(', 'function KJr('),
   apply: (source, replace) => replace(source, before.replace('function xBr(', 'function KJr('), after.replace('function xBr(', 'function KJr(')),
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: 'webview/assets/app-shared-30671c57ec82.js',
+  sourceSha256: '392b023063a3569a2efc47a019accb2d1e72295b1bfec2cbb81fc37e1515580a',
+});

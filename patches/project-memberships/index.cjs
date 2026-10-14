@@ -49,3 +49,9 @@ module.exports.revisions.push({
   targetPath: '.vite/build/main-BklS_2Y2.js',
   sourceSha256: '5cf1544463be9497b85b69051aa5ad32320f9ebdca063ec2ab41abb75b6cadf7',
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/main-Bgi5Xaw-.js',
+  sourceSha256: 'e8923725ad6357380ac7bb25818f78eb4d97e522ebbde2ddf6ff5a2a93032e54',
+});

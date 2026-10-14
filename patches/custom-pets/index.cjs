@@ -80,3 +80,9 @@ module.exports.revisions.push({
     return replace(source, 'async function XK(', currentHelper + 'async function XK(');
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/src-DCNiwad_.js',
+  sourceSha256: '86fb2066bbc2f7428864b76b46ef570b09eb1e92e81e9d6f089f5b048a66df25',
+});

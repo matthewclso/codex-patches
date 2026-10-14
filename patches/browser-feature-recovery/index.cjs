@@ -37,3 +37,9 @@ module.exports.revisions = [{
     return source;
   },
 }];
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: 'webview/assets/app-shared-30671c57ec82.js',
+  sourceSha256: '392b023063a3569a2efc47a019accb2d1e72295b1bfec2cbb81fc37e1515580a',
+});

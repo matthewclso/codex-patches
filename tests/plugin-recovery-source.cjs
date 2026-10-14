@@ -8,7 +8,7 @@ const app = require('../lib/app-patches.cjs');
 let feature = require('../patches/browser-feature-recovery/index.cjs');
 let runtime = require('../patches/runtime-sync-recovery/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
-let archive, source1007, selected;
+let archive, source1007, source9446, selected;
 // Fixture aliases are bound to one exact reviewed archive, never guessed.
 const currentNames = { Q8:'$8', Ck:'Xk', Q:'X', Kgi:'bbi', Jgi:'Sbi', Qgi:'Ebi', $gi:'Dbi', yI:'II', f6:'p6', Wgi:'vbi', e_i:'Obi',
   sGr:'GJr', cGr:'KJr', lGr:'qJr', Ik:'pA', DHr:'tKr', IU:'nW', IHr:'uKr', D2:'S2', QN:'cP', JOn:'$kn', uzt:'pzt',
@@ -18,12 +18,20 @@ const currentNames = { Q8:'$8', Ck:'Xk', Q:'X', Kgi:'bbi', Jgi:'Sbi', Qgi:'Ebi',
   Oie:'aie', sne:'Ane', Lo:'Ho', Cne:'yne', _d:'gf', ua:'bi', kie:'aie',
   M:'P', Ts:'As', Hs:'Js', Ks:'Qs', $s:'ac', Na:'rne', Mne:'tre', Ma:'La', nc:'cc',
   Us:'Ys', Ws:'Xs', Vs:'qs', Bs:'Ks' };
-const named = text => source1007 ? text.replace(/[A-Za-z_$][\w$]*/g, name => currentNames[name] ?? name) : text;
-const context = values => source1007 ? Object.fromEntries(Object.entries(values).map(([key,value]) => [currentNames[key] ?? key, value])) : values;
+const latestNames = { ...currentNames,
+  rc:'jc', ic:'Mc', cc:'Ic', lc:'Lc', oc:'Pc', ws:'Ls', Qs:'Ec', Aa:'eo', dc:'zc', fc:'Bc',
+  jie:'Rie', yd:'Bd', La:'so', Ia:'oo', Ra:'Rte', hd:'Id', Yr:'Pa', ai:'Di', gd:'Ld', ac:'Nc', Kc:'bl',
+  Oie:'Fie', sne:'Sne', Lo:'Xo', Cne:'wne', _d:'Rd', ua:'_i', kie:'Iie',
+  Ts:'Rs', Hs:'gc', Ks:'bc', $s:'Dc', Na:'ro', Mne:'qne', Ma:'no', nc:'Ac',
+  Us:'_c', Ws:'vc', Vs:'hc', Bs:'mc' };
+const names = () => source9446 ? latestNames : currentNames;
+const named = text => source1007 ? text.replace(/[A-Za-z_$][\w$]*/g, name => names()[name] ?? name) : text;
+const context = values => source1007 ? Object.fromEntries(Object.entries(values).map(([key,value]) => [names()[key] ?? key, value])) : values;
 function setup(t) {
   if (selected) return true;
   const bytes=fs.readFileSync(sourcePath); archive=asar.parseArchive(bytes);
-  source1007=asar.sha256(bytes)==='c5fdef328cfa2ad9095786f9c3a7aaa447e68834d31299d6ef2592da02029038';
+  source9446=asar.sha256(bytes)==='356c13dc715816436fa1cf31e9f77863f62ea7b7cacc465b397313246eb29325';
+  source1007=source9446 || asar.sha256(bytes)==='c5fdef328cfa2ad9095786f9c3a7aaa447e68834d31299d6ef2592da02029038';
   const entries=asar.listEntries(archive.tree);
   if (![feature,...feature.revisions??[]].some(p=>entries.some(e=>e.path===p.targetPath))) {
     const known=require('../compatibility/current.json').builds.find(b=>b.archiveSha256===asar.sha256(bytes));
@@ -134,6 +142,7 @@ sourceTest('actual bundled reconciler retries failed signature on focus, skips s
       Lo:async e=>{count++;names.push(e.marketplacePluginNames);if(failed){failed=keepFail;if(partial)return{hadReconcileFailure:true,hadUnknownChromeExtensionSyncState:false};throw Error('Timed out waiting for MCP response to marketplace/add')}return{hadReconcileFailure:false,hadUnknownChromeExtensionSyncState:false}},
       Cne:async()=>{},_d:new Set(),ua:{},kie:'dev'});
     if (source1007) Object.assign(sandbox,{r:{$o:()=> 'market'},l:{S:'managed'},mf:sandbox.mf,Qc:async()=>{},aie:'dev',iie:async()=>{}});
+    if (source9446) sandbox.Fie=async()=>{};
     const factory=vm.runInNewContext('('+between(text,'function jie(','function yd(')+')',sandbox);
     const instance=factory({env:{},resourcesPath:'r',runtimeMarketplaceRoot:'m',codexHome:'home',buildFlavor:'prod',isPackaged:true,appVersion:'version',globalState:{get:()=>null},getLocalAppServerConnection:()=>({listPlugins:async()=>({marketplaces:[]})})});
     await instance.reconcileExternalPluginState();assert.equal(count,0,'Focus before availability must skip destructive reconciliation');
@@ -161,6 +170,7 @@ sourceTest('actual sync and native config generator refresh current executable a
     ws:async()=>({codexHome:'home',marketplaceName:'market',browserServicePluginVersion:'version',desktopFeatureAvailability:{},runtimePaths:{platform:'win32',nodeReplPath:'current-repl-'+(++generation)},shouldUseWslPaths:true,browserBackends:['iab'],computerUse:true,computerUsePaths:{},cuaReplSurfaces:[]}),
     Hs:async()=>pipe,Ks:{info(){}},$s:options=>({'mcp_servers.node_repl':{command:options.runtimePaths.nodeReplPath,env:{SKY_CUA_NATIVE_PIPE_DIRECTORY:options.computerUseNativePipePath}}}),Na:async()=>false,Mne:async()=>{},Ma(){},Ia:()=> 'resources',setTimeout:fn=>queueMicrotask(fn)});
   if (source1007) Object.assign(sandbox,{c:{yt:()=>true},r:{rs:'cua_repl',ss:'node_repl'},xa:{}});
+  if (source9446) sandbox.Pa={};
   vm.runInNewContext(between(patched,'async function Qs(','function $s(')+between(patched,'function cc(','async function dc(')+named(';globalThis.sync=cc;'),sandbox);
   await sandbox.sync({appServerConnection:connection,appVersion:'version'});
   assert.equal(calls.length,2);
