@@ -55,3 +55,11 @@ module.exports.revisions.push({
   targetPath: '.vite/build/main-Bgi5Xaw-.js',
   sourceSha256: 'e8923725ad6357380ac7bb25818f78eb4d97e522ebbde2ddf6ff5a2a93032e54',
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/main-C4DYk222.js',
+  sourceSha256: 'c8a2af504b21314fa6a64ad1b4ec83dbad80033ede902caf9978fd9c74a2c175',
+  before: 'f.setThreadAssignmentsEnabled(q().localProjectTaskMembership)',
+  after: 'f.setThreadAssignmentsEnabled(!0)',
+  apply: (source, replace) => replace(source, 'f.setThreadAssignmentsEnabled(q().localProjectTaskMembership)', 'f.setThreadAssignmentsEnabled(!0)'),
+});

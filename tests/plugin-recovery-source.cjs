@@ -8,7 +8,7 @@ const app = require('../lib/app-patches.cjs');
 let feature = require('../patches/browser-feature-recovery/index.cjs');
 let runtime = require('../patches/runtime-sync-recovery/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
-let archive, source1007, source9446, selected;
+let archive, source1007, source9446, source1013, selected;
 // Fixture aliases are bound to one exact reviewed archive, never guessed.
 const currentNames = { Q8:'$8', Ck:'Xk', Q:'X', Kgi:'bbi', Jgi:'Sbi', Qgi:'Ebi', $gi:'Dbi', yI:'II', f6:'p6', Wgi:'vbi', e_i:'Obi',
   sGr:'GJr', cGr:'KJr', lGr:'qJr', Ik:'pA', DHr:'tKr', IU:'nW', IHr:'uKr', D2:'S2', QN:'cP', JOn:'$kn', uzt:'pzt',
@@ -24,13 +24,21 @@ const latestNames = { ...currentNames,
   Oie:'Fie', sne:'Sne', Lo:'Xo', Cne:'wne', _d:'Rd', ua:'_i', kie:'Iie',
   Ts:'Rs', Hs:'gc', Ks:'bc', $s:'Dc', Na:'ro', Mne:'qne', Ma:'no', nc:'Ac',
   Us:'_c', Ws:'vc', Vs:'hc', Bs:'mc' };
-const names = () => source9446 ? latestNames : currentNames;
+const modernNames = { ...latestNames,
+  Q8:'ty',Ck:'wc',Q:'U',Kgi:'VKt',Jgi:'UKt',Qgi:'qKt',$gi:'JKt',yI:'Ls',f6:'Jh',Wgi:'zKt',e_i:'YKt',
+  sGr:'dRn',cGr:'fRn',lGr:'pRn',Ik:'Eu',DHr:'mLn',IU:'Kv',IHr:'TLn',D2:'OT',QN:'Xr',JOn:'H',uzt:'Mh',lkn:'EDt',ukn:'DDt',zK:'og',
+  rc:'Ws',ic:'Gs',cc:'Js',lc:'Ure',oc:'qs',ws:'Ss',Qs:'Hs',Aa:'Ea',dc:'Zs',fc:'Kre',K:'q',
+  jie:'sae',yd:'ed',La:'Pa',Ia:'Na',Ra:'Fa',u:'n',r:'i',hd:'Xu',Yr:'oa',ai:'mi',gd:'Zu',ac:'Ks',Kc:'Sc',
+  Oie:'iae',sne:'bne',Lo:'Fo',Cne:'Sne',_d:'Qu',ua:'ii',kie:'aae',M:'L',Ts:'Cs',o:'l',Hs:'jre',Ks:'Vs',$s:'zre',Na:'ka',Mne:'Gne',Ma:'Oa',nc:'Vre',
+  Us:'Mre',Ws:'Bs',Vs:'zs',Bs:'Rs' };
+const names = () => source1013 ? modernNames : source9446 ? latestNames : currentNames;
 const named = text => source1007 ? text.replace(/[A-Za-z_$][\w$]*/g, name => names()[name] ?? name) : text;
 const context = values => source1007 ? Object.fromEntries(Object.entries(values).map(([key,value]) => [names()[key] ?? key, value])) : values;
 function setup(t) {
   if (selected) return true;
   const bytes=fs.readFileSync(sourcePath); archive=asar.parseArchive(bytes);
-  source9446=asar.sha256(bytes)==='356c13dc715816436fa1cf31e9f77863f62ea7b7cacc465b397313246eb29325';
+  source1013=asar.sha256(bytes)==='163a18c84db57ad5c50222b313dc4d11d45febc03ec065b516ba9f0380f2eb3f';
+  source9446=source1013 || asar.sha256(bytes)==='356c13dc715816436fa1cf31e9f77863f62ea7b7cacc465b397313246eb29325';
   source1007=source9446 || asar.sha256(bytes)==='c5fdef328cfa2ad9095786f9c3a7aaa447e68834d31299d6ef2592da02029038';
   const entries=asar.listEntries(archive.tree);
   if (![feature,...feature.revisions??[]].some(p=>entries.some(e=>e.path===p.targetPath))) {
@@ -124,6 +132,10 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
   const patched=runtime.apply(source(runtime),app.replaceExactlyOnce), ctx=syncSandbox(patched,{failures:0});
   let features={browserUseTinysky:false};
   Object.assign(ctx.sandbox,context({oc:async()=>null,K:()=>features,ws:async()=>({}),Qs:async()=>({worker:'current'}),Aa:{legacy:'disabled'}}));
+  if (source1013) Object.assign(ctx.sandbox,{
+    Ys:vm.runInNewContext('('+between(patched,'function Ys(','async function Xs(')+')',{n:{o:'fixture-app'}}),
+    Kn:'identity',Gn:'tools-pipe',qn:'verifier',L:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}},
+  });
   vm.runInNewContext(between(patched,'async function dc(','var fc=')+named(';globalThis.config=dc;'),ctx.sandbox);
   const requests=Array.from({length:5},()=>ctx.sandbox.config({appServerConnection:ctx.connection}));
   await Promise.all(requests);assert.equal(ctx.calls(),1);assert.equal(ctx.writes[0].reload,true);
@@ -131,6 +143,20 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
   features={browserUseTinysky:false};await ctx.sandbox.config({appServerConnection:ctx.connection});assert.equal(ctx.calls(),2,'Current features invalidate a previous recovery');
   ctx.sandbox[named('ic')].set(ctx.connection,Promise.resolve());await ctx.sandbox.config({appServerConnection:ctx.connection});assert.equal(ctx.calls(),3,'New reconciliation generation invalidates recovery');
   await ctx.sandbox.config({appServerConnection:{hostConfig:{kind:'ssh'}},desktopFeatureAvailability:{browserUseTinysky:false}});assert.equal(ctx.calls(),3);
+  if (source1013) {
+    ctx.sandbox[named('Qs')]=async()=>({'mcp_servers.node_repl':{env:{}}});
+    for(const text of [source(runtime),patched]) {
+      const config=vm.runInNewContext('('+between(text,'async function dc(','var fc=')+')',ctx.sandbox);
+      delete ctx.connection.getCachedAuthenticatedPrincipal;
+      await assert.rejects(config({appServerConnection:ctx.connection,requireWorkBrowserIdentity:true}),/requires an authenticated account/);
+      ctx.connection.getCachedAuthenticatedPrincipal=()=>({accountId:'fixture-account',userId:'fixture-user'});
+      const output=await config({appServerConnection:ctx.connection,requireWorkBrowserIdentity:true});
+      assert.deepEqual(JSON.parse(JSON.stringify(output['mcp_servers.node_repl'].env)),{
+        identity:JSON.stringify(['fixture-app','fixture-account','fixture-user']),'tools-pipe':'current-app-pipe',verifier:'current-verifier',
+      });
+      await config({appServerConnection:{hostConfig:{kind:'ssh'}},desktopFeatureAvailability:{browserUseTinysky:false},requireWorkBrowserIdentity:true});
+    }
+  }
 });
 sourceTest('actual bundled reconciler retries failed signature on focus, skips successful signature and follows latest disables',async()=>{
   const stock=source(runtime),patched=runtime.apply(stock,app.replaceExactlyOnce);
@@ -143,6 +169,7 @@ sourceTest('actual bundled reconciler retries failed signature on focus, skips s
       Cne:async()=>{},_d:new Set(),ua:{},kie:'dev'});
     if (source1007) Object.assign(sandbox,{r:{$o:()=> 'market'},l:{S:'managed'},mf:sandbox.mf,Qc:async()=>{},aie:'dev',iie:async()=>{}});
     if (source9446) sandbox.Fie=async()=>{};
+    if (source1013) Object.assign(sandbox,{i:{ts:()=> 'market'},u:{S:'managed'},n:{i:{Dev:'dev',Prod:'prod'}}});
     const factory=vm.runInNewContext('('+between(text,'function jie(','function yd(')+')',sandbox);
     const instance=factory({env:{},resourcesPath:'r',runtimeMarketplaceRoot:'m',codexHome:'home',buildFlavor:'prod',isPackaged:true,appVersion:'version',globalState:{get:()=>null},getLocalAppServerConnection:()=>({listPlugins:async()=>({marketplaces:[]})})});
     await instance.reconcileExternalPluginState();assert.equal(count,0,'Focus before availability must skip destructive reconciliation');
@@ -171,7 +198,8 @@ sourceTest('actual sync and native config generator refresh current executable a
     Hs:async()=>pipe,Ks:{info(){}},$s:options=>({'mcp_servers.node_repl':{command:options.runtimePaths.nodeReplPath,env:{SKY_CUA_NATIVE_PIPE_DIRECTORY:options.computerUseNativePipePath}}}),Na:async()=>false,Mne:async()=>{},Ma(){},Ia:()=> 'resources',setTimeout:fn=>queueMicrotask(fn)});
   if (source1007) Object.assign(sandbox,{c:{yt:()=>true},r:{rs:'cua_repl',ss:'node_repl'},xa:{}});
   if (source9446) sandbox.Pa={};
-  vm.runInNewContext(between(patched,'async function Qs(','function $s(')+between(patched,'function cc(','async function dc(')+named(';globalThis.sync=cc;'),sandbox);
+  if (source1013) Object.assign(sandbox,{l:{St:()=>true},i:{as:'cua_repl',ls:'node_repl'},oa:{}});
+  vm.runInNewContext(between(patched,'async function Qs(','function $s(')+between(patched,'function cc(',source1013?'var Gre=':'async function dc(')+named(';globalThis.sync=cc;'),sandbox);
   await sandbox.sync({appServerConnection:connection,appVersion:'version'});
   assert.equal(calls.length,2);
   const worker=request=>request.edits.find(e=>e.keyPath==='mcp_servers.node_repl').value;
@@ -183,6 +211,7 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
   const stock=source(runtime);let starts=0,disposed=0,closed=0;
   const sandbox=context({process:{env:{},platform:'win32'},Vs:null,o:{bt:()=> 'helper',xt:()=> 'transport'},Bs:()=>({info(){},warning(){}})});
   if (source1007) sandbox.c={St:()=> 'helper',Ct:()=> 'transport'};
+  if (source1013) sandbox.l={Et:()=> 'helper',Tt:()=> 'transport'};
   const factory=vm.runInNewContext('('+between(stock,'function Us(','var Ws=')+')',sandbox);
   const server={pipePath:'fixture-pipe',dispose:async()=>{disposed++},closeActiveTurn:async()=>{closed++;return true},hasActiveTurn:()=>true};
   const bridge=factory({codexHome:'fixture',platform:'win32',resourcesPath:'resources',ensureNotifyConfig:async()=>({configChanged:false}),startServer:async()=>{starts++;return server}});
@@ -195,11 +224,11 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
 sourceTest('actual availability publisher does not send a Browser disable while capability discovery is pending',()=>{
   const entry=asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
   const initial=asar.readEntry(archive,entry.path).toString();
-  const condition=between(initial,source1007?'s||le.isLoading||ue.isLoading||de.isLoading||':'s||se.isLoading||ce.isLoading||le.isLoading||',source1007?'||(Ho.dispatchMessage(`electron-desktop-features-changed`':'||(oh.dispatchMessage(`electron-desktop-features-changed`');
+  const condition=between(initial,source1013?'f||ge.isLoading||_e.isLoading||':source1007?'s||le.isLoading||ue.isLoading||de.isLoading||':'s||se.isLoading||ce.isLoading||le.isLoading||',source1013?'||(hs.dispatchMessage(`electron-desktop-features-changed`':source1007?'||(Ho.dispatchMessage(`electron-desktop-features-changed`':'||(oh.dispatchMessage(`electron-desktop-features-changed`');
   let published=0;
-  const run=pending=>vm.runInNewContext(condition+'||publish()',source1007 ? {s:false,le:{isLoading:pending},ue:{isLoading:false},de:{isLoading:false},ve:{isLoading:false},be:{isLoading:false},I:'available',A:{status:'allowed'},Ve:{status:'allowed'},He:{status:'allowed'},publish:()=>{published++}} : {
+  const run=pending=>vm.runInNewContext(condition+'||publish()',source1013 ? {f:false,ge:{isLoading:pending},_e:{isLoading:false},p:true,ve:{isLoading:false},Te:{isLoading:false},De:{isLoading:false},H:'available',I:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1007 ? {s:false,le:{isLoading:pending},ue:{isLoading:false},de:{isLoading:false},ve:{isLoading:false},be:{isLoading:false},I:'available',A:{status:'allowed'},Ve:{status:'allowed'},He:{status:'allowed'},publish:()=>{published++}} : {
     s:false,se:{isLoading:pending},ce:{isLoading:false},le:{isLoading:false},ge:{isLoading:false},ve:{isLoading:false},P:'available',O:{status:'allowed'},ze:{status:'allowed'},Be:{status:'allowed'},publish:()=>{published++},
   });
   run(true);assert.equal(published,0);run(false);assert.equal(published,1);
-  assert(initial.includes(source1007?'inAppBrowserUse:le.available':'inAppBrowserUse:se.available')&&initial.includes(source1007?'inAppBrowserUseAllowed:le.allowed':'inAppBrowserUseAllowed:se.allowed'));
+  assert(initial.includes(source1013?'inAppBrowserUse:ge.available':source1007?'inAppBrowserUse:le.available':'inAppBrowserUse:se.available')&&initial.includes(source1013?'inAppBrowserUseAllowed:ge.allowed':source1007?'inAppBrowserUseAllowed:le.allowed':'inAppBrowserUseAllowed:se.allowed'));
 });

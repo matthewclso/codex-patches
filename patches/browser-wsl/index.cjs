@@ -64,3 +64,11 @@ module.exports.revisions.push({
   targetPath: 'webview/assets/app-shared-30671c57ec82.js',
   sourceSha256: '392b023063a3569a2efc47a019accb2d1e72295b1bfec2cbb81fc37e1515580a',
 });
+
+module.exports.revisions.push({
+  targetPath: 'webview/assets/app-initial-df84a35d942d.js',
+  sourceSha256: 'd7659a96f7d0cfe2249e089ef19675d09d04d6dd9569b550ddaa64722d4f13f3',
+  before: before.replace('function xBr(', 'function fRn('),
+  after: after.replace('function xBr(', 'function fRn('),
+  apply: (source, replace) => replace(source, before.replace('function xBr(', 'function fRn('), after.replace('function xBr(', 'function fRn(')),
+});
