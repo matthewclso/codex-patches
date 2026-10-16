@@ -1,6 +1,6 @@
 # App-managed runtime synchronization recovery
 
-Reviewed for packages 26.1002.7124.0, 26.1007.2314.0 and 26.1007.9446.0. This app-code module is `auto` when needed.
+Reviewed for packages 26.1002.7124.0, 26.1007.2314.0, 26.1007.9446.0 and 26.1013.3656.0. This app-code module is `auto` when needed.
 
 The desktop generates its worker executable, service paths and managed Computer Use pipe during synchronization. A timed-out write can leave a previous deployment's settings saved. This module serializes the existing sync and makes up to three attempts for request timeout, queued expiry or disconnected-app-server errors, waiting one and two seconds. Each attempt re-runs native selection and pipe discovery. Permanent errors retain normal failure behavior.
 
@@ -11,3 +11,5 @@ Disable independently and rebuild to restore stock behavior. Use with the Browse
 Bundled marketplace reconciliation retains native migration, config-sync, skill-notification and remote-sync work after a partial failure. It then marks that configuration incomplete so the next focus can retry; a partial failure is never cached as successful reconciliation. Recovery waits for an ordinary focus or the next relevant feature publication; it does not create a background polling loop.
 
 Successful chat recovery is cached for the current connection, reconciliation, sync and feature snapshot. A later native sync or feature publication invalidates that cache; a failed recovery is never cached as success.
+
+On 26.1013.3656.0, recovery retains the native Work Browser identity requirement and current identity, app pipe and verifier propagation. Source tests exercise these checks on both stock and patched functions.
