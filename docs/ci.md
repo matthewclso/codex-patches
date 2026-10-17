@@ -8,7 +8,7 @@ All jobs run on the free public-repository `windows-2025` x64 hosted image. Ther
 
 ## Official package and WSL2 compatibility
 
-`Codex compatibility` runs daily and can be dispatched manually. It:
+`Codex compatibility` runs every six hours at **03:17, 09:17, 15:17 and 21:17 UTC** and can be dispatched manually. The schedule preserves the original 09:17 UTC slot. It:
 
 1. Downloads OpenAI's documented latest Store-signed x64 MSIX from `persistent.oaistatic.com`. Windows SDK `signtool` must validate the package signature. The manifest must identify `OpenAI.Codex`, x64, and the pinned publisher; the original desktop executable must have a valid signature.
 2. Records separate package, app, and CLI versions, plus MSIX, ASAR, executable, Windows/Linux CLI, Windows/Linux Code Mode host, and bundled Windows Node SHA256 hashes. The stock files are extracted into the ephemeral runner's temporary directory.
@@ -34,6 +34,8 @@ For an already supported package, it exits without creating a PR. For a new pack
 
 Test failures on an already reviewed package remain failed CI evidence; they do not create a misleading new-package proposal.
 
+Repeated checks for the same package version and archive hash skip proposal creation when a PR already exists, including an open, closed or merged PR. They do not create duplicate branches/PRs or refresh that PR's original evidence; each run still publishes its own reports. A different version or archive hash can get a separate proposal, so several distinct builds may have proposals pending at once. A failure before a verified package validation report is available cannot create a trusted proposal. Workflow-level concurrency serializes scheduled and manual runs.
+
 The maintainer reviews the report, fixes changed modules when necessary, reproduces the stock-versus-patched scenarios, and adds the build to the supported registry with the actual acceptance evidence. A candidate PR can be used to collect that work; merging candidate metadata alone does not support installation. The registry is the runtime allowlist for reviewed builds; it does not override the [user-visible behavior contract](BEHAVIOR_CONTRACT.md). The next scheduled run recognizes a reviewed supported build without generating another proposal.
 
 A candidate with unchanged targeted source can pass deterministic composition and source behavior tests. It still requires review of executable/package identity, runtime behavior, and the remaining desktop/mobile acceptance. Runtime CLI version changes also require an explicit review of adapter applicability and relay tests.
@@ -44,7 +46,7 @@ In **Settings → Actions → General → Workflow permissions**, allow GitHub A
 
 GitHub documents that PRs created or updated using `GITHUB_TOKEN` may put the resulting PR workflows into an approval-required state. Approve those runs in the PR if needed. The proposal already links the same-run package/source/WSL evidence, so it does not claim the candidate was retested by an automatically triggered push workflow. Do not change to `pull_request_target` to bypass this restriction.
 
-The daily schedule is best effort: GitHub may delay scheduled runs and disables schedules in inactive public repositories. Manual dispatch and local compatibility checks remain available.
+The six-hour schedule is best effort: GitHub may delay scheduled runs and disables schedules in inactive public repositories. Manual dispatch and local compatibility checks remain available.
 
 ### Releases
 
