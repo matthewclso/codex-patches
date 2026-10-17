@@ -58,3 +58,9 @@ module.exports.revisions.push({
     return source;
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: 'webview/assets/app-initial-5851df3f6cb1.js',
+  sourceSha256: 'c70d95da34ba7e5962a559dbf68d0102d10b4b47b877f5d9933629bb5a1f3a10',
+});

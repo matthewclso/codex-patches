@@ -37,7 +37,8 @@ const context = values => source1007 ? Object.fromEntries(Object.entries(values)
 function setup(t) {
   if (selected) return true;
   const bytes=fs.readFileSync(sourcePath); archive=asar.parseArchive(bytes);
-  source1013=asar.sha256(bytes)==='163a18c84db57ad5c50222b313dc4d11d45febc03ec065b516ba9f0380f2eb3f';
+  source1013=['163a18c84db57ad5c50222b313dc4d11d45febc03ec065b516ba9f0380f2eb3f',
+    'bbec1d64e135b718a154b31655bb8ad9a39472bac1b2cabba991a9d97a339dd8'].includes(asar.sha256(bytes));
   source9446=source1013 || asar.sha256(bytes)==='356c13dc715816436fa1cf31e9f77863f62ea7b7cacc465b397313246eb29325';
   source1007=source9446 || asar.sha256(bytes)==='c5fdef328cfa2ad9095786f9c3a7aaa447e68834d31299d6ef2592da02029038';
   const entries=asar.listEntries(archive.tree);
