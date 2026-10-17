@@ -38,7 +38,8 @@ function setup() {
   const known = require('../compatibility/current.json').builds.find(b => b.archiveSha256 === asar.sha256(original));
   sourcePlan = app.inspectArchive(original, app.listPatches().filter(p => !known || known.patches[p.id]?.status === 'needed').map(p => p.id), { allowUnknownForAudit: true });
   // Fixture names are selected only for the exact reviewed source archive.
-  source1013 = sourcePlan.sourceArchiveHash === '163a18c84db57ad5c50222b313dc4d11d45febc03ec065b516ba9f0380f2eb3f';
+  source1013 = ['163a18c84db57ad5c50222b313dc4d11d45febc03ec065b516ba9f0380f2eb3f',
+    'bbec1d64e135b718a154b31655bb8ad9a39472bac1b2cabba991a9d97a339dd8'].includes(sourcePlan.sourceArchiveHash);
   source9446 = source1013 || sourcePlan.sourceArchiveHash === '356c13dc715816436fa1cf31e9f77863f62ea7b7cacc465b397313246eb29325';
   source1007 = source9446 || sourcePlan.sourceArchiveHash === 'c5fdef328cfa2ad9095786f9c3a7aaa447e68834d31299d6ef2592da02029038';
   source1002 = source1007 || sourcePlan.sourceArchiveHash === '76fe7078248c00e4e03dd2177a4275ec9ce158a9dd43452a4f0427d39a4ed012';
