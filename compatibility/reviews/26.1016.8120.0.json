@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "26.1016.8120.0",
+  "cliVersion": "0.163.0-alpha.11.1",
+  "appVersion": "26.1016.61520",
+  "reviewedAt": "2026-10-22",
+  "status": "automated-validation-passed; current-build-interactive-acceptance-pending",
+  "affectedRequirements": [
+    "PET-1",
+    "PET-2",
+    "BROWSER-1",
+    "BROWSER-2",
+    "BROWSER-3",
+    "BROWSER-4",
+    "PATH-1",
+    "PATH-2",
+    "REMOTE-1",
+    "REMOTE-2",
+    "REMOTE-3",
+    "PROJECT-2",
+    "PROJECT-3",
+    "PROJECT-4",
+    "CONNECTOR-1",
+    "CONNECTOR-2",
+    "RUNTIME-1",
+    "SELECT-1",
+    "SELECT-2",
+    "SELECT-3",
+    "CI-1",
+    "VERIFY-1",
+    "VERIFY-2",
+    "VERIFY-4",
+    "SELECT-4",
+    "CI-3",
+    "LIFECYCLE-3",
+    "LIFECYCLE-4"
+  ],
+  "packageVerification": {
+    "hashes": {
+      "archiveSha256": "760eae730e57438a0693cab4aba5ed8b7eb0ea1c5b7a7dc26dd0e84c2398810f",
+      "executableSha256": "976b90e7e465bd8b4789989e7e145a9509102545b8033500d416595888f94642",
+      "cliLinuxSha256": "ce74d935f61c14d931dd62a79736a964f741af47688ae119b17a1fd973a08399",
+      "cliWindowsSha256": "e757246b4de87359e660647fa9514955a0971ff6a30affdd8c145d1d5ece7b84",
+      "codeModeLinuxSha256": "c9db6c857128a84cb6094fd8cc5140e790fd691bfedfe591365b970a562602b1",
+      "codeModeWindowsSha256": "be5b79cfafbf20ea43ebec9e71ae97310dc489aa28e67c03e8582622d5a6124a",
+      "nodeWindowsSha256": "a7fb5f87ebd73b97bdac249d37cc74fc5f3ce8b0d295a20a9d7ce683bf183c11"
+    },
+    "installedExecutableSignature": "valid",
+    "installedExecutablePublisher": "OpenAI OpCo, LLC",
+    "verifiedPackedEntries": 21228,
+    "note": "Windows independently verified the installed Store package identity, publisher, signing kind, status and content integrity, and the executable signature. Seven archive/executable/runtime hashes were recorded from those verified files. All packed-entry hashes and blocks were checked, including four empty entries (zero blocks or the SHA256 of empty content). No standalone MSIX was downloaded.",
+    "installedPackageSignature": "Store",
+    "installedPackageStatus": "Ok",
+    "installedPackageContentIntegrity": true,
+    "runtimeHashesRecorded": 7,
+    "msixSignature": "not-run"
+  },
+  "checks": [
+    {
+      "name": "stock-and-patched-source-functions",
+      "status": "passed",
+      "cases": {
+        "petPaths": "current pet-module discovery, selection, installation, traversal and Windows/POSIX/WSL UNC homes; native pet-name collision handling preserved",
+        "browserPrerequisites": 256,
+        "trustedServicePaths": 90,
+        "projectMemberships": "actual current synchronizer and membership-record helpers; migration, shared cwd, new assignments, moves, clearing and backend/host guards",
+        "browserRuntimeRecovery": "pending/confirmed config, explicit disables, authorization and workspace policy, bounded serialized retry, generation-coalesced refresh, fresh executable and pipe, partial reconcile/focus retry, helper active-turn preservation and publisher loading guard; current Work Browser identity rejection and native identity/app-pipe/verifier propagation preserved on stock and patched source; native Work settings opt-out and 401/403 rejection, first-party inference restrictions, pending focus wait and dispose hook retained"
+      }
+    },
+    {
+      "name": "unknown-installed-package-source-scenarios",
+      "status": "passed",
+      "tests": 13,
+      "appPatchCombinations": 64,
+      "installationOfUnknownArchive": "rejected",
+      "scope": "Full pristine-source suite and all independent compositions passed before allowlisting; installation stayed fail-closed.",
+      "skipped": 0,
+      "failed": 0,
+      "durationMs": 279049.82
+    },
+    {
+      "name": "reviewed-source-suite-on-Windows",
+      "status": "passed",
+      "tests": 13,
+      "appPatchCombinations": 64,
+      "command": "CODEX_SOURCE_ASAR=<pristine archive> CODEX_SOURCE_EXE=<stock executable> node --test --test-concurrency=1 tests/app-patches-source.cjs tests/plugin-recovery-source.cjs",
+      "passed": 13,
+      "skipped": 0,
+      "failed": 0,
+      "durationMs": 241879.6644
+    },
+    {
+      "name": "Windows-toolkit-and-CI-tests",
+      "status": "passed",
+      "tests": 105,
+      "skipScope": "Platform-specific tests, separately executed actual-source and GraphQL checks, and unavailable Windows file-symlink privilege",
+      "passed": 73,
+      "skipped": 32,
+      "failed": 0,
+      "durationMs": 31127.8167
+    },
+    {
+      "name": "Ubuntu-26.04-WSL2-toolkit-and-CI-tests",
+      "status": "passed",
+      "tests": 105,
+      "skipScope": "Windows-specific and separately executed actual-source/GraphQL checks; the dedicated GraphQL regression and Windows Node-to-wsl.exe audit both passed separately",
+      "passed": 78,
+      "skipped": 27,
+      "failed": 0,
+      "durationMs": 49598.507932
+    },
+    {
+      "name": "native-current-CLI-regressions",
+      "status": "passed",
+      "scope": "Unmodified bundled Linux CLI in disposable homes/databases with loopback managed-account fixtures: stock/patched unfiltered listing, project filters, pagination, pairing reuse, reconnect, remote-first connector discovery and native scoped startup errors. Stock WSL UNC path rejection and proxy/relay correction; EOF/SIGTERM release owned processes and ports. Stock reserved marketplace rejects mismatched cache and accepts aligned cache without discarding an existing cache sentinel."
+    },
+    {
+      "name": "stock-GraphQL-Windows-Node-to-wsl.exe",
+      "status": "passed",
+      "sourceFile": ".vite/build/worker.js",
+      "workerSha256": "6d233b3cdc282a638a4253d8a4f7866f181284f3b3e745f2ff1b995c7c061ef3",
+      "stockQueryVariablesPreserved": true,
+      "doubleShell": true,
+      "wslExecutableExercised": true,
+      "externalRequests": 0
+    },
+    {
+      "name": "CLI-inspect-after-allowlist",
+      "status": "passed",
+      "supported": true,
+      "defaultSelection": [
+        "custom-pets",
+        "browser-wsl",
+        "browser-service-path",
+        "browser-feature-recovery",
+        "runtime-sync-recovery",
+        "wsl-project-paths",
+        "remote-fast-list",
+        "connector-routing",
+        "primary-runtime-cache"
+      ],
+      "projectMembershipDefault": "disabled"
+    },
+    {
+      "name": "reviewed-package-validation-pipeline-on-Windows",
+      "status": "passed",
+      "command": "node scripts/ci/validate-package.cjs --app-dir <verified installed Store app> --package-report <candidate package report> --out <local evidence directory>",
+      "scope": "All seven pinned file hashes, actual source tests, all 64 compositions and independently recorded default archive/header/executable outputs.",
+      "reviewedPackage": true,
+      "reviewRequired": false
+    },
+    {
+      "name": "release-package-content",
+      "status": "passed",
+      "scope": "Public source/metadata only; no extracted bundles, binaries, saved config or private state."
+    },
+    {
+      "name": "source-revision-and-CI-unit-tests",
+      "status": "passed",
+      "tests": 15,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "native-hosted-Apps-authentication-regression",
+      "status": "passed",
+      "command": "CODEX_RELAY_TEST_BINARY=<current stock Linux CLI> node --test tests/runtime-connector-auth.test.cjs",
+      "scope": "Disposable fake managed account and loopback MCP service only; no model turn or real account. Native account checks use the managed token, hosted Apps MCP requests omit Authorization and attempt OAuth discovery. The new stock regression prevents future applicability decisions from relying on stale diagnosis."
+    },
+    {
+      "name": "current-stock-GraphQL-WSL-regression",
+      "status": "passed",
+      "tests": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "scope": "Dedicated GraphQL source regression under WSL, separate from the broad suite"
+    }
+  ],
+  "patchStatus": {
+    "custom-pets": "needed",
+    "browser-wsl": "needed",
+    "browser-service-path": "needed",
+    "project-memberships": "needed",
+    "browser-feature-recovery": "needed",
+    "runtime-sync-recovery": "needed",
+    "wsl-project-paths": "needed",
+    "remote-fast-list": "needed",
+    "connector-routing": "needed",
+    "primary-runtime-cache": "needed"
+  },
+  "defaultModes": {
+    "project-memberships": "disabled",
+    "otherNeededPatches": "auto"
+  },
+  "retiredPatches": {
+    "graphql-shell": "stock behavior verified; remains retired",
+    "wsl-home-alias": "superseded by canonical pet-path handling"
+  },
+  "pendingAcceptance": [
+    "Current-build generated-copy activation and desktop startup",
+    "Interactive pet rendering, selection and installation",
+    "Current-build agent Browser navigation and Computer Use interaction after relaunch",
+    "Current-build authenticated connector inventory and calls",
+    "Real-phone Remote Control reconnect and project labels"
+  ],
+  "limitations": [
+    "The October 9 live Browser and Computer Use acceptance was for 26.1002.7124.0 and is not current-build acceptance.",
+    "Android project-label mismatch remains documented; persisted backend IDs do not establish phone display acceptance.",
+    "Running app and saved patch configuration were not changed."
+  ],
+  "source": {
+    "kind": "installed-store-package",
+    "verificationCommand": "powershell -File scripts/ci/Get-InstalledCodexVerification.ps1 -ExpectedPackageVersion 26.1016.8120.0",
+    "reviewedPackageVersion": "26.1016.8120.0"
+  },
+  "runtimeIdentity": {
+    "linuxCliChangedFrom": "26.1013.4894.0",
+    "cliVersion": "0.163.0-alpha.11.1",
+    "cliLinuxSha256": "ce74d935f61c14d931dd62a79736a964f741af47688ae119b17a1fd973a08399",
+    "codeModeLinuxChanged": true,
+    "windowsBinariesRevalidated": true
+  },
+  "historicalProposal": {
+    "packageVersion": "26.1016.6573.0",
+    "status": "unreviewed; retained as historical proposal evidence only",
+    "candidateRecord": "compatibility/candidates/26.1016.6573.0-6f56542b508e.json",
+    "evidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/39577457191",
+    "originalCounts": {
+      "tests": 98,
+      "passed": 71,
+      "failed": 14,
+      "skipped": 13
+    },
+    "note": "The installed package had already advanced to 26.1016.8120.0. This review validates and allowlists that current build on the requested existing proposal branch. It does not approve or claim current-source results for the older proposal."
+  }
+}

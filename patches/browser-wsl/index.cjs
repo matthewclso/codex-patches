@@ -78,3 +78,11 @@ module.exports.revisions.push({
   targetPath: 'webview/assets/app-initial-5851df3f6cb1.js',
   sourceSha256: 'c70d95da34ba7e5962a559dbf68d0102d10b4b47b877f5d9933629bb5a1f3a10',
 });
+
+module.exports.revisions.push({
+  targetPath: 'webview/assets/app-initial-83973da15da9.js',
+  sourceSha256: '1fb9718e75ae6b4adc0dfd030028d570846d098892e774564db5efe491ce4691',
+  before: before.replace('function xBr(', 'function qBn('),
+  after: after.replace('function xBr(', 'function qBn('),
+  apply: (source, replace) => replace(source, before.replace('function xBr(', 'function qBn('), after.replace('function xBr(', 'function qBn(')),
+});

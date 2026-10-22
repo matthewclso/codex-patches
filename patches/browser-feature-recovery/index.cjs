@@ -64,3 +64,18 @@ module.exports.revisions.push({
   targetPath: 'webview/assets/app-initial-5851df3f6cb1.js',
   sourceSha256: 'c70d95da34ba7e5962a559dbf68d0102d10b4b47b877f5d9933629bb5a1f3a10',
 });
+
+const oct16CapabilityBefore = capabilityBefore.replace('t(f6,', 't(Eh,');
+const oct16CapabilityAfter = capabilityAfter.replace('t(f6,', 't(Eh,');
+const oct16PendingBefore = pendingBefore.replace('Ik(Q8,', 'Nc(sy,').replace('IU(', 'Qv(');
+const oct16PendingAfter = pendingAfter.replace('Ik(Q8,', 'Nc(sy,').replace('IU(', 'Qv(');
+module.exports.revisions.push({
+  targetPath: 'webview/assets/app-initial-83973da15da9.js',
+  sourceSha256: '1fb9718e75ae6b4adc0dfd030028d570846d098892e774564db5efe491ce4691',
+  capabilityBefore: oct16CapabilityBefore, capabilityAfter: oct16CapabilityAfter,
+  pendingBefore: oct16PendingBefore, pendingAfter: oct16PendingAfter,
+  apply(source, replace) {
+    for (const [before, after] of [[policyBefore, policyAfter], [oct16CapabilityBefore, oct16CapabilityAfter], [oct16PendingBefore, oct16PendingAfter], [requirementsBefore, requirementsAfter]]) source = replace(source, before, after);
+    return source;
+  },
+});
