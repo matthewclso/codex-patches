@@ -60,3 +60,9 @@ module.exports.revisions.push({
   before: '{browser:b}', after: '{browser:_&&h.platform===`win32`?l.pt(b,null):b}',
   apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?l.pt(b,null):b}'),
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/main-CT5a1yCd.js',
+  sourceSha256: 'cdac659a830908ec5202a887e5a37b302074bfc9e9ab0f52fed3e8abbdb9e713',
+});

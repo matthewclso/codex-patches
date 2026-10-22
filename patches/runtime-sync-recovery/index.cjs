@@ -76,3 +76,28 @@ module.exports.revisions.push({
     return replace(source, modernResumeBefore, modernResumeAfter);
   },
 });
+
+const oct16Names = { cc: 'Ys', rc: 'Gs', lc: 'Ure', ic: 'Ks', oc: 'Js', gd: 'Zu', K: 'q' };
+const oct16Text = text => text.replace(/\b(?:cc|rc|lc|ic|oc|gd|K)\b/g, name => oct16Names[name]);
+const oct16ResumeBefore = 'r=n?await Js(t):null,a=n?q():e.desktopFeatureAvailability';
+const oct16ResumeAfter = 'r=n?(await Js(t)??await __codexPatchesRecoverRuntime(e).catch(()=>null)):null,a=n?q():e.desktopFeatureAvailability';
+// Retain the native dispose hook and wait for pending reconciliation on focus.
+const oct16ReconcileBefore = reconcileBefore.replace('return{reconcileComputerHistory', 'return{dispose:()=>void 0,reconcileComputerHistory');
+const oct16ReconcileAfter = reconcileAfter.replace('return{reconcileComputerHistory', 'return{dispose:()=>void 0,reconcileComputerHistory');
+const oct16FocusBefore = 'reconcileExternalPluginState:(e=`focus`)=>Promise.all([N(e),y.then(()=>void 0)]).then(()=>{})';
+const oct16FocusAfter = 'reconcileExternalPluginState:(e=`focus`)=>A({force:!1,reason:e}).then(()=>Promise.all([N(e),y.then(()=>void 0)])).then(()=>{})';
+const oct16Replacements = [[oct16ReconcileBefore,oct16ReconcileAfter],[syncBefore,syncAfter],[failureBefore,failureAfter]].map(pair => pair.map(oct16Text));
+module.exports.revisions.push({
+  targetPath: '.vite/build/main-CT5a1yCd.js',
+  sourceSha256: 'cdac659a830908ec5202a887e5a37b302074bfc9e9ab0f52fed3e8abbdb9e713',
+  reconcileBefore: oct16ReconcileBefore, reconcileAfter: oct16ReconcileAfter,
+  syncBefore: oct16Text(syncBefore), syncAfter: oct16Text(syncAfter),
+  resumeBefore: oct16ResumeBefore, resumeAfter: oct16ResumeAfter,
+  failureBefore: oct16Text(failureBefore), failureAfter: oct16Text(failureAfter),
+  focusBefore: oct16FocusBefore, focusAfter: oct16FocusAfter,
+  apply(source, replace) {
+    for (const [before, after] of oct16Replacements) source = replace(source, before, after);
+    source = replace(source, oct16ResumeBefore, oct16ResumeAfter);
+    return replace(source, oct16FocusBefore, oct16FocusAfter);
+  },
+});

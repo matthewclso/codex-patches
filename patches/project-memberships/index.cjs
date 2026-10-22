@@ -63,3 +63,9 @@ module.exports.revisions.push({
   after: 'f.setThreadAssignmentsEnabled(!0)',
   apply: (source, replace) => replace(source, 'f.setThreadAssignmentsEnabled(q().localProjectTaskMembership)', 'f.setThreadAssignmentsEnabled(!0)'),
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/main-CT5a1yCd.js',
+  sourceSha256: 'cdac659a830908ec5202a887e5a37b302074bfc9e9ab0f52fed3e8abbdb9e713',
+});
