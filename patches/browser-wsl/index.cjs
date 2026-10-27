@@ -86,3 +86,11 @@ module.exports.revisions.push({
   after: after.replace('function xBr(', 'function qBn('),
   apply: (source, replace) => replace(source, before.replace('function xBr(', 'function qBn('), after.replace('function xBr(', 'function qBn(')),
 });
+
+module.exports.revisions.push({
+  targetPath: 'webview/assets/app-initial-438d1df57f70.js',
+  sourceSha256: 'd7b10b8bc54277eb3cb3a7a742c5b4c054a640530bbb7c1878e17097c0fc6d01',
+  before: before.replace('function xBr(', 'function FPn('),
+  after: after.replace('function xBr(', 'function FPn('),
+  apply: (source, replace) => replace(source, before.replace('function xBr(', 'function FPn('), after.replace('function xBr(', 'function FPn(')),
+});

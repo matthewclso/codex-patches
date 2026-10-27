@@ -108,3 +108,14 @@ module.exports.revisions.push({
     return replace(source, 'async function sJ(', currentHelper + 'async function sJ(');
   },
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/src-Dl21kCYQ.js',
+  sourceSha256: 'a42052ee3309565865f2d20fc45dee297935cbb50d1fc1a404b90c18d824b93c',
+  apply(source, replace) {
+    assert(!source.includes('codexPetHome'), 'Pet helper is already present or collides');
+    for (const [before, after] of replacements) source = replace(source, before.replace('o.rt(', 'o.V('), after);
+    const currentHelper = helper.replace('o.rt(', 'o.V(').replace('o.zt(', 'o.Yt(');
+    return replace(source, 'async function xC(', currentHelper + 'async function xC(');
+  },
+});

@@ -101,3 +101,25 @@ module.exports.revisions.push({
     return replace(source, oct16FocusBefore, oct16FocusAfter);
   },
 });
+
+const oct21Names = { cc: 'Mc', rc: 'Oc', lc: 'Fae', ic: 'kc', oc: 'jc', gd: 'Eu', K: 'va' };
+const oct21Text = text => text.replace(/\b(?:cc|rc|lc|ic|oc|gd|K)\b/g, name => oct21Names[name]);
+const oct21ResumeBefore = 'r=n?await jc(t):null,a=n?va():e.desktopFeatureAvailability';
+const oct21ResumeAfter = 'r=n?(await jc(t)??await __codexPatchesRecoverRuntime(e).catch(()=>null)):null,a=n?va():e.desktopFeatureAvailability';
+// Keep the native live-skill notification and current reconciliation lifecycle.
+const oct21ReconcileBefore = reconcileBefore.replace('C=!1,D(', 'C=!1,y.hadReconcileFailure||e.onLiveSkillSourceChanged?.(null),D(');
+const oct21ReconcileAfter = reconcileAfter.replace('C=!1,D(', 'C=!1,y.hadReconcileFailure||e.onLiveSkillSourceChanged?.(null),D(');
+const oct21Replacements = [[oct21ReconcileBefore,oct21ReconcileAfter],[syncBefore,syncAfter],[failureBefore,failureAfter],[focusBefore,focusAfter]].map(pair => pair.map(oct21Text));
+module.exports.revisions.push({
+  targetPath: '.vite/build/main-BPBEjAxi.js',
+  sourceSha256: '2327d031e32c8d80c0dbf9bd81144466a90f8e49d3bc64e6604c23fbab900d7f',
+  reconcileBefore: oct21ReconcileBefore, reconcileAfter: oct21ReconcileAfter,
+  syncBefore: oct21Text(syncBefore), syncAfter: oct21Text(syncAfter),
+  resumeBefore: oct21ResumeBefore, resumeAfter: oct21ResumeAfter,
+  failureBefore: oct21Text(failureBefore), failureAfter: oct21Text(failureAfter),
+  focusBefore, focusAfter,
+  apply(source, replace) {
+    for (const [before, after] of oct21Replacements) source = replace(source, before, after);
+    return replace(source, oct21ResumeBefore, oct21ResumeAfter);
+  },
+});
