@@ -30,6 +30,12 @@ Sources: U01–U03. These selection semantics were part of the accepted design.
 
 ## Feature behavior
 
+### Configured background across the app
+
+**THEME-1.** The configured Codex background must also apply to the top bar, outer shell and sidebar. With `#000000` selected, those surfaces must be black. Follow the selected background for other colors and both light and dark themes, including changes made while the app is running. Preserve text, accent, border, hover, selection and elevated-control colors, along with native theme and opacity preferences.
+
+Current module: `theme-background`. Source: U22. This is independently selectable under SELECT-1/2; disabling it restores the stock theme calculation.
+
 ### Custom pets
 
 **PET-1.** With the pet fix enabled, existing custom pets in the user's canonical Codex data are discoverable, appear in the picker, can be selected, and load correctly through the WSL backend. Installing a custom pet must write to the intended pet data location so it is subsequently discoverable and selectable. The Windows/WSL boundary must not cause missing pets, failed metadata/image reads or installation into a malformed path.
@@ -144,6 +150,7 @@ Sources: U01–U03, U21 and accepted update-proposal defaults. Exact UTC run tim
 
 | Change affects | Acceptance must address |
 | --- | --- |
+| Configured background | Stock versus patched top bar, outer shell, sidebar and chat with black and other colors; light/dark and live theme changes; unrelated control colors and independent patch selection. |
 | Pet paths | Discovery, selection/loading and installation behavior; record separately which UI actions were actually exercised. |
 | Browser eligibility/service loading | Agent tool availability from a supported chat, page inspection, interaction and verified navigation after relaunch. |
 | Project paths/home selection | Project create/import/update at the intended directory; canonical data remains available with runtime modules toggled. |
@@ -186,5 +193,6 @@ All times below are September 30, 2026, America/New_York; later follow-ups witho
 | U19 · October 9, 2026 | Investigate plugins missing connector tools, add a patch to this repository, and continue implementation. | CONNECTOR-1/2, RUNTIME-1; preserve prior patches and prepare reviewable changes before live activation. |
 | U20 · October 9, 2026 | Investigate unavailable Browser and Computer Use, implement the diagnosed fixes, push to the same branch and test. | BROWSER-4; preserve BROWSER-1/2/3 and lifecycle safeguards. |
 | U21 · October 17, 2026 | Run compatibility checks four times daily, every six hours, to detect frequent updates sooner; confirm repeated failures do not create duplicate branches. | CI-2: six-hour scheduling with one proposal per package version/archive hash; distinct builds may have separate proposals. |
+| U22 · October 27, 2026 | Apply the configured background color, currently `#000000`, to the top bar and sidebar as well as chat; implement, test and add it to this repository. | THEME-1; SELECT-1/2/3 and VERIFY-1/2/4. |
 
 “Accepted defaults” above refers to the two design responses preceding U02 and U03: a small modular toolkit and one composed app copy, reviewed build support, explicit stock fallback, deliberate preview/backup state repairs, reproducible downloads, deterministic update proposals, and cleanup only after validating independence from old code. Later explicit user decisions override those proposals. Unchosen alternatives and implementation details are not silently promoted into owner requests.

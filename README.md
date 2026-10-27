@@ -56,6 +56,7 @@ Copy-Item config.example.json config.local.json
 | [browser-service-path](patches/browser-service-path/README.md) | Register the browser service with a Windows path for the Windows worker. |
 | [browser-feature-recovery](patches/browser-feature-recovery/README.md) | Keep confirmed Browser eligibility during transient discovery errors; unknown remains pending. |
 | [runtime-sync-recovery](patches/runtime-sync-recovery/README.md) | Refresh app-managed worker paths and native pipe after transient startup failures, focus and chat recovery. |
+| [theme-background](patches/theme-background/README.md) | Apply the configured background to the top bar, outer shell and sidebar in both light and dark themes. |
 | [project-memberships](patches/project-memberships/README.md) | Optional native synchronization of desktop project assignments to the backend; disabled by default. |
 | [wsl-project-paths](patches/wsl-project-paths/README.md) | Translate Windows drive and matching WSL UNC project roots at the JSONL boundary. |
 | [remote-fast-list](patches/remote-fast-list/README.md) | Add the required listing options on the Remote Control transport while running the unmodified bundled CLI. |

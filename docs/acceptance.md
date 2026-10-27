@@ -10,6 +10,22 @@ This file records evidence against the authoritative [behavior contract](BEHAVIO
 
 The copied executable retains package context but loses its original valid Authenticode signature. Report any signed-binary-only behavior separately. Hosted CI does not establish Windows 11 interactive behavior or authenticated cloud acceptance.
 
+## October 27, 2026 configured background regression
+
+For package `26.1021.3705.0`, app `26.1021.31345`, the independently selectable `theme-background` patch implements THEME-1. Stock Codex uses a derived sidebar/native-window background and a tinted editor color behind its outer shell. The patch takes both backgrounds from the configured theme surface; it does not hardcode black.
+
+Actual stock/patched theme-generator tests passed across 48 combinations of four background colors, light/dark mode, three contrast levels and both opacity preferences. Every unrelated generated variable and theme result stayed unchanged. Sequential color and light/dark changes used the new surface without retaining an earlier background. Archive tests verified independent selection, pristine theme restoration when disabled, unchanged unrelated entry metadata, rejection of unknown archives, and the recorded default archive/header/executable output hashes.
+
+A Chromium rendering check loaded the actual app CSS and shell classes from the pristine archive. Screenshot pixels reproduced the stock mismatch with black selected and verified matching top bar, sidebar, shell and chat backgrounds after patching. Checks passed for `#000000`, dark `#123456`, light `#faf5ec`, and a live switch back to dark black. This is a source-derived renderer fixture, not an authenticated Windows desktop session.
+
+During the initial implementation, all 128 combinations of the seven app-code patches passed the existing actual-source composition test, including deterministic output, JavaScript syntax, unchanged unrelated entries and fail-closed archive gating. All 13 existing app/plugin source tests passed with no skips. The five focused tests passed with Chromium enabled under WSL; Windows' bundled Node passed the four source/selection/archive tests, with Chromium explicitly skipped there. The normal Windows PowerShell `inspect` command selected the new patch in `auto` mode while retaining saved choices.
+
+The toolkit tests and CI evidence tests passed separately. Source tests run in the compatibility workflow; the Chromium check is optional and explicitly skips unless a local Playwright module/browser is supplied. The source package includes the new module, tests and documentation. See the [review record](../compatibility/reviews/26.1021.3705.0-theme-background.json) for the exact check scope and counts.
+
+After tracked integration changes were lost later the same day, the registry, selection example, compatibility pins, CI entry and documentation were restored around the surviving patch and tests. Fresh checks passed all five focused source/Chromium tests, the toolkit suite (62 passed, 41 environment-dependent skips, zero failures), and the ordinary Windows `inspect` selection. The existing patch implementations were unchanged from the original 128-combination validation; that exhaustive test was not repeated during restoration. The complete change was saved in a local Git commit.
+
+**Desktop acceptance remains pending:** no patched deployment was installed or activated, and no active app or chat was restarted for this task. After the normal rebuild/relaunch, check the selected background in the running Windows top bar, sidebar and chat, including a theme change and any separately configured workspace tint. Existing opacity preferences and workspace tint behavior remain in force.
+
 ## September 30, 2026 local check
 
 On Windows 11 with the Ubuntu 26.04 WSL backend, package `26.928.1915.0` passed the package-context startup check after relaunch. An existing custom pet appeared and remained selectable. An agent used the installed Browser plugin to open Example Domain, inspect its accessibility tree, follow its link to IANA, verify the destination and close the test tab.

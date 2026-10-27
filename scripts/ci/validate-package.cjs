@@ -69,7 +69,7 @@ function validate(appDirectory, packageReport, outDirectory) {
     report.checks.push({ name: 'archive-and-executable-composition', status: 'passed', outputArchiveSha256: audit.outputArchiveHash, outputExecutableSha256: sha256(updatedExe), outputHeaderSha256: audit.outputHeaderHash });
     // Tests execute functions taken from this downloaded stock archive. Hash/anchor
     // matching is only the prerequisite; it is not itself behavior evidence.
-    const tests = spawnSync(process.execPath, ['--test', '--test-concurrency=1', 'tests/app-patches-source.cjs', 'tests/plugin-recovery-source.cjs'], {
+    const tests = spawnSync(process.execPath, ['--test', '--test-concurrency=1', 'tests/app-patches-source.cjs', 'tests/plugin-recovery-source.cjs', 'tests/theme-background-source.cjs'], {
       cwd: path.resolve(__dirname, '../..'), env: { ...process.env, CODEX_SOURCE_ASAR: archivePath, CODEX_SOURCE_EXE: exePath, CODEX_AUDIT_UNKNOWN: audit.report.supported ? '' : '1' },
       encoding: 'utf8', timeout: 900000,
     });

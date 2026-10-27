@@ -1137,6 +1137,14 @@
           "outputSha256": "313f181abbcd26b7b7b188c82148e32e49e4f1032888affef18da061fd12b58b",
           "evidence": "Retry transient native config sync with fresh paths and managed pipe; coalesce recovery by current feature/reconciliation/sync generation. Preserve native post-reconcile work and live-skill notifications while invalidating failed signatures for focus retry. Actual-source tests retain authenticated/API-key executor identities, Work access denial and account-switch rechecks, remote audio pipe filtering, and helper active-turn/coalescing behavior. BROWSER-1/2/3/4; LIFECYCLE-3/4; live tools pending.",
           "reviewRecord": "compatibility/reviews/26.1021.3705.0.json"
+        },
+        "theme-background": {
+          "status": "needed",
+          "targetPath": "webview/assets/app-theme-c850e3c1c24c.js",
+          "sourceSha256": "cbc719a3fbbc0952efc34502dbbea844bd5deca9461ca89687374555c504c46f",
+          "outputSha256": "4e8a9fbbe5b15518a8876de2aa0e2bae58f9124be49720e00d596be30bbab950",
+          "evidence": "THEME-1: stock theme uses a derived surface-under and tinted editor color for the outer shell. Use the configured theme surface for both shell and sidebar/native-window background; retain other theme variables. See docs/acceptance.md and patches/theme-background/README.md for validation scope.",
+          "reviewRecord": "compatibility/reviews/26.1021.3705.0-theme-background.json"
         }
       },
       "verifiedPackedEntries": 21783,
@@ -1146,11 +1154,12 @@
           "browser-wsl",
           "browser-service-path",
           "browser-feature-recovery",
-          "runtime-sync-recovery"
+          "runtime-sync-recovery",
+          "theme-background"
         ],
-        "archiveSha256": "c59f953be2f9232a8831da635d53aa3cd60339d49fcb4a9791ef54be59c47148",
-        "headerSha256": "0b0fce736bc84d0207ab6d31e1c00cb30789dfd2a49fce40757df5e4150987d1",
-        "executableSha256": "55d968dd487d44f82f254e23ee0e79d1d24c480fee9155d3f6c6427e19c2bd27"
+        "archiveSha256": "78b5b3221eea8e4e6c490fecc51223446f10a245acc45b1c4b35ca685b78467c",
+        "headerSha256": "5c779db4d69412107dc8a7591041f697cd7dd1da4ac465def410dbfda121fa5a",
+        "executableSha256": "953788a1ff61f0d167d8672591f99fdcb856c40fc9826e3ce2547214039de6d8"
       },
       "runtimePatches": {
         "wsl-project-paths": {

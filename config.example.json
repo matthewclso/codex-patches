@@ -7,6 +7,7 @@
     "project-memberships": "disabled",
     "browser-feature-recovery": "auto",
     "runtime-sync-recovery": "auto",
+    "theme-background": "auto",
     "wsl-project-paths": "auto",
     "remote-fast-list": "auto",
     "connector-routing": "auto",
