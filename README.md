@@ -6,6 +6,8 @@ Modular compatibility fixes for the **Windows x64 Codex desktop app using an Ubu
 
 This is an independent community project. It builds an owned app copy from your installed, signed Codex package. It never edits the Store package and does not redistribute Codex binaries. Changing the copy's Electron archive-integrity resource makes its executable's original Authenticode signature invalid. Features that require a signed executable can still reject the copy. The stock launcher remains available.
 
+Windows Application Control can also block the copied executable before it starts. A successful archive/build check or Windows-to-WSL `doctor` preflight does not prove Windows will permit that executable to launch. If the launcher reports an Application Control policy block, rebuilding does not restore the signature. Use the signed stock app while resolving deployment trust through the machine's approved process; the toolkit does not change Windows security policy. See the [observed launch block and recovery](docs/acceptance.md#october-27-2026-application-control-launch-block-and-recovery).
+
 ## Install
 
 Install official Codex and Ubuntu 26.04 LTS under WSL2. Open Codex once, sign in and select the WSL backend in Settings. Git and Windows PowerShell 5.1 are required; the toolkit uses Codex's bundled Windows Node and provisions a checksum-pinned Linux Node inside its own WSL state directory. It does not change shell profiles. Python 3 and `wslpath` come with Ubuntu.

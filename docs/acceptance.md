@@ -10,6 +10,16 @@ This file records evidence against the authoritative [behavior contract](BEHAVIO
 
 The copied executable retains package context but loses its original valid Authenticode signature. Report any signed-binary-only behavior separately. Hosted CI does not establish Windows 11 interactive behavior or authenticated cloud acceptance.
 
+## October 27, 2026 Application Control launch block and recovery
+
+After installing the corrected Windows-frame revision, the owner reported that the patched app would not open. The package-context launch result recorded `launchPerformed: false`, a successful isolated Windows-to-WSL runtime probe, and the Windows error “An Application Control policy has blocked this file.” Code Integrity events 3077 and 3033 identified the corrected copy's `ChatGPT.exe` as the rejected file under the `VerifiedAndReputableDesktop` policy. Authenticode inspection reported `HashMismatch`, consistent with the app-copy signature limitation in SCOPE-3. No renderer or CSS startup error was established: Windows denied executable startup.
+
+The prior deployment, which had a recorded successful launch and was observed running earlier that day, passed full verification of 3,618 app files and 111 toolkit files against its receipt. Recovery restored the active deployment pointer and the owned WSL proxy link using the normal process-blocker checks and atomic pointer/link replacement. The previous pointer, proxy ownership metadata, failed launch result and prior successful launch evidence were backed up locally before the switch. The restored deployment then passed package identity, generated-file integrity and the isolated Windows-to-WSL app-server preflight. The blocked copy and corrected source were retained.
+
+No Codex process was stopped, no Windows security policy was changed, and no chat data, preferences or pairing state was changed. The signed stock app was running during recovery, so the restored copy was not relaunched. **Fresh UI launch of the restored copy remains unverified; its earlier successful launch is historical evidence.** It contains the first background revision, so the Windows frame color mismatch remains. The corrected frame revision remains locally blocked by Application Control, despite its passing source/renderer tests. Installing or rebuilding that same revision again is not a remedy for the policy block.
+
+This is an environment-specific executable-trust limitation, not an upstream theme fix or a reason to bypass compatibility gates. THEME-1 remains unmet in this desktop environment. Source checks, runtime preflight, executable launch permission and actual desktop appearance must be reported separately. SCOPE-3, LIFECYCLE-3/4, VERIFY-1/2/4.
+
 ## October 27, 2026 Windows frame correction
 
 The owner installed the initial `theme-background` revision and reported that it did not take effect. Read-only checks confirmed that the running processes used the selected deployment and that its theme module contained the exact reviewed patched bytes. Computer Use inspection confirmed gray Windows top chrome/navigation rail and a blended sidebar beside a black chat. This was a defect in the initial fix, not a missing installation.
@@ -20,7 +30,7 @@ The corrected implementation paints the actual Windows Electron frame, page and 
 
 The expanded Chromium fixture reproduces the first revision's failure and checks 32 combinations of page/full-height layouts, menu/non-menu chrome, opacity modes and sequential dark/colored/light/dark theme updates. It executes the actual document updater and stylesheet writer, loads the actual CSS with the shell's real attributes, and samples frame, menu bar, navigation rail, sidebar, chat and editor pixels. No fixture rule supplies the shell's correct background. Source tests separately cover 48 palette scenarios and repeated native stylesheet updates. See the [current review record](../compatibility/reviews/26.1021.3705.0-theme-background.json) for fresh results; earlier exhaustive composition evidence belongs to the first revision.
 
-**Corrected desktop acceptance remains pending:** the failing installed revision was inspected, but the running app was not modified or restarted. The corrected copy must be installed and relaunched before claiming live Windows acceptance. THEME-1 remains the requirement.
+**Corrected desktop acceptance is blocked locally:** the later installed corrected copy was denied executable startup by Application Control, as recorded above. The running app was not modified or restarted. THEME-1 remains the requirement; source-derived rendering does not establish desktop acceptance.
 
 ## October 27, 2026 initial configured background regression
 

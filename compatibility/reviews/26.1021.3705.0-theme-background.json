@@ -4,7 +4,7 @@
   "appVersion": "26.1021.31345",
   "reviewedAt": "2026-10-27",
   "patch": "theme-background",
-  "status": "corrected-source-and-Windows-frame-renderer-validation-passed; corrected-desktop-acceptance-pending",
+  "status": "source-and-renderer-validation-passed; local-executable-launch-blocked-by-Windows-Application-Control; prior-deployment-restored",
   "affectedRequirements": [
     "THEME-1",
     "SELECT-1",
@@ -95,14 +95,42 @@
       ],
       "outputHeaderSha256": "6eac4b8ffdfd6a1cdcea0056e64edc7523c325dfb24ecdcd2d4faa0fff42bce4",
       "outputArchiveSha256": "9f95c0afa9b64312012c4bc15f526d85d3c587eea1ed1467751f1c8f71343998"
+    },
+    {
+      "name": "corrected-installed-copy-launch",
+      "status": "blocked",
+      "launchPerformed": false,
+      "runtimePreflight": "passed",
+      "codeIntegrityEventIds": [
+        3077,
+        3033
+      ],
+      "policyName": "VerifiedAndReputableDesktop",
+      "rejectedFile": "ChatGPT.exe",
+      "authenticodeStatus": "HashMismatch",
+      "scope": "The package-context launch command was denied before the app could start. The known app-copy signature limitation prevents local desktop acceptance under the observed policy."
+    },
+    {
+      "name": "previous-working-deployment-recovery",
+      "status": "restored-and-preflight-passed",
+      "priorSuccessfulLaunch": "recorded and observed earlier the same day",
+      "fullAppFilesVerified": 3618,
+      "toolkitFilesVerified": 111,
+      "activation": "Restored pointer and owned WSL proxy link after process-blocker/ownership checks; prior metadata and launch evidence backed up locally.",
+      "runtimePreflight": "passed",
+      "freshDesktopLaunch": "not-run; signed stock app is running",
+      "processesStopped": 0,
+      "securityPolicyChanged": false,
+      "userDataChanged": false
     }
   ],
   "limitations": [
     "The initial implementation failed actual desktop acceptance; its earlier exhaustive 128-combination/source-suite evidence is preserved only under initialRevision.",
     "The corrected renderer fixture uses actual app CSS, native document theme lifecycle and Windows frame attributes with a simulated native-material backdrop; this is not corrected live desktop acceptance.",
-    "No running deployment was modified or restarted. Install/relaunch the corrected copy for live Windows acceptance.",
     "Earlier package versions have no reviewed implementation of this module.",
-    "Stored native opacity preferences and workspace tint remain unchanged; outer chrome surfaces explicitly paint the configured color."
+    "Stored native opacity preferences and workspace tint remain unchanged; outer chrome surfaces explicitly paint the configured color.",
+    "The corrected installed executable was blocked by Windows Application Control before app startup. Rebuilding does not restore Authenticode signing.",
+    "Recovery restored the previous known working deployment, which retains the first revision's frame-color limitation. Its integrity and runtime preflight passed; a fresh UI launch was not attempted while stock Codex was running."
   ],
   "initialRevision": {
     "status": "superseded; user-confirmed desktop failure",
