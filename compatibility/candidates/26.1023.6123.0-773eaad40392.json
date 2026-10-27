@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "status": "review-required",
+  "package": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-27T21:21:22.2848557Z",
+    "source": {
+      "documentationUrl": "https://learn.chatgpt.com/docs/enterprise/windows-deployment",
+      "downloadUrl": "https://persistent.oaistatic.com/codex-app-prod/ChatGPT-x64.msix",
+      "finalUrl": "https://persistent.oaistatic.com/codex-app-prod/ChatGPT-x64.msix"
+    },
+    "identity": {
+      "name": "OpenAI.Codex",
+      "packageVersion": "26.1023.6123.0",
+      "architecture": "x64",
+      "publisher": "CN=50BDFD77-8903-4850-9FFE-6E8522F64D5B"
+    },
+    "hashes": {
+      "msixSha256": "9890e869a0d40fc00f396ce48ba05dc45ccb8bb36d151dcd1a2ff23d270f2e4d",
+      "archiveSha256": "773eaad4039291c80217d62c97711bb0e4b941fcf4429aaeeb3b04856c4e83ab",
+      "executableSha256": "5871c61efd9db4026e30bfef21774ff9e6bd815127fffbb4d04262c42d7cddde",
+      "cliLinuxSha256": "a88c0d1cf1b221a280b0d5ef8f4370f66c4568159b2d3f69ee7adce8953db32f",
+      "cliWindowsSha256": "5c1b55966bf9f757dcbf00065c9a6cb862ead55d34b015f1be1939ff18e43943",
+      "codeModeLinuxSha256": "76e243de7f4f1389411a1bf0392924ac5370a4dafefaee030a23d3d8e0a30db6",
+      "codeModeWindowsSha256": "9ee661e9325915b56fb37660d5111e8a10cda5d93b3b25b04be810960a8b92b2",
+      "nodeWindowsSha256": "6791d90ad63ba2adcad55cf55f2d1345d4b701001c5db621a63576c8c5db94aa"
+    },
+    "versions": {
+      "cliVersion": "0.165.0-alpha.1.2",
+      "appVersion": "26.1023.50603"
+    },
+    "files": {
+      "executableRelativePath": "ChatGPT.exe"
+    },
+    "verification": {
+      "msixSignature": "valid",
+      "executableSignature": "valid",
+      "identity": "verified",
+      "publisher": "matched-pin",
+      "architecture": "x64"
+    }
+  },
+  "candidate": null,
+  "audit": {
+    "schemaVersion": 1,
+    "supported": false,
+    "reviewRequired": true,
+    "sourceArchiveHash": "773eaad4039291c80217d62c97711bb0e4b941fcf4429aaeeb3b04856c4e83ab",
+    "sourceHeaderHash": "d2f7eb732dcf340b6898eeae66c2e0bf78d7396069dcfc4947182858dcb4a0fb",
+    "build": null,
+    "selectedIds": [
+      "custom-pets",
+      "browser-wsl",
+      "browser-service-path",
+      "project-memberships",
+      "browser-feature-recovery",
+      "runtime-sync-recovery",
+      "theme-background"
+    ],
+    "patches": [
+      {
+        "id": "custom-pets",
+        "status": "review-required",
+        "targetPath": ".vite/build/bootstrap-Bj_1Kfw1.js",
+        "reason": "Missing ASAR entry: .vite/build/bootstrap-Bj_1Kfw1.js"
+      },
+      {
+        "id": "browser-wsl",
+        "status": "review-required",
+        "targetPath": "webview/assets/app-shared-6472dfc83b38.js",
+        "reason": "Missing ASAR entry: webview/assets/app-shared-6472dfc83b38.js"
+      },
+      {
+        "id": "browser-service-path",
+        "status": "review-required",
+        "targetPath": ".vite/build/main-BGDKyzfM.js",
+        "reason": "Missing ASAR entry: .vite/build/main-BGDKyzfM.js"
+      },
+      {
+        "id": "project-memberships",
+        "status": "review-required",
+        "targetPath": ".vite/build/main-BGDKyzfM.js",
+        "reason": "Missing ASAR entry: .vite/build/main-BGDKyzfM.js"
+      },
+      {
+        "id": "browser-feature-recovery",
+        "status": "review-required",
+        "targetPath": "webview/assets/app-shared-40678a67f0e3.js",
+        "reason": "Missing ASAR entry: webview/assets/app-shared-40678a67f0e3.js"
+      },
+      {
+        "id": "runtime-sync-recovery",
+        "status": "review-required",
+        "targetPath": ".vite/build/main-p91kJShj.js",
+        "reason": "Missing ASAR entry: .vite/build/main-p91kJShj.js"
+      },
+      {
+        "id": "theme-background",
+        "status": "review-required",
+        "targetPath": "webview/assets/app-theme-c850e3c1c24c.js",
+        "reason": "Missing ASAR entry: webview/assets/app-theme-c850e3c1c24c.js"
+      }
+    ],
+    "changes": []
+  },
+  "checks": [
+    {
+      "name": "windows-toolkit-module-tests",
+      "status": "passed"
+    },
+    {
+      "name": "compose-existing-patches",
+      "status": "blocked",
+      "reason": "Target source modules changed or are missing. Existing implementations cannot be assumed correct."
+    }
+  ],
+  "failureReason": null,
+  "wsl": {
+    "schemaVersion": 1,
+    "observedAt": "2026-10-27T21:22:28.0953933Z",
+    "status": "unsupported",
+    "target": {
+      "windows": "Windows x64",
+      "backend": "Ubuntu 26.04 LTS",
+      "wslVersion": 2
+    },
+    "host": {
+      "os": "Microsoft Windows NT 10.0.26100.0",
+      "runnerImage": "win25-vs2026",
+      "runnerVersion": "20261021.278.1",
+      "virtualization": [
+        {
+          "Name": "INTEL(R) XEON(R) PLATINUM 8573C",
+          "VirtualizationFirmwareEnabled": false,
+          "SecondLevelAddressTranslationExtensions": false,
+          "VMMonitorModeExtensions": false
+        }
+      ],
+      "features": [
+        {
+          "name": "Microsoft-Windows-Subsystem-Linux",
+          "previous": "Enabled",
+          "requiredForWsl2": false,
+          "enabledForCi": false,
+          "restartRequired": false
+        },
+        {
+          "name": "VirtualMachinePlatform",
+          "previous": "Enabled",
+          "requiredForWsl2": true,
+          "enabledForCi": false,
+          "restartRequired": false
+        }
+      ],
+      "hypervisorPresent": true,
+      "services": [
+        {
+          "Name": "vmcompute",
+          "Status": 4
+        },
+        {
+          "Name": "WslService",
+          "Status": 4
+        }
+      ]
+    },
+    "stages": [
+      {
+        "name": "wsl-version",
+        "exitCode": 0,
+        "timedOut": false,
+        "output": "WSL version: 3.0.3.0\r\nKernel version: 6.18.54.1-1\r\nWSLg version: 1.0.79\r\nMSRDC version: 1.2.7391\r\nDirect3D version: 1.611.1-81528511\r\nDXCore version: 10.0.26100.1-240331-1435.ge-release\r\nWindows version: 10.0.26100.33650"
+      },
+      {
+        "name": "wsl-update",
+        "exitCode": -1,
+        "timedOut": false,
+        "output": "Checking for updates.\r\nForbidden (403). \r\nError code: Wsl/UpdatePackage/HTTP_E_STATUS_FORBIDDEN\r\nIf this error was unexpected, please consider searching for existing issues or filing a new issue at https://github.com/microsoft/WSL/issues."
+      }
+    ],
+    "limitations": [
+      "Authenticated desktop, browser UI, and phone reconnect require local acceptance."
+    ],
+    "reason": "The official WSL runtime could not initialize/update on this hosted image."
+  },
+  "evidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/40585843154",
+  "decisionRequired": "Reproduce stock behavior and review all acceptance evidence before changing compatibility/current.json. This file does not enable installation."
+}
