@@ -118,7 +118,7 @@
       "toolkitFilesVerified": 111,
       "activation": "Restored pointer and owned WSL proxy link after process-blocker/ownership checks; prior metadata and launch evidence backed up locally.",
       "runtimePreflight": "passed",
-      "freshDesktopLaunch": "not-run; signed stock app is running",
+      "freshDesktopLaunch": "passed after owner relaunch; successful launch result, running executable paths and Computer Use capture confirm the restored deployment",
       "processesStopped": 0,
       "securityPolicyChanged": false,
       "userDataChanged": false
@@ -130,7 +130,7 @@
     "Earlier package versions have no reviewed implementation of this module.",
     "Stored native opacity preferences and workspace tint remain unchanged; outer chrome surfaces explicitly paint the configured color.",
     "The corrected installed executable was blocked by Windows Application Control before app startup. Rebuilding does not restore Authenticode signing.",
-    "Recovery restored the previous known working deployment, which retains the first revision's frame-color limitation. Its integrity and runtime preflight passed; a fresh UI launch was not attempted while stock Codex was running."
+    "Recovery restored the previous known working deployment. Its integrity, runtime preflight and subsequent owner-initiated fresh UI launch passed. Process paths and Computer Use capture confirm that it retains the first revision's frame-color limitation."
   ],
   "initialRevision": {
     "status": "superseded; user-confirmed desktop failure",
