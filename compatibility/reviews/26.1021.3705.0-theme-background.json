@@ -111,6 +111,11 @@
       "scope": "The package-context launch command was denied before the app could start. The known app-copy signature limitation prevents local desktop acceptance under the observed policy."
     },
     {
+      "name": "live-CSS-preview-through-native-UI",
+      "status": "unavailable",
+      "scope": "After focus recovered, the DevTools shortcut opened no tools window and the production View menu exposed no DevTools entry. No live CSS was applied. Local personal certificate stores supplied no existing code-signing certificate for the corrected build."
+    },
+    {
       "name": "previous-working-deployment-recovery",
       "status": "restored-and-preflight-passed",
       "priorSuccessfulLaunch": "recorded and observed earlier the same day",

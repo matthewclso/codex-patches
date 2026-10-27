@@ -22,6 +22,8 @@ This is an environment-specific executable-trust limitation, not an upstream the
 
 After the owner relaunched **Codex - Patched**, the restored deployment recorded a successful actual UI launch and runtime probe. Read-only process inspection confirmed that every running Codex executable came from that restored deployment, and Computer Use capture confirmed the black chat beside gray top chrome, navigation rail and sidebar. This closes the restored copy's fresh-launch uncertainty; it does not validate the corrected frame revision or satisfy THEME-1. The active deployment still contains the initial palette-only implementation.
 
+A later attempt to preview the corrected CSS in the running app could not proceed: after desktop focus recovered, the DevTools shortcut opened no tools window and the production View menu had no DevTools entry. No live CSS was applied. Read-only inspection also found no existing code-signing certificate in the local personal certificate stores. These observations do not provide an alternate installation or executable-trust mechanism; the corrected copy's launch block remains unresolved.
+
 ## October 27, 2026 Windows frame correction
 
 The owner installed the initial `theme-background` revision and reported that it did not take effect. Read-only checks confirmed that the running processes used the selected deployment and that its theme module contained the exact reviewed patched bytes. Computer Use inspection confirmed gray Windows top chrome/navigation rail and a blended sidebar beside a black chat. This was a defect in the initial fix, not a missing installation.
