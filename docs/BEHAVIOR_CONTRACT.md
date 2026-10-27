@@ -150,7 +150,7 @@ Sources: U01–U03, U21 and accepted update-proposal defaults. Exact UTC run tim
 
 | Change affects | Acceptance must address |
 | --- | --- |
-| Configured background | Stock versus patched top bar, outer shell, sidebar and chat with black and other colors; light/dark and live theme changes; unrelated control colors and independent patch selection. |
+| Configured background | Stock versus patched top bar, outer shell, navigation rail, sidebar and chat with black and other colors; actual Windows menu/non-menu frames, native material and both opacity settings; light/dark and live theme changes; unrelated control colors and independent patch selection. |
 | Pet paths | Discovery, selection/loading and installation behavior; record separately which UI actions were actually exercised. |
 | Browser eligibility/service loading | Agent tool availability from a supported chat, page inspection, interaction and verified navigation after relaunch. |
 | Project paths/home selection | Project create/import/update at the intended directory; canonical data remains available with runtime modules toggled. |

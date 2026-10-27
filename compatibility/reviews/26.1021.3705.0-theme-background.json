@@ -4,7 +4,7 @@
   "appVersion": "26.1021.31345",
   "reviewedAt": "2026-10-27",
   "patch": "theme-background",
-  "status": "source-and-renderer-validation-passed; desktop-acceptance-pending",
+  "status": "corrected-source-and-Windows-frame-renderer-validation-passed; corrected-desktop-acceptance-pending",
   "affectedRequirements": [
     "THEME-1",
     "SELECT-1",
@@ -21,7 +21,7 @@
     "archiveSha256": "04862a659c6a90fc50514d8c0b8016709d97dece58839726c57495ed72f1d9f0",
     "targetPath": "webview/assets/app-theme-c850e3c1c24c.js",
     "sourceSha256": "cbc719a3fbbc0952efc34502dbbea844bd5deca9461ca89687374555c504c46f",
-    "outputSha256": "4e8a9fbbe5b15518a8876de2aa0e2bae58f9124be49720e00d596be30bbab950"
+    "outputSha256": "f2afd8f7b09ca1e477d08fc3c23e8ccd984f421bba0841b5ed555dc652af4fcb"
   },
   "composedApp": {
     "selectedIds": [
@@ -32,89 +32,130 @@
       "runtime-sync-recovery",
       "theme-background"
     ],
-    "archiveSha256": "78b5b3221eea8e4e6c490fecc51223446f10a245acc45b1c4b35ca685b78467c",
-    "headerSha256": "5c779db4d69412107dc8a7591041f697cd7dd1da4ac465def410dbfda121fa5a",
-    "executableSha256": "953788a1ff61f0d167d8672591f99fdcb856c40fc9826e3ce2547214039de6d8"
+    "archiveSha256": "31c66626abf3a80a39f7a14684d68a64f787eef6079a3b898feac46287ea6f9e",
+    "headerSha256": "bf291f0d4ffb833f2e8ecb44926940937fa533b6739da0ca568d215502259fb3",
+    "executableSha256": "4346796e5fbd75c5c48841d6485327e1370d30013bd0b0c08576df643f41d4bb"
   },
   "checks": [
     {
-      "name": "actual-theme-source-and-Chromium-rendering-on-WSL",
-      "status": "passed",
-      "tests": 5,
-      "passed": 5,
-      "skipped": 0,
-      "failed": 0,
-      "themeCombinations": 48,
-      "renderer": "Playwright 1.63.0 / Chromium",
-      "scope": "Stock failure and patched screenshot RGB pixels for the shell, top bar, sidebar and chat; black and other colors, light/dark and live switching; all unrelated generator values preserved; selection, pristine restoration, source/unknown gating and default output pins."
+      "name": "initial-installed-revision-and-running-process-inspection",
+      "status": "confirmed-failing-first-revision",
+      "scope": "Running executable paths matched the selected deployment. Its theme module matched the initial reviewed output hash. Computer Use inspection confirmed the owner-reported gray Windows chrome and sidebar mismatch.",
+      "installedThemeOutputSha256": "4e8a9fbbe5b15518a8876de2aa0e2bae58f9124be49720e00d596be30bbab950"
     },
     {
-      "name": "actual-theme-source-on-Windows",
+      "name": "corrected-actual-source-and-Chromium-tests-on-WSL",
       "status": "passed",
-      "tests": 5,
-      "passed": 4,
+      "tests": 6,
+      "passed": 6,
+      "skipped": 0,
+      "failed": 0,
+      "durationMs": 16984.107478,
+      "paletteCombinations": 48,
+      "renderedTransitions": 32,
+      "scope": "Actual palette generator, native document updater and stylesheet writer; first-revision failure reproduced; page/full-height, menu/non-menu, opacity on/off, black/custom/light/dark changes; frame, top bar, rail, sidebar and chat pixels; editor contrast retained; duplicate-free stylesheet updates; default composed archive/header/executable pins and independent disabling."
+    },
+    {
+      "name": "corrected-actual-source-on-Windows",
+      "status": "passed",
+      "tests": 6,
+      "passed": 5,
       "skipped": 1,
       "failed": 0,
-      "scope": "Official bundled Windows Node, supplied pristine Store archive and executable. Chromium not configured in this Windows run; it passed separately under WSL."
+      "durationMs": 7263.2448,
+      "scope": "Official bundled Windows Node, pristine Store archive and executable. Chromium explicitly skipped here and passed separately under WSL."
     },
     {
-      "name": "existing-actual-app-and-plugin-source-suite-on-WSL",
+      "name": "corrected-toolkit-tests-on-WSL",
       "status": "passed",
-      "tests": 13,
-      "passed": 13,
-      "skipped": 0,
-      "failed": 0,
-      "appPatchCombinations": 128,
-      "durationMs": 691182.067352,
-      "scope": "All seven app-code patch combinations, deterministic rebuilds, syntax checks, source/output gates and unchanged unrelated entries; existing pet, browser, membership and runtime-recovery source regressions. Default theme-inclusive archive/header/executable pins are also verified in the focused source tests."
-    },
-    {
-      "name": "toolkit-tests-on-WSL",
-      "status": "passed",
-      "tests": 103,
+      "tests": 104,
       "passed": 62,
-      "skipped": 41,
+      "skipped": 42,
       "failed": 0,
-      "scope": "node --test --test-concurrency=1 tests/*.cjs without source/runtime environment variables. Windows-only and source/native-environment tests explicitly skipped; affected app-source behavior is exercised separately."
+      "durationMs": 11104.963258,
+      "scope": "Without source/runtime environment variables; platform/source/native tests explicitly skipped. Affected source and renderer checks ran separately."
     },
     {
-      "name": "CI-evidence-tests",
+      "name": "default-composition-and-syntax",
       "status": "passed",
-      "tests": 7,
-      "passed": 7,
-      "skipped": 0,
-      "failed": 0
+      "scope": "Corrected theme output is hash-pinned, full patched ES module passes node --check, and default composed archive/header/executable pins pass the focused source tests."
     },
     {
-      "name": "Windows-inspect-with-existing-selection",
+      "name": "all-seven-app-modules-with-current-saved-selection",
       "status": "passed",
-      "scope": "The ordinary PowerShell inspect command accepts the installed supported build, retains saved patch modes and selects theme-background in auto mode without changing saved configuration or activation."
-    },
-    {
-      "name": "source-package-dry-run",
-      "status": "passed",
-      "scope": "npm pack --dry-run --ignore-scripts includes the new module, documentation and tests."
+      "scope": "Includes optional project-memberships alongside the corrected theme and the other app-code modules. Theme bytes match the corrected output pin; composition only, no installation or activation.",
+      "selectedIds": [
+        "custom-pets",
+        "browser-wsl",
+        "browser-service-path",
+        "project-memberships",
+        "browser-feature-recovery",
+        "runtime-sync-recovery",
+        "theme-background"
+      ],
+      "outputHeaderSha256": "6eac4b8ffdfd6a1cdcea0056e64edc7523c325dfb24ecdcd2d4faa0fff42bce4",
+      "outputArchiveSha256": "9f95c0afa9b64312012c4bc15f526d85d3c587eea1ed1467751f1c8f71343998"
     }
   ],
   "limitations": [
-    "Source-derived Chromium shell/CSS fixture, not a running authenticated Windows desktop acceptance test.",
-    "No deployment was installed or activated and no active app/chat was restarted.",
+    "The initial implementation failed actual desktop acceptance; its earlier exhaustive 128-combination/source-suite evidence is preserved only under initialRevision.",
+    "The corrected renderer fixture uses actual app CSS, native document theme lifecycle and Windows frame attributes with a simulated native-material backdrop; this is not corrected live desktop acceptance.",
+    "No running deployment was modified or restarted. Install/relaunch the corrected copy for live Windows acceptance.",
     "Earlier package versions have no reviewed implementation of this module.",
-    "Native opacity preferences and separately applied workspace tint remain unchanged."
+    "Stored native opacity preferences and workspace tint remain unchanged; outer chrome surfaces explicitly paint the configured color."
   ],
-  "restoration": {
-    "date": "2026-10-27",
-    "baseCommit": "b986c40",
-    "scope": "Restore tracked registry, compatibility pins, selection, CI and documentation around the surviving patch and tests; save the complete change in a local Git commit.",
+  "initialRevision": {
+    "status": "superseded; user-confirmed desktop failure",
+    "source": {
+      "archiveSha256": "04862a659c6a90fc50514d8c0b8016709d97dece58839726c57495ed72f1d9f0",
+      "targetPath": "webview/assets/app-theme-c850e3c1c24c.js",
+      "sourceSha256": "cbc719a3fbbc0952efc34502dbbea844bd5deca9461ca89687374555c504c46f",
+      "outputSha256": "4e8a9fbbe5b15518a8876de2aa0e2bae58f9124be49720e00d596be30bbab950"
+    },
+    "composedApp": {
+      "selectedIds": [
+        "custom-pets",
+        "browser-wsl",
+        "browser-service-path",
+        "browser-feature-recovery",
+        "runtime-sync-recovery",
+        "theme-background"
+      ],
+      "archiveSha256": "78b5b3221eea8e4e6c490fecc51223446f10a245acc45b1c4b35ca685b78467c",
+      "headerSha256": "5c779db4d69412107dc8a7591041f697cd7dd1da4ac465def410dbfda121fa5a",
+      "executableSha256": "953788a1ff61f0d167d8672591f99fdcb856c40fc9826e3ce2547214039de6d8"
+    },
     "checks": [
       {
-        "name": "focused-source-and-Chromium-tests",
+        "name": "actual-theme-source-and-Chromium-rendering-on-WSL",
         "status": "passed",
         "tests": 5,
         "passed": 5,
         "skipped": 0,
         "failed": 0,
-        "durationMs": 15896.902894
+        "themeCombinations": 48,
+        "renderer": "Playwright 1.63.0 / Chromium",
+        "scope": "Stock failure and patched screenshot RGB pixels for the shell, top bar, sidebar and chat; black and other colors, light/dark and live switching; all unrelated generator values preserved; selection, pristine restoration, source/unknown gating and default output pins."
+      },
+      {
+        "name": "actual-theme-source-on-Windows",
+        "status": "passed",
+        "tests": 5,
+        "passed": 4,
+        "skipped": 1,
+        "failed": 0,
+        "scope": "Official bundled Windows Node, supplied pristine Store archive and executable. Chromium not configured in this Windows run; it passed separately under WSL."
+      },
+      {
+        "name": "existing-actual-app-and-plugin-source-suite-on-WSL",
+        "status": "passed",
+        "tests": 13,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "appPatchCombinations": 128,
+        "durationMs": 691182.067352,
+        "scope": "All seven app-code patch combinations, deterministic rebuilds, syntax checks, source/output gates and unchanged unrelated entries; existing pet, browser, membership and runtime-recovery source regressions. Default theme-inclusive archive/header/executable pins are also verified in the focused source tests."
       },
       {
         "name": "toolkit-tests-on-WSL",
@@ -123,17 +164,61 @@
         "passed": 62,
         "skipped": 41,
         "failed": 0,
-        "durationMs": 11156.636415
+        "scope": "node --test --test-concurrency=1 tests/*.cjs without source/runtime environment variables. Windows-only and source/native-environment tests explicitly skipped; affected app-source behavior is exercised separately."
       },
       {
-        "name": "ordinary-Windows-inspect",
+        "name": "CI-evidence-tests",
         "status": "passed",
-        "supported": true,
-        "themeMode": "auto",
-        "themeSelected": true
+        "tests": 7,
+        "passed": 7,
+        "skipped": 0,
+        "failed": 0
+      },
+      {
+        "name": "Windows-inspect-with-existing-selection",
+        "status": "passed",
+        "scope": "The ordinary PowerShell inspect command accepts the installed supported build, retains saved patch modes and selects theme-background in auto mode without changing saved configuration or activation."
+      },
+      {
+        "name": "source-package-dry-run",
+        "status": "passed",
+        "scope": "npm pack --dry-run --ignore-scripts includes the new module, documentation and tests."
       }
     ],
-    "fullCompositionMatrix": "Original 128-combination validation retained as dated evidence; not repeated during restoration. Existing patch implementations and reviewed source/output pins are unchanged.",
-    "desktopAcceptance": "pending; no deployment installed or activated"
+    "restoration": {
+      "date": "2026-10-27",
+      "baseCommit": "b986c40",
+      "scope": "Restore tracked registry, compatibility pins, selection, CI and documentation around the surviving patch and tests; save the complete change in a local Git commit.",
+      "checks": [
+        {
+          "name": "focused-source-and-Chromium-tests",
+          "status": "passed",
+          "tests": 5,
+          "passed": 5,
+          "skipped": 0,
+          "failed": 0,
+          "durationMs": 15896.902894
+        },
+        {
+          "name": "toolkit-tests-on-WSL",
+          "status": "passed",
+          "tests": 103,
+          "passed": 62,
+          "skipped": 41,
+          "failed": 0,
+          "durationMs": 11156.636415
+        },
+        {
+          "name": "ordinary-Windows-inspect",
+          "status": "passed",
+          "supported": true,
+          "themeMode": "auto",
+          "themeSelected": true
+        }
+      ],
+      "fullCompositionMatrix": "Original 128-combination validation retained as dated evidence; not repeated during restoration. Existing patch implementations and reviewed source/output pins are unchanged.",
+      "desktopAcceptance": "pending; no deployment installed or activated"
+    },
+    "failure": "The running selected deployment contained the reviewed palette-only module, but inspection showed gray top/menu chrome and navigation rail plus a blended sidebar beside black chat. The original full-height/forced-opaque renderer fixture did not model the ordinary Windows frame."
   }
 }

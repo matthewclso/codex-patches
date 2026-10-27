@@ -10,7 +10,21 @@ This file records evidence against the authoritative [behavior contract](BEHAVIO
 
 The copied executable retains package context but loses its original valid Authenticode signature. Report any signed-binary-only behavior separately. Hosted CI does not establish Windows 11 interactive behavior or authenticated cloud acceptance.
 
-## October 27, 2026 configured background regression
+## October 27, 2026 Windows frame correction
+
+The owner installed the initial `theme-background` revision and reported that it did not take effect. Read-only checks confirmed that the running processes used the selected deployment and that its theme module contained the exact reviewed patched bytes. Computer Use inspection confirmed gray Windows top chrome/navigation rail and a blended sidebar beside a black chat. This was a defect in the initial fix, not a missing installation.
+
+The first rendering fixture used a full-height shell and supplied an opaque document background. It omitted the real shell attributes and ordinary Windows application-menu layout, which leaves the outer frame transparent. Other Electron layouts also paint frame/page/sidebar surfaces with the tinted editor color. The initial tests therefore did not establish THEME-1 in the running desktop.
+
+The corrected implementation paints the actual Windows Electron frame, page and sidebar surfaces through a scoped rule appended by the native document theme updater. It retains the configured background tokens, preserves editor/control contrast, leaves stored opacity settings unchanged and keeps one rule per native stylesheet rewrite.
+
+The expanded Chromium fixture reproduces the first revision's failure and checks 32 combinations of page/full-height layouts, menu/non-menu chrome, opacity modes and sequential dark/colored/light/dark theme updates. It executes the actual document updater and stylesheet writer, loads the actual CSS with the shell's real attributes, and samples frame, menu bar, navigation rail, sidebar, chat and editor pixels. No fixture rule supplies the shell's correct background. Source tests separately cover 48 palette scenarios and repeated native stylesheet updates. See the [current review record](../compatibility/reviews/26.1021.3705.0-theme-background.json) for fresh results; earlier exhaustive composition evidence belongs to the first revision.
+
+**Corrected desktop acceptance remains pending:** the failing installed revision was inspected, but the running app was not modified or restarted. The corrected copy must be installed and relaunched before claiming live Windows acceptance. THEME-1 remains the requirement.
+
+## October 27, 2026 initial configured background regression
+
+**Superseded implementation:** the source-derived checks below passed, but the fixture missed the Windows frame behavior described above. These results do not establish that the first revision fixes the installed desktop.
 
 For package `26.1021.3705.0`, app `26.1021.31345`, the independently selectable `theme-background` patch implements THEME-1. Stock Codex uses a derived sidebar/native-window background and a tinted editor color behind its outer shell. The patch takes both backgrounds from the configured theme surface; it does not hardcode black.
 
