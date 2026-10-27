@@ -8,7 +8,7 @@ const app = require('../lib/app-patches.cjs');
 let feature = require('../patches/browser-feature-recovery/index.cjs');
 let runtime = require('../patches/runtime-sync-recovery/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
-let archive, source1007, source9446, source1013, source1016, selected;
+let archive, source1007, source9446, source1013, source1016, source1021, selected;
 // Fixture aliases are bound to one exact reviewed archive, never guessed.
 const currentNames = { Q8:'$8', Ck:'Xk', Q:'X', Kgi:'bbi', Jgi:'Sbi', Qgi:'Ebi', $gi:'Dbi', yI:'II', f6:'p6', Wgi:'vbi', e_i:'Obi',
   sGr:'GJr', cGr:'KJr', lGr:'qJr', Ik:'pA', DHr:'tKr', IU:'nW', IHr:'uKr', D2:'S2', QN:'cP', JOn:'$kn', uzt:'pzt',
@@ -36,13 +36,21 @@ const oct16Names = { ...modernNames,
   sGr:'KBn',cGr:'qBn',lGr:'JBn',Ik:'Nc',DHr:'Gzn',IU:'Qv',IHr:'oBn',QN:'wo',JOn:'Rs',uzt:'sh',lkn:'nEt',ukn:'rEt',zK:'Rh',
   rc:'Gs',ic:'Ks',cc:'Ys',oc:'Js',ws:'Cs',Qs:'Us',Aa:'Da',dc:'Qs',fc:'Kre',Ra:'Ia',Ia:'Fa',ai:'hi',ac:'qs',Kc:'Oc',M:'R',Ts:'ws',Ks:'Hs',nc:'Vre',ua:'sa',Lo:'Io',Bs:'zs',Vs:'Bs',Ws:'Vs',Na:'Aa',Ia:'Pa',
 };
-const names = () => source1016 ? oct16Names : source1013 ? modernNames : source9446 ? latestNames : currentNames;
+const oct21Names = { ...oct16Names,
+  Q8:'mx',Ck:'H',Q:'V',Kgi:'gBt',Jgi:'vBt',Qgi:'SBt',$gi:'CBt',yI:'Er',f6:'Hg',Wgi:'mBt',e_i:'wBt',
+  sGr:'PPn',cGr:'FPn',lGr:'IPn',Ik:'ns',DHr:'NNn',IU:'ox',IHr:'JNn',D2:'VO',QN:'$n',JOn:'ms',uzt:'sht',lkn:'$gt',ukn:'e_t',zK:'r_',
+  rc:'Oc',ic:'kc',cc:'Mc',lc:'Fae',oc:'jc',ws:'ic',Qs:'Ec',Aa:'Do',dc:'Ic',fc:'zae',K:'va',
+  jie:'yce',yd:'ku',La:'Ao',Ia:'Ao',Ra:'wre',hd:'Tu',ai:'Sa',gd:'Eu',ac:'Ac',Kc:'uoe',Oie:'gce',sne:'cie',Lo:'bs',Cne:'uie',_d:'Du',ua:'mo',kie:'_ce',
+  M:'I',Ts:'ac',Hs:'bae',Ks:'Tc',$s:'jae',Na:'xre',Mne:'Iie',Ma:'Oo',nc:'Nae',Us:'xae',Ws:'wc',Vs:'Cc',Bs:'Sc',Xs:'Pc',Zs:'Fc',Gre:'Lae',
+};
+const names = () => source1021 ? oct21Names : source1016 ? oct16Names : source1013 ? modernNames : source9446 ? latestNames : currentNames;
 const named = text => source1007 ? text.replace(/[A-Za-z_$][\w$]*/g, name => names()[name] ?? name) : text;
 const context = values => source1007 ? Object.fromEntries(Object.entries(values).map(([key,value]) => [names()[key] ?? key, value])) : values;
 function setup(t) {
   if (selected) return true;
   const bytes=fs.readFileSync(sourcePath); archive=asar.parseArchive(bytes);
-  source1016=asar.sha256(bytes)==='760eae730e57438a0693cab4aba5ed8b7eb0ea1c5b7a7dc26dd0e84c2398810f';
+  source1021=asar.sha256(bytes)==='04862a659c6a90fc50514d8c0b8016709d97dece58839726c57495ed72f1d9f0';
+  source1016=source1021 || asar.sha256(bytes)==='760eae730e57438a0693cab4aba5ed8b7eb0ea1c5b7a7dc26dd0e84c2398810f';
   source1013=source1016 || ['163a18c84db57ad5c50222b313dc4d11d45febc03ec065b516ba9f0380f2eb3f',
     'bbec1d64e135b718a154b31655bb8ad9a39472bac1b2cabba991a9d97a339dd8'].includes(asar.sha256(bytes));
   source9446=source1013 || asar.sha256(bytes)==='356c13dc715816436fa1cf31e9f77863f62ea7b7cacc465b397313246eb29325';
@@ -84,7 +92,7 @@ function capability(s, query, policy, name='browser.in-app', provider) {
   assert.equal(descriptors['browser.in-app'].settings.length,0);assert.equal(descriptors['browser.in-app'].statsig.length,0);
   assert(between(s,'function sGr(','function cGr(').includes('a={name:`browser.in-app`}'));
   const sandbox = context({ Q:{},Ck:(_q,fn)=>fn,Qgi:vm.runInNewContext('('+between(s,'function Qgi(','function $gi(')+')'),$gi:()=>{},yI:'local',f6:'features',Wgi:{'workspace-in-app-browser':'policy'},e_i:descriptors });
-  if (source1016) Object.assign(sandbox,{Fh:'provider-gate',xh:'provider-config',Xm:value=>value});
+  if (source1016) Object.assign(sandbox,source1021?{e_:'provider-gate',Ig:'provider-config',dg:value=>value}:{Fh:'provider-gate',xh:'provider-config',Xm:value=>value});
   const fn=vm.runInNewContext(code,sandbox);
   return JSON.parse(JSON.stringify(fn({name},{get:(key,host)=>{if(key==='provider-gate')return true;if(key==='provider-config'){assert.equal(host.hostId,'local');assert.equal(host.failClosed,true);return provider}if(key==='features'){assert.equal(host,'local');return query}return policy}})));
 }
@@ -153,9 +161,13 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
     Kn:'identity',Gn:'tools-pipe',qn:'verifier',L:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}},
   });
   if (source1016) Object.assign(ctx.sandbox,{
-    Xs:vm.runInNewContext('('+between(patched,'function Xs(','async function Zs(')+')',{n:{o:'fixture-app'}}),
+    [source1021?'Pc':'Xs']:vm.runInNewContext('('+between(patched,'function Xs(',source1021?'async function Rae(':'async function Zs(')+')',{n:{o:'fixture-app'}}),
     Jn:'identity',qn:'tools-pipe',Yn:'verifier',R:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}},
   });
+  if (source1021) {
+    ctx.connection.getAuthenticatedPrincipal=async()=>null;
+    Object.assign(ctx.sandbox,{Nc:JSON.stringify(['fixture-app','api-key']),Si:'identity',xi:'tools-pipe',Ci:'verifier',I:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}}});
+  }
   vm.runInNewContext(between(patched,'async function dc(','var fc=')+named(';globalThis.config=dc;'),ctx.sandbox);
   const requests=Array.from({length:5},()=>ctx.sandbox.config({appServerConnection:ctx.connection}));
   await Promise.all(requests);assert.equal(ctx.calls(),1);assert.equal(ctx.writes[0].reload,true);
@@ -163,7 +175,7 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
   features={browserUseTinysky:false};await ctx.sandbox.config({appServerConnection:ctx.connection});assert.equal(ctx.calls(),2,'Current features invalidate a previous recovery');
   ctx.sandbox[named('ic')].set(ctx.connection,Promise.resolve());await ctx.sandbox.config({appServerConnection:ctx.connection});assert.equal(ctx.calls(),3,'New reconciliation generation invalidates recovery');
   await ctx.sandbox.config({appServerConnection:{hostConfig:{kind:'ssh'}},desktopFeatureAvailability:{browserUseTinysky:false}});assert.equal(ctx.calls(),3);
-  if (source1013) {
+  if (source1013 && !source1021) {
     ctx.sandbox[named('Qs')]=async()=>({'mcp_servers.node_repl':{env:{}}});
     for(const text of [source(runtime),patched]) {
       const config=vm.runInNewContext('('+between(text,'async function dc(','var fc=')+')',ctx.sandbox);
@@ -177,14 +189,43 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
       await config({appServerConnection:{hostConfig:{kind:'ssh'}},desktopFeatureAvailability:{browserUseTinysky:false},requireWorkBrowserIdentity:true});
     }
   }
+  if (source1021) for (const text of [source(runtime),patched]) {
+    const seen=[];
+    ctx.sandbox[named('Qs')]=async options=>{seen.push(options);return {'mcp_servers.node_repl':{env:{}}}};
+    const config=vm.runInNewContext('('+between(text,'async function dc(','var fc=')+')',ctx.sandbox);
+    const principal={accountId:'fixture-account',userId:'fixture-user'}, anonymous=ctx.sandbox.Nc;
+    ctx.connection.getAuthenticatedPrincipal=async()=>null;
+    assert.equal((await config({appServerConnection:ctx.connection}))['mcp_servers.node_repl'].env.identity,anonymous);
+    ctx.connection.getAuthenticatedPrincipal=async()=>principal;
+    const output=await config({appServerConnection:ctx.connection,hostServicesPipePath:'current-pipe'});
+    assert.equal(output['mcp_servers.node_repl'].env.identity,JSON.stringify(['fixture-app','fixture-account','fixture-user']));
+    assert.equal(output['mcp_servers.node_repl'].env['tools-pipe'],'current-app-pipe');assert.equal(output['mcp_servers.node_repl'].env.verifier,'current-verifier');
+    assert.equal(seen.at(-1).hostServicesPipePath,'current-pipe');
+    ctx.connection.getAuthenticatedPrincipal=async()=>{throw Error('fixture unavailable')};
+    assert.equal((await config({appServerConnection:ctx.connection}))['mcp_servers.node_repl'].env.identity,anonymous);
+    for(const audio of [false,true]) {
+      await config({appServerConnection:{hostConfig:{kind:'ssh'}},desktopFeatureAvailability:{browserUseTinysky:false,computerAudio:audio},hostServicesPipePath:'remote-pipe'});
+      assert.equal(seen.at(-1).hostServicesPipePath,audio?null:'remote-pipe');
+    }
+    const authorize=vm.runInNewContext('('+between(text,'async function Rae(','async function Zs(')+')',{Nc:anonymous,Pc:ctx.sandbox.Pc});
+    let current=null,reads=0;const options={getPrincipal:()=>current,readAccess:async()=>{reads++;return true}};
+    assert.equal(await authorize({...options,executorId:anonymous,isWork:false}),true);
+    assert.equal(await authorize({...options,executorId:anonymous,isWork:true}),false);assert.equal(reads,0);
+    current=principal;const executorId=ctx.sandbox.Pc(principal);
+    assert.equal(await authorize({...options,executorId,isWork:false}),true);assert.equal(reads,0);
+    assert.equal(await authorize({...options,executorId,isWork:true}),true);assert.equal(reads,1);
+    assert.equal(await authorize({...options,executorId,isWork:true,readAccess:async()=>false}),false);
+    assert.equal(await authorize({...options,executorId:'other-account',isWork:false}),null);
+    assert.equal(await authorize({...options,executorId,isWork:true,readAccess:async()=>{current={...principal,userId:'changed'};return true}}),false,'Account changes during authorization must fail closed');
+  }
   if (source1016) for (const text of [source(runtime),patched]) {
     let response={ok:true,json:async()=>({settings:{localBrowserUse:false}})}, requests=0;
     const signal=new AbortController().signal, beforeSend=()=>{}, network=()=>{};
     const access=vm.runInNewContext('('+between(text,'async function Zs(','async function dc(')+')',{
-      _:{ht:async(options,fetch)=>{
+      _:{[source1021?'Wt':'ht']:async(options,fetch)=>{
         requests++;assert.equal(options.path,'/wham/work/settings');assert.equal(options.request.signal,signal);
         assert.equal(options.beforeSend,beforeSend);assert.equal(fetch,network);return response;
-      }},Gre:{parse:value=>value},
+      }},[source1021?'Lae':'Gre']:{parse:value=>value},
     });
     const options={appServerClient:ctx.connection,beforeSend,fetchApplicationNetwork:network,signal};
     assert.equal(await access(options),false,'Native Work policy denial must remain authoritative');
@@ -205,7 +246,7 @@ sourceTest('actual bundled reconciler retries failed signature on focus, skips s
       Cne:async()=>{},_d:new Set(),ua:{},kie:'dev'});
     if (source1007) Object.assign(sandbox,{r:{$o:()=> 'market'},l:{S:'managed'},mf:sandbox.mf,Qc:async()=>{},aie:'dev',iie:async()=>{}});
     if (source9446) sandbox.Fie=async()=>{};
-    if (source1013) Object.assign(sandbox,{i:{[source1016?'ns':'ts']:()=> 'market'},u:{S:'managed'},n:{i:{Dev:'dev',Prod:'prod'}}});
+    if (source1013) Object.assign(sandbox,{i:{[source1021?'$o':source1016?'ns':'ts']:()=> 'market'},u:{S:'managed'},n:{i:{Dev:'dev',Prod:'prod'}}});
     const factory=vm.runInNewContext('('+between(text,'function jie(','function yd(')+')',sandbox);
     const instance=factory({env:{},resourcesPath:'r',runtimeMarketplaceRoot:'m',codexHome:'home',buildFlavor:'prod',isPackaged:true,appVersion:'version',globalState:{get:()=>null},getLocalAppServerConnection:()=>({listPlugins:async()=>({marketplaces:[]})})});
     await instance.reconcileExternalPluginState();assert.equal(count,0,'Focus before availability must skip destructive reconciliation');
@@ -234,7 +275,7 @@ sourceTest('actual sync and native config generator refresh current executable a
     Hs:async()=>pipe,Ks:{info(){}},$s:options=>({'mcp_servers.node_repl':{command:options.runtimePaths.nodeReplPath,env:{SKY_CUA_NATIVE_PIPE_DIRECTORY:options.computerUseNativePipePath}}}),Na:async()=>false,Mne:async()=>{},Ma(){},Ia:()=> 'resources',setTimeout:fn=>queueMicrotask(fn)});
   if (source1007) Object.assign(sandbox,{c:{yt:()=>true},r:{rs:'cua_repl',ss:'node_repl'},xa:{}});
   if (source9446 && !source1016) sandbox.Pa={};
-  if (source1013) Object.assign(sandbox,{l:{St:()=>true},i:source1016?{os:'cua_repl',us:'node_repl'}:{as:'cua_repl',ls:'node_repl'},oa:{}});
+  if (source1013) Object.assign(sandbox,{l:source1021?{zt:()=>true}:{St:()=>true},i:source1021?{rs:'cua_repl',ss:'node_repl'}:source1016?{os:'cua_repl',us:'node_repl'}:{as:'cua_repl',ls:'node_repl'},oa:{}});
   vm.runInNewContext(between(patched,'async function Qs(','function $s(')+between(patched,'function cc(',source1013?'var Gre=':'async function dc(')+named(';globalThis.sync=cc;'),sandbox);
   await sandbox.sync({appServerConnection:connection,appVersion:'version'});
   assert.equal(calls.length,2);
@@ -247,7 +288,7 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
   const stock=source(runtime);let starts=0,disposed=0,closed=0;
   const sandbox=context({process:{env:{},platform:'win32'},Vs:null,o:{bt:()=> 'helper',xt:()=> 'transport'},Bs:()=>({info(){},warning(){}})});
   if (source1007) sandbox.c={St:()=> 'helper',Ct:()=> 'transport'};
-  if (source1013) sandbox.l={Et:()=> 'helper',Tt:()=> 'transport'};
+  if (source1013) sandbox.l=source1021?{W:()=> 'helper',G:()=> 'transport'}:{Et:()=> 'helper',Tt:()=> 'transport'};
   const factory=vm.runInNewContext('('+between(stock,'function Us(','var Ws=')+')',sandbox);
   const server={pipePath:'fixture-pipe',dispose:async()=>{disposed++},closeActiveTurn:async()=>{closed++;return true},hasActiveTurn:()=>true};
   const bridge=factory({codexHome:'fixture',platform:'win32',resourcesPath:'resources',ensureNotifyConfig:async()=>({configChanged:false}),startServer:async()=>{starts++;return server}});
@@ -258,13 +299,14 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
   bridge.dispose();await Promise.resolve();assert.equal(disposed,1);assert.equal(closed,0);
 });
 sourceTest('actual availability publisher does not send a Browser disable while capability discovery is pending',()=>{
-  const entry=asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
+  const entry=source1021?{path:'webview/assets/app-runtime-e61614157c23.js'}:asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
   const initial=asar.readEntry(archive,entry.path).toString();
-  const condition=between(initial,source1016?'f||_e.isLoading||ve.isLoading||':source1013?'f||ge.isLoading||_e.isLoading||':source1007?'s||le.isLoading||ue.isLoading||de.isLoading||':'s||se.isLoading||ce.isLoading||le.isLoading||',source1016?'||(Ei.dispatchMessage(`electron-desktop-features-changed`':source1013?'||(hs.dispatchMessage(`electron-desktop-features-changed`':source1007?'||(Ho.dispatchMessage(`electron-desktop-features-changed`':'||(oh.dispatchMessage(`electron-desktop-features-changed`');
+  if(source1021)assert.equal(asar.sha256(Buffer.from(initial)),'76de4e780865c9c73282a604deec2be28e9e9199836692cee2d72d3ea97fc4ed');
+  const condition=between(initial,source1021?'p||De.isLoading||Oe.isLoading||':source1016?'f||_e.isLoading||ve.isLoading||':source1013?'f||ge.isLoading||_e.isLoading||':source1007?'s||le.isLoading||ue.isLoading||de.isLoading||':'s||se.isLoading||ce.isLoading||le.isLoading||',source1021?'||(ft.dispatchMessage(`electron-desktop-features-changed`':source1016?'||(Ei.dispatchMessage(`electron-desktop-features-changed`':source1013?'||(hs.dispatchMessage(`electron-desktop-features-changed`':source1007?'||(Ho.dispatchMessage(`electron-desktop-features-changed`':'||(oh.dispatchMessage(`electron-desktop-features-changed`');
   let published=0;
-  const run=pending=>vm.runInNewContext(condition+'||publish()',source1016 ? {f:false,_e:{isLoading:pending},ve:{isLoading:false},p:true,ye:{isLoading:false},Ee:{isLoading:false},Oe:{isLoading:false},U:'available',L:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1013 ? {f:false,ge:{isLoading:pending},_e:{isLoading:false},p:true,ve:{isLoading:false},Te:{isLoading:false},De:{isLoading:false},H:'available',I:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1007 ? {s:false,le:{isLoading:pending},ue:{isLoading:false},de:{isLoading:false},ve:{isLoading:false},be:{isLoading:false},I:'available',A:{status:'allowed'},Ve:{status:'allowed'},He:{status:'allowed'},publish:()=>{published++}} : {
+  const run=pending=>vm.runInNewContext(condition+'||publish()',source1021 ? {p:false,De:{isLoading:pending},Oe:{isLoading:false},m:true,P:{isLoading:false},Fe:{isLoading:false},Re:{isLoading:false},le:'available',ie:{status:'allowed'},rt:{status:'allowed'},it:{status:'allowed'},publish:()=>{published++}} : source1016 ? {f:false,_e:{isLoading:pending},ve:{isLoading:false},p:true,ye:{isLoading:false},Ee:{isLoading:false},Oe:{isLoading:false},U:'available',L:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1013 ? {f:false,ge:{isLoading:pending},_e:{isLoading:false},p:true,ve:{isLoading:false},Te:{isLoading:false},De:{isLoading:false},H:'available',I:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1007 ? {s:false,le:{isLoading:pending},ue:{isLoading:false},de:{isLoading:false},ve:{isLoading:false},be:{isLoading:false},I:'available',A:{status:'allowed'},Ve:{status:'allowed'},He:{status:'allowed'},publish:()=>{published++}} : {
     s:false,se:{isLoading:pending},ce:{isLoading:false},le:{isLoading:false},ge:{isLoading:false},ve:{isLoading:false},P:'available',O:{status:'allowed'},ze:{status:'allowed'},Be:{status:'allowed'},publish:()=>{published++},
   });
   run(true);assert.equal(published,0);run(false);assert.equal(published,1);
-  assert(initial.includes(source1016?'inAppBrowserUse:_e.available':source1013?'inAppBrowserUse:ge.available':source1007?'inAppBrowserUse:le.available':'inAppBrowserUse:se.available')&&initial.includes(source1016?'inAppBrowserUseAllowed:_e.allowed':source1013?'inAppBrowserUseAllowed:ge.allowed':source1007?'inAppBrowserUseAllowed:le.allowed':'inAppBrowserUseAllowed:se.allowed'));
+  assert(initial.includes(source1021?'inAppBrowserUse:De.available':source1016?'inAppBrowserUse:_e.available':source1013?'inAppBrowserUse:ge.available':source1007?'inAppBrowserUse:le.available':'inAppBrowserUse:se.available')&&initial.includes(source1021?'inAppBrowserUseAllowed:De.allowed':source1016?'inAppBrowserUseAllowed:_e.allowed':source1013?'inAppBrowserUseAllowed:ge.allowed':source1007?'inAppBrowserUseAllowed:le.allowed':'inAppBrowserUseAllowed:se.allowed'));
 });

@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "26.1021.3705.0",
+  "cliVersion": "0.164.0-alpha.11.1",
+  "appVersion": "26.1021.31345",
+  "reviewedAt": "2026-10-27",
+  "status": "automated-validation-passed; current-build-interactive-acceptance-pending",
+  "affectedRequirements": [
+    "PET-1",
+    "PET-2",
+    "BROWSER-1",
+    "BROWSER-2",
+    "BROWSER-3",
+    "BROWSER-4",
+    "PATH-1",
+    "PATH-2",
+    "REMOTE-1",
+    "REMOTE-2",
+    "REMOTE-3",
+    "PROJECT-2",
+    "PROJECT-3",
+    "PROJECT-4",
+    "CONNECTOR-1",
+    "CONNECTOR-2",
+    "RUNTIME-1",
+    "SELECT-1",
+    "SELECT-2",
+    "SELECT-3",
+    "CI-1",
+    "VERIFY-1",
+    "VERIFY-2",
+    "VERIFY-4",
+    "SELECT-4",
+    "CI-3",
+    "LIFECYCLE-3",
+    "LIFECYCLE-4"
+  ],
+  "packageVerification": {
+    "hashes": {
+      "msixSha256": "0024ecd081b1187c51de45e983dc3e0bfb3b923faea7526ef2233c9ec8e8b7ac",
+      "archiveSha256": "04862a659c6a90fc50514d8c0b8016709d97dece58839726c57495ed72f1d9f0",
+      "executableSha256": "c5a6ea0f6d99d696e9976c0ecefb6b8410a7dd5b17d96fb69a72c83a8192b649",
+      "cliLinuxSha256": "e6d386e8822288f6d5f327e966a5a5e1de928de8795bb6149716005a410f38f2",
+      "cliWindowsSha256": "1103e9e09c71fa2cd0afd6d8f3b9a2d63174fe8efd7cb5bd09f1cb14ef58a098",
+      "codeModeLinuxSha256": "e9369405b2308bd5de62cabf4e88ba48334c89717f9ff1b1e05de4ef6ce06a99",
+      "codeModeWindowsSha256": "2727abaa2b30eb4afbe64b1da51a26cb594dd18dda82c6292b5373b15a758257",
+      "nodeWindowsSha256": "bf3c765106edbbf8c378cc2846d7495dca56b4a7f74ba4fc01e5a30120a159f3"
+    },
+    "installedExecutableSignature": "valid",
+    "installedExecutablePublisher": "OpenAI OpCo, LLC",
+    "verifiedPackedEntries": 21783,
+    "note": "All seven installed archive/executable/runtime hashes match the signed official MSIX candidate. Windows independently verified installed Store package content integrity, identity, publisher, signing kind, status and executable signature. All 21,783 packed entries passed hash/block checks, including four empty entries. The standalone MSIX signature/hash comes from the preserved automation candidate; it was not downloaded again locally.",
+    "installedPackageSignature": "Store",
+    "installedPackageStatus": "Ok",
+    "installedPackageContentIntegrity": true,
+    "msixSignature": "valid",
+    "runtimeHashesMatched": 7
+  },
+  "checks": [
+    {
+      "name": "stock-and-patched-source-functions",
+      "status": "passed",
+      "cases": {
+        "petPaths": "current pet-module discovery, selection, installation, traversal and Windows/POSIX/WSL UNC homes; native pet-name collision handling preserved",
+        "browserPrerequisites": 256,
+        "trustedServicePaths": 90,
+        "projectMemberships": "actual current synchronizer and membership-record helpers; migration, shared cwd, new assignments, moves, clearing and backend/host guards",
+        "browserRuntimeRecovery": "Confirmed Browser config retention, pending first results, workspace/authorization/first-party inference restrictions, bounded retries, fresh config/pipe recovery, native reconciliation and live-skill notification preservation, managed-pipe coalescing/active-turn protection; current native API-key/authenticated executor identities, Work denials and account-switch rechecks, remote audio pipe filtering; availability publisher in its exact new runtime bundle"
+      }
+    },
+    {
+      "name": "unknown-installed-package-source-scenarios",
+      "status": "passed",
+      "tests": 13,
+      "appPatchCombinations": 64,
+      "installationOfUnknownArchive": "rejected",
+      "scope": "Full pristine-source suite and all independent compositions passed before allowlisting; installation stayed fail-closed.",
+      "skipped": 0,
+      "failed": 0,
+      "durationMs": 353582.9837
+    },
+    {
+      "name": "reviewed-source-suite-on-Windows",
+      "status": "passed",
+      "tests": 13,
+      "appPatchCombinations": 64,
+      "command": "CODEX_SOURCE_ASAR=<pristine archive> CODEX_SOURCE_EXE=<stock executable> node --test --test-concurrency=1 tests/app-patches-source.cjs tests/plugin-recovery-source.cjs",
+      "passed": 13,
+      "skipped": 0,
+      "failed": 0,
+      "durationMs": 237342.6003
+    },
+    {
+      "name": "Windows-toolkit-and-CI-tests",
+      "status": "passed",
+      "tests": 105,
+      "skipScope": "Platform-specific tests, separately executed actual-source and GraphQL checks, and unavailable Windows file-symlink privilege",
+      "passed": 73,
+      "skipped": 32,
+      "failed": 0,
+      "durationMs": 44132.5846
+    },
+    {
+      "name": "Ubuntu-26.04-WSL2-toolkit-and-CI-tests",
+      "status": "passed",
+      "tests": 105,
+      "skipScope": "Windows-specific and separately executed actual-source/GraphQL checks; the dedicated GraphQL regression and Windows Node-to-wsl.exe audit both passed separately",
+      "passed": 78,
+      "skipped": 27,
+      "failed": 0,
+      "durationMs": 49848.129593
+    },
+    {
+      "name": "native-current-CLI-regressions",
+      "status": "passed",
+      "scope": "Unmodified bundled Linux CLI in disposable homes/databases with loopback managed-account fixtures: stock/patched unfiltered listing, project filters, pagination, pairing reuse, reconnect, remote-first connector discovery and native scoped startup errors. Stock WSL UNC path rejection and proxy/relay correction; EOF/SIGTERM release owned processes and ports. Stock reserved marketplace rejects mismatched cache and accepts aligned cache without discarding an existing cache sentinel."
+    },
+    {
+      "name": "stock-GraphQL-Windows-Node-to-wsl.exe",
+      "status": "passed",
+      "sourceFile": ".vite/build/worker.js",
+      "workerSha256": "fbc7dbcb1402ac10c7594d009ee0ef7303261d8ab67c49b9646accdd791f15f1",
+      "stockQueryVariablesPreserved": true,
+      "doubleShell": true,
+      "wslExecutableExercised": true,
+      "externalRequests": 0
+    },
+    {
+      "name": "CLI-inspect-after-allowlist",
+      "status": "passed",
+      "supported": true,
+      "defaultSelection": [
+        "custom-pets",
+        "browser-wsl",
+        "browser-service-path",
+        "browser-feature-recovery",
+        "runtime-sync-recovery",
+        "wsl-project-paths",
+        "remote-fast-list",
+        "connector-routing",
+        "primary-runtime-cache"
+      ],
+      "projectMembershipDefault": "disabled"
+    },
+    {
+      "name": "reviewed-package-validation-pipeline-on-Windows",
+      "status": "passed",
+      "command": "node scripts/ci/validate-package.cjs --app-dir <verified installed Store app> --package-report <candidate package report> --out <local evidence directory>",
+      "scope": "All seven pinned file hashes, actual source tests, all 64 compositions and independently recorded default archive/header/executable outputs.",
+      "reviewedPackage": true,
+      "reviewRequired": false
+    },
+    {
+      "name": "release-package-content",
+      "status": "passed",
+      "scope": "Public source/metadata only; no extracted bundles, binaries, saved config or private state."
+    },
+    {
+      "name": "source-revision-and-CI-unit-tests",
+      "status": "passed",
+      "tests": 15,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "native-hosted-Apps-authentication-regression",
+      "status": "passed",
+      "command": "CODEX_RELAY_TEST_BINARY=<current stock Linux CLI> node --test tests/runtime-connector-auth.test.cjs",
+      "scope": "Disposable fake managed account and loopback MCP service only; no model turn or real account. Native account checks use the managed token, hosted Apps MCP requests omit Authorization and attempt OAuth discovery. The new stock regression prevents future applicability decisions from relying on stale diagnosis."
+    },
+    {
+      "name": "current-stock-GraphQL-WSL-regression",
+      "status": "passed",
+      "tests": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "scope": "Dedicated GraphQL source regression under WSL, separate from the broad suite"
+    }
+  ],
+  "patchStatus": {
+    "custom-pets": "needed",
+    "browser-wsl": "needed",
+    "browser-service-path": "needed",
+    "project-memberships": "needed",
+    "browser-feature-recovery": "needed",
+    "runtime-sync-recovery": "needed",
+    "wsl-project-paths": "needed",
+    "remote-fast-list": "needed",
+    "connector-routing": "needed",
+    "primary-runtime-cache": "needed"
+  },
+  "defaultModes": {
+    "project-memberships": "disabled",
+    "otherNeededPatches": "auto"
+  },
+  "retiredPatches": {
+    "graphql-shell": "stock behavior verified; remains retired",
+    "wsl-home-alias": "superseded by canonical pet-path handling"
+  },
+  "pendingAcceptance": [
+    "Current-build generated-copy activation and desktop startup",
+    "Interactive pet rendering, selection and installation",
+    "Current-build agent Browser navigation and Computer Use interaction after relaunch",
+    "Current-build authenticated connector inventory and calls",
+    "Real-phone Remote Control reconnect and project labels"
+  ],
+  "limitations": [
+    "The October 9 live Browser and Computer Use acceptance was for 26.1002.7124.0 and is not current-build acceptance.",
+    "Android project-label mismatch remains documented; persisted backend IDs do not establish phone display acceptance.",
+    "Running app and saved patch configuration were not changed."
+  ],
+  "source": {
+    "kind": "signed-official-candidate-matching-verified-installed-store-package",
+    "candidateRecord": "compatibility/candidates/26.1021.3705.0-04862a659c6a.json",
+    "verificationCommand": "powershell -File scripts/ci/Get-InstalledCodexVerification.ps1 -ExpectedPackageVersion 26.1021.3705.0"
+  },
+  "runtimeIdentity": {
+    "linuxCliChangedFrom": "26.1016.8120.0",
+    "cliVersion": "0.164.0-alpha.11.1",
+    "cliLinuxSha256": "e6d386e8822288f6d5f327e966a5a5e1de928de8795bb6149716005a410f38f2",
+    "codeModeLinuxChanged": true,
+    "windowsBinariesRevalidated": true
+  },
+  "hostedWslCandidate": {
+    "status": "historical-failed-candidate",
+    "reason": "The original candidate failed its 13 app/recovery source checks and GraphQL audit because bundles and exact fixture identifiers changed. Current local source/native results are recorded separately; the original candidate remains unchanged.",
+    "candidateRecord": "compatibility/candidates/26.1021.3705.0-04862a659c6a.json",
+    "evidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/40081939328",
+    "originalCounts": {
+      "tests": 98,
+      "passed": 71,
+      "failed": 14,
+      "skipped": 13
+    },
+    "localValidation": "Windows package/source validation, Ubuntu 26.04 WSL2 native CLI tests and Windows Node-to-wsl.exe audit"
+  },
+  "supersededProposals": [
+    {
+      "pullRequest": 14,
+      "packageVersion": "26.1016.8622.0",
+      "disposition": "superseded by reviewed 26.1021.3705.0; candidate-only report; no unique implementation; not allowlisted"
+    },
+    {
+      "pullRequest": 15,
+      "packageVersion": "26.1021.2667.0",
+      "disposition": "superseded by reviewed 26.1021.3705.0; candidate-only report; no unique implementation; not allowlisted"
+    }
+  ],
+  "publisherSource": {
+    "path": "webview/assets/app-runtime-e61614157c23.js",
+    "hash": "76de4e780865c9c73282a604deec2be28e9e9199836692cee2d72d3ea97fc4ed"
+  }
+}

@@ -69,3 +69,11 @@ module.exports.revisions.push({
   targetPath: '.vite/build/main-CT5a1yCd.js',
   sourceSha256: 'cdac659a830908ec5202a887e5a37b302074bfc9e9ab0f52fed3e8abbdb9e713',
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/main-BPBEjAxi.js',
+  sourceSha256: '2327d031e32c8d80c0dbf9bd81144466a90f8e49d3bc64e6604c23fbab900d7f',
+  before: 'd.setThreadAssignmentsEnabled(va().localProjectTaskMembership)',
+  after: 'd.setThreadAssignmentsEnabled(!0)',
+  apply: (source, replace) => replace(source, 'd.setThreadAssignmentsEnabled(va().localProjectTaskMembership)', 'd.setThreadAssignmentsEnabled(!0)'),
+});

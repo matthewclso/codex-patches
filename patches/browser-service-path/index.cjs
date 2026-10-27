@@ -66,3 +66,10 @@ module.exports.revisions.push({
   targetPath: '.vite/build/main-CT5a1yCd.js',
   sourceSha256: 'cdac659a830908ec5202a887e5a37b302074bfc9e9ab0f52fed3e8abbdb9e713',
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/main-BPBEjAxi.js',
+  sourceSha256: '2327d031e32c8d80c0dbf9bd81144466a90f8e49d3bc64e6604c23fbab900d7f',
+  before: '{browser:b}', after: '{browser:_&&h.platform===`win32`?l.At(b,null):b}',
+  apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?l.At(b,null):b}'),
+});
