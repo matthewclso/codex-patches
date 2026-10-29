@@ -119,3 +119,14 @@ module.exports.revisions.push({
     return replace(source, 'async function xC(', currentHelper + 'async function xC(');
   },
 });
+
+module.exports.revisions.push({
+  targetPath: ".vite/build/src-tOjGKoT3.js",
+  sourceSha256: '4ec7ba9b620cc5949183c532287ae9da2f6bb5d4f7be0a0e4565a9b4170394c1',
+  apply(source, replace) {
+    assert(!source.includes('codexPetHome'), 'Pet helper is already present or collides');
+    for (const [before, after] of replacements) source = replace(source, before.replace('o.rt(', 'o.V('), after);
+    const currentHelper = helper.replace('o.rt(', 'o.V(').replace('o.zt(', 'o.Xt(');
+    return replace(source, 'async function _C(', currentHelper + 'async function _C(');
+  },
+});

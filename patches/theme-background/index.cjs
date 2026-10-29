@@ -21,3 +21,14 @@ module.exports = {
     return replace(source, stylesheetBefore, stylesheetAfter);
   },
 };
+
+module.exports.revisions = [{
+  targetPath: "webview/assets/app-theme-74be6a9cf7df.js",
+  sourceSha256: '107d26679f5a0faf789d7695aef84299fdad63dae4d6edbd69f20de2ed79f545',
+  stylesheetBefore: 'return d(e,s),s}',
+  stylesheetAfter: stylesheetAfter.replace('return l(e,s)', 'return d(e,s)'),
+  apply(source, replace) {
+    source = replace(source, before, after);
+    return replace(source, this.stylesheetBefore, this.stylesheetAfter);
+  },
+}];

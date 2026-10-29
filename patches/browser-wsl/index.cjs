@@ -94,3 +94,11 @@ module.exports.revisions.push({
   after: after.replace('function xBr(', 'function FPn('),
   apply: (source, replace) => replace(source, before.replace('function xBr(', 'function FPn('), after.replace('function xBr(', 'function FPn(')),
 });
+
+module.exports.revisions.push({
+  targetPath: "webview/assets/app-initial-db76c3384587.js",
+  sourceSha256: '8511d0206f33dfd5bcc5f2a9d2273c9952f4844c9d79fdfb0404634d7a9d5723',
+  before: before.replace('function xBr(', 'function Vjn('),
+  after: after.replace('function xBr(', 'function Vjn('),
+  apply: (source, replace) => replace(source, before.replace('function xBr(', 'function Vjn('), after.replace('function xBr(', 'function Vjn(')),
+});
