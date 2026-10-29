@@ -7,7 +7,7 @@ const vm = require('node:vm');
 const path = require('node:path');
 const asar = require('../lib/asar.cjs');
 const app = require('../lib/app-patches.cjs');
-const patch = require('../patches/theme-background/index.cjs');
+let patch = require('../patches/theme-background/index.cjs');
 const { resolveSelection } = require('../lib/selection.cjs');
 const compatibility = require('../compatibility/current.json');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
@@ -21,12 +21,15 @@ function load() {
   const bytes = fs.readFileSync(sourcePath), archive = asar.parseArchive(bytes);
   const build = compatibility.builds.find(b => b.archiveSha256 === asar.sha256(bytes));
   if (build && build.patches[patch.id]?.status !== 'needed') return fixture = { inapplicable: true };
+  const plan = app.inspectArchive(bytes, [patch.id], { allowUnknownForAudit: true });
+  patch = app.patchForSource(patch.id, plan.patches[0].sourceHash);
   const source = asar.readEntry(archive, patch.targetPath).toString();
+  const source1023 = asar.sha256(bytes) === '99ed83950473e34e642f2942226bf40ce9b65e9910afbe8e406120459823c02d';
   assert.equal(asar.sha256(Buffer.from(source)), patch.sourceSha256);
   const patched = patch.apply(source, app.replaceExactlyOnce);
-  const defaultsPath = path.posix.join(path.posix.dirname(patch.targetPath), source.match(/import\{n as i,t as a\}from"([^"]+)"/)[1]);
+  const defaultsPath = path.posix.join(path.posix.dirname(patch.targetPath), source.match(source1023 ? /import\{n as s,t as c\}from"([^"]+)"/ : /import\{n as i,t as a\}from"([^"]+)"/)[1]);
   const defaultsSource = asar.readEntry(archive, defaultsPath).toString();
-  const styleVarsPath = path.posix.join(path.posix.dirname(patch.targetPath), source.match(/import\{r as l,t as u\}from"([^"]+)"/)[1]);
+  const styleVarsPath = path.posix.join(path.posix.dirname(patch.targetPath), source.match(source1023 ? /import\{r as d,t as f\}from"([^"]+)"/ : /import\{r as l,t as u\}from"([^"]+)"/)[1]);
   const styleVarsSource = asar.readEntry(archive, styleVarsPath).toString();
   const defaultsContext = { e: fn => fn };
   vm.runInNewContext(defaultsSource.replace(/^import[^;]+;/, '').replace(/export\{[^}]+\};/, '') + '\n;n();globalThis.defaults=t;', defaultsContext);
@@ -34,7 +37,7 @@ function load() {
   function engine(text) {
     const start = text.indexOf('function p('), end = text.indexOf('function W(');
     assert(start >= 0 && end > start, 'Re-audit the actual theme generator boundaries');
-    const context = { a: defaults, i() {}, e: fn => fn };
+    const context = source1023 ? { c: defaults, s() {}, e: fn => fn } : { a: defaults, i() {}, e: fn => fn };
     vm.runInNewContext(text.slice(start, end) + ';U();globalThis.build=p;', context);
     return (theme, variant) => JSON.parse(JSON.stringify(context.build(theme, variant)));
   }
@@ -81,7 +84,7 @@ sourceTest('native theme lifecycle updates one scoped shell stylesheet without c
   };
   const start = patched.indexOf('function Z('), end = patched.indexOf('function Q(', start);
   assert(start >= 0 && end > start);
-  const context = { l: helper.write, Y: (theme, variant) => fixed(theme, variant).variables, Q: () => false };
+  const context = { l: helper.write, d: helper.write, Y: (theme, variant) => fixed(theme, variant).variables, Q: () => false };
   vm.runInNewContext(patched.slice(start, end) + ';globalThis.apply=Z;', context);
   const themes = { light: { ...defaults.light, surface: '#faf5ec', opaqueWindows: false }, dark: { ...defaults.dark, surface: '#000000', opaqueWindows: false } };
   const originalPreferences = JSON.stringify(themes);
@@ -180,8 +183,8 @@ sourceTest('Chromium covers actual Windows frames, native material, menu chrome 
         // Actual document updater and stylesheet writer; only palette lookup
         // and the unrelated account-color predicate are supplied here.
         window.fixturePalettes = palettes;
-        const apply = new Function('l', 'Y', 'Q', updater + ';return Z;')(
-          window.writeNativeTheme, (_, v) => window.fixturePalettes[v], () => false);
+        const apply = new Function('l', 'd', 'Y', 'Q', updater + ';return Z;')(
+          window.writeNativeTheme, window.writeNativeTheme, (_, v) => window.fixturePalettes[v], () => false);
         window.applyFixtureTheme = v => apply(document, { light: {}, dark: {} }, v);
         window.applyFixtureTheme(variant);
         window.applyFixtureTheme(variant);

@@ -73,3 +73,10 @@ module.exports.revisions.push({
   before: '{browser:b}', after: '{browser:_&&h.platform===`win32`?l.At(b,null):b}',
   apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?l.At(b,null):b}'),
 });
+
+module.exports.revisions.push({
+  targetPath: ".vite/build/main-CP9z2iYn.js",
+  sourceSha256: '9a4d60010bcceb6310ef6a357cae924db06df1babe3c4dd91310da2b5f39cf1f',
+  before: '{browser:b}', after: '{browser:_&&h.platform===`win32`?l.jt(b,null):b}',
+  apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?l.jt(b,null):b}'),
+});

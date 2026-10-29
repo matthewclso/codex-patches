@@ -123,3 +123,23 @@ module.exports.revisions.push({
     return replace(source, oct21ResumeBefore, oct21ResumeAfter);
   },
 });
+
+const oct23Names = { cc: 'Ec', rc: 'Sc', lc: 'Eoe', ic: 'Cc', oc: 'Tc', gd: 'mu', K: 'fa' };
+const oct23Text = text => text.replace(/\b(?:cc|rc|lc|ic|oc|gd|K)\b/g, name => oct23Names[name]);
+const oct23ResumeBefore = 'r=n?await Tc(t):null,a=n?fa():e.desktopFeatureAvailability';
+const oct23ResumeAfter = 'r=n?(await Tc(t)??await __codexPatchesRecoverRuntime(e).catch(()=>null)):null,a=n?fa():e.desktopFeatureAvailability';
+// This build removed the prior live-skill callback; preserve its current lifecycle.
+const oct23Replacements = [[reconcileBefore,reconcileAfter],[syncBefore,syncAfter],[failureBefore,failureAfter],[focusBefore,focusAfter]].map(pair => pair.map(oct23Text));
+module.exports.revisions.push({
+  targetPath: ".vite/build/main-CP9z2iYn.js",
+  sourceSha256: '9a4d60010bcceb6310ef6a357cae924db06df1babe3c4dd91310da2b5f39cf1f',
+  reconcileBefore, reconcileAfter,
+  syncBefore: oct23Text(syncBefore), syncAfter: oct23Text(syncAfter),
+  resumeBefore: oct23ResumeBefore, resumeAfter: oct23ResumeAfter,
+  failureBefore: oct23Text(failureBefore), failureAfter: oct23Text(failureAfter),
+  focusBefore, focusAfter,
+  apply(source, replace) {
+    for (const [before, after] of oct23Replacements) source = replace(source, before, after);
+    return replace(source, oct23ResumeBefore, oct23ResumeAfter);
+  },
+});
