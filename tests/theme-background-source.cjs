@@ -24,24 +24,28 @@ function load() {
   const plan = app.inspectArchive(bytes, [patch.id], { allowUnknownForAudit: true });
   patch = app.patchForSource(patch.id, plan.patches[0].sourceHash);
   const source = asar.readEntry(archive, patch.targetPath).toString();
+  const source1027 = asar.sha256(bytes) === '6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
   const source1023 = asar.sha256(bytes) === '99ed83950473e34e642f2942226bf40ce9b65e9910afbe8e406120459823c02d';
   assert.equal(asar.sha256(Buffer.from(source)), patch.sourceSha256);
   const patched = patch.apply(source, app.replaceExactlyOnce);
-  const defaultsPath = path.posix.join(path.posix.dirname(patch.targetPath), source.match(source1023 ? /import\{n as s,t as c\}from"([^"]+)"/ : /import\{n as i,t as a\}from"([^"]+)"/)[1]);
-  const defaultsSource = asar.readEntry(archive, defaultsPath).toString();
   const styleVarsPath = path.posix.join(path.posix.dirname(patch.targetPath), source.match(source1023 ? /import\{r as d,t as f\}from"([^"]+)"/ : /import\{r as l,t as u\}from"([^"]+)"/)[1]);
   const styleVarsSource = asar.readEntry(archive, styleVarsPath).toString();
   const defaultsContext = { e: fn => fn };
-  vm.runInNewContext(defaultsSource.replace(/^import[^;]+;/, '').replace(/export\{[^}]+\};/, '') + '\n;n();globalThis.defaults=t;', defaultsContext);
-  const defaults = JSON.parse(JSON.stringify(defaultsContext.defaults));
+  if(source1027) vm.runInNewContext(source.slice(source.indexOf('var d;'),source.indexOf('function p('))+';f();globalThis.defaults=d;',defaultsContext);
+  else {
+    const defaultsPath=path.posix.join(path.posix.dirname(patch.targetPath),source.match(source1023?/import\{n as s,t as c\}from"([^"]+)"/:/import\{n as i,t as a\}from"([^"]+)"/)[1]);
+    const defaultsSource=asar.readEntry(archive,defaultsPath).toString();
+    vm.runInNewContext(defaultsSource.replace(/^import[^;]+;/, '').replace(/export\{[^}]+\};/, '')+';n();globalThis.defaults=t;',defaultsContext);
+  }
+  const defaults=JSON.parse(JSON.stringify(defaultsContext.defaults));
   function engine(text) {
-    const start = text.indexOf('function p('), end = text.indexOf('function W(');
+    const start = text.indexOf(source1027?'var d;':'function p('), end = text.indexOf(source1027?'function G(':'function W(');
     assert(start >= 0 && end > start, 'Re-audit the actual theme generator boundaries');
     const context = source1023 ? { c: defaults, s() {}, e: fn => fn } : { a: defaults, i() {}, e: fn => fn };
-    vm.runInNewContext(text.slice(start, end) + ';U();globalThis.build=p;', context);
+    vm.runInNewContext(text.slice(start, end) + (source1027?';W();globalThis.build=p;':';U();globalThis.build=p;'), context);
     return (theme, variant) => JSON.parse(JSON.stringify(context.build(theme, variant)));
   }
-  fixture = { bytes, archive, build, source, patched, defaults, styleVarsSource, stock: engine(source), fixed: engine(patched) };
+  fixture = { bytes, archive, build, source1027, source, patched, defaults, styleVarsSource, stock: engine(source), fixed: engine(patched) };
   return fixture;
 }
 function themes(defaults) {
@@ -73,7 +77,7 @@ sourceTest('actual theme generator follows live color and light/dark switches wi
   }
 });
 sourceTest('native theme lifecycle updates one scoped shell stylesheet without changing opacity preferences', () => {
-  const { patched, defaults, fixed, styleVarsSource } = load();
+  const { patched, defaults, fixed, styleVarsSource, source1027 } = load();
   const helper = { e: fn => fn };
   vm.runInNewContext(styleVarsSource.replace(/^import[^;]+;/, '').replace(/export\{[^}]+\};/, '') + '\n;globalThis.write=t;', helper);
   let style, appended = 0;
@@ -82,10 +86,10 @@ sourceTest('native theme lifecycle updates one scoped shell stylesheet without c
     head: { querySelector: () => style, append(element) { style = element; appended++; } },
     createElement: () => ({ dataset: {}, textContent: '' }),
   };
-  const start = patched.indexOf('function Z('), end = patched.indexOf('function Q(', start);
+  const start = patched.indexOf(source1027?'function ee(':'function Z('), end = patched.indexOf('function Q(', start);
   assert(start >= 0 && end > start);
-  const context = { l: helper.write, d: helper.write, Y: (theme, variant) => fixed(theme, variant).variables, Q: () => false };
-  vm.runInNewContext(patched.slice(start, end) + ';globalThis.apply=Z;', context);
+  const context = { l: helper.write, d: helper.write, X: (theme, variant) => fixed(theme, variant).variables, Y: (theme, variant) => fixed(theme, variant).variables, Q: () => false };
+  vm.runInNewContext(patched.slice(start, end) + (source1027?';globalThis.apply=ee;':';globalThis.apply=Z;'), context);
   const themes = { light: { ...defaults.light, surface: '#faf5ec', opaqueWindows: false }, dark: { ...defaults.dark, surface: '#000000', opaqueWindows: false } };
   const originalPreferences = JSON.stringify(themes);
   for (const variant of ['dark', 'light', 'dark']) {
@@ -142,18 +146,18 @@ sourceTest('archive selection adds only the reviewed theme entry and disabling i
 
 sourceTest('Chromium covers actual Windows frames, native material, menu chrome and Electron surface overrides', async t => {
   if (!process.env.CODEX_PLAYWRIGHT_MODULE) return t.skip('Set CODEX_PLAYWRIGHT_MODULE to a local playwright or playwright-core module');
-  const { archive, source, patched, stock, fixed, defaults, styleVarsSource } = load();
+  const { archive, source, patched, stock, fixed, defaults, styleVarsSource, source1027 } = load();
   const { chromium } = require(process.env.CODEX_PLAYWRIGHT_MODULE);
   const browser = await chromium.launch({ headless: true });
   function documentUpdater(text) {
-    const start = text.indexOf('function Z('), end = text.indexOf('function Q(', start);
+    const start = text.indexOf(source1027?'function ee(':'function Z('), end = text.indexOf('function Q(', start);
     assert(start >= 0 && end > start, 'Re-audit the native document theme updater');
     return text.slice(start, end);
   }
   try {
     const page = await browser.newPage({ viewport: { width: 1000, height: 700 } });
     const paths = asar.listEntries(archive.tree).map(e => e.path);
-    const css = ['shared', 'primary'].map(name => {
+    const css = source1027 ? ['webview/assets/5257da4ba4ae.css','webview/assets/59ad52d5aa88.css'].map(name=>asar.readEntry(archive,name).toString()).join(String.fromCharCode(10)) : ['shared', 'primary'].map(name => {
       const matches = paths.filter(p => new RegExp('^webview/assets/app-' + name + '-[^/]+\\.css$').test(p));
       assert.equal(matches.length, 1);
       return asar.readEntry(archive, matches[0]).toString();
@@ -163,7 +167,7 @@ sourceTest('Chromium covers actual Windows frames, native material, menu chrome 
       // Actual HAt/OAt attributes/classes and native opacity setup. The backdrop
       // represents OS material behind a transparent Electron renderer. No fixture
       // CSS supplies or corrects a shell background.
-      const shellClass = layout === 'page' ? '_PageSurfaceLayout_azz1c_2' : '_FullHeightPageSurfaceLayout_azz1c_2';
+      const shellClass = (layout === 'page' ? '_PageSurfaceLayout_azz1c_2' : '_FullHeightPageSurfaceLayout_azz1c_2') + (source1027 && menu && layout==='page' ? ' _ApplicationMenuPageSurfaceLayout_azz1c_2' : '');
       await page.setContent('<html data-codex-window-type="electron" data-codex-os="win32" data-theme="dark"' +
         (menu ? ' data-codex-window-chrome="application-menu"' : '') + (opaque ? ' class="electron-opaque"' : '') +
         '><head></head><body><div style="position:fixed;inset:0;z-index:-1;background-color:#202020"></div>' +
@@ -183,8 +187,8 @@ sourceTest('Chromium covers actual Windows frames, native material, menu chrome 
         // Actual document updater and stylesheet writer; only palette lookup
         // and the unrelated account-color predicate are supplied here.
         window.fixturePalettes = palettes;
-        const apply = new Function('l', 'd', 'Y', 'Q', updater + ';return Z;')(
-          window.writeNativeTheme, window.writeNativeTheme, (_, v) => window.fixturePalettes[v], () => false);
+        const apply = new Function('l', 'd', 'X', 'Y', 'Q', updater + ';return '+(updater.startsWith('function ee(')?'ee':'Z')+';')(
+          window.writeNativeTheme, window.writeNativeTheme, (_,v)=>window.fixturePalettes[v], (_, v) => window.fixturePalettes[v], () => false);
         window.applyFixtureTheme = v => apply(document, { light: {}, dark: {} }, v);
         window.applyFixtureTheme(variant);
         window.applyFixtureTheme(variant);

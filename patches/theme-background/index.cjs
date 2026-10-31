@@ -32,3 +32,14 @@ module.exports.revisions = [{
     return replace(source, this.stylesheetBefore, this.stylesheetAfter);
   },
 }];
+
+module.exports.revisions.push({
+  targetPath: 'webview/assets/app-theme-98273c284c4e.js',
+  sourceSha256: '36152979155da22a2d1dae487baf5ba7599474ddb1e0ddac62757cceeea4aa88',
+  stylesheetBefore: 'return l(e,c),c}',
+  stylesheetAfter: stylesheetAfter.replace('return l(e,s)', 'return l(e,c)').replace(',s}', ',c}'),
+  apply(source, replace) {
+    source = replace(source, before, after);
+    return replace(source, this.stylesheetBefore, this.stylesheetAfter);
+  },
+});

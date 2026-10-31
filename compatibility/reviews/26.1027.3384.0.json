@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "26.1027.3384.0",
+  "cliVersion": "0.166.0-alpha.5.1",
+  "appVersion": "26.1027.30824",
+  "reviewedAt": "2026-10-31",
+  "status": "automated-validation-passed; current-build-interactive-acceptance-pending",
+  "affectedRequirements": [
+    "PET-1",
+    "PET-2",
+    "BROWSER-1",
+    "BROWSER-2",
+    "BROWSER-3",
+    "BROWSER-4",
+    "THEME-1",
+    "PATH-1",
+    "PATH-2",
+    "REMOTE-1",
+    "REMOTE-2",
+    "REMOTE-3",
+    "CONNECTOR-1",
+    "CONNECTOR-2",
+    "RUNTIME-1",
+    "PROJECT-2",
+    "PROJECT-3",
+    "PROJECT-4",
+    "SELECT-1",
+    "SELECT-2",
+    "SELECT-3",
+    "SELECT-4",
+    "CI-3",
+    "CI-4",
+    "VERIFY-1",
+    "VERIFY-2",
+    "VERIFY-3",
+    "VERIFY-4",
+    "SCOPE-3",
+    "LIFECYCLE-3",
+    "LIFECYCLE-4"
+  ],
+  "packageVerification": {
+    "packageVersion": "26.1027.3384.0",
+    "msixSignature": "not-run",
+    "publisher": "matched-pin",
+    "executableSignature": "valid",
+    "installedPackageSignature": "Store",
+    "installedPackageStatus": "Ok",
+    "installedPackageContentIntegrity": true,
+    "hashes": {
+      "msixSha256": "d442a3d7d5c229f45e5e11995711ac2619c8dbc89e3fa2bc185287dc8db8e76e",
+      "archiveSha256": "6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074",
+      "executableSha256": "d8b9c500c4dc0fa2fd5a8a3a5592cd637c2a9e625a191d8733a0b7aa8143b11b",
+      "cliLinuxSha256": "6253fb59fc4c21a9134b2f73237650eaec4a3d9380e5af12f3f1e9040dc24c14",
+      "cliWindowsSha256": "3097c909fb6d5cd63510d44aceb1d42df9f6e85722a3e447e477def1ecf60e16",
+      "codeModeLinuxSha256": "aa2eadfab15534f066e37a6b1c32c09e02b1ad72677dce68a82770f77a6f97a6",
+      "codeModeWindowsSha256": "feacc55f74fdc6d5ee3cbfd93d77032bfe91157bd24a6f5a6fe4cc4069026c4c",
+      "nodeWindowsSha256": "6932215721e085e83c43a61c0ae06c5182be8909a7abab3a45d4148d81af709d"
+    },
+    "standaloneMsixSignature": "valid",
+    "note": "Seven installed file hashes match the signed official MSIX proposal. Windows independently verified Store package identity, publisher, signing kind, status, content integrity and executable signature. The standalone MSIX was not downloaded again locally."
+  },
+  "checks": [
+    {
+      "name": "installed-Store-and-packed-entry-integrity",
+      "status": "passed",
+      "verifiedPackedEntries": 22415,
+      "emptyEntries": 3,
+      "runtimeHashesMatched": 7
+    },
+    {
+      "name": "unknown-package-Windows-source-suite",
+      "status": "passed",
+      "tests": 19,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 1,
+      "durationMs": 576152.3306,
+      "appPatchCombinations": 128,
+      "installationOfUnknownArchive": "rejected",
+      "skipScope": "The optional Chromium case passed separately under WSL."
+    },
+    {
+      "name": "Ubuntu-26.04-WSL2-toolkit-and-CI-tests",
+      "status": "passed",
+      "tests": 111,
+      "passed": 79,
+      "failed": 0,
+      "skipped": 32,
+      "durationMs": 42705.235635,
+      "skipScope": "Windows-specific and separately executed source/GraphQL scenarios."
+    },
+    {
+      "name": "Windows-toolkit-and-CI-tests",
+      "status": "passed",
+      "tests": 111,
+      "passed": 74,
+      "failed": 0,
+      "skipped": 37,
+      "durationMs": 37118.2746,
+      "skipScope": "WSL-specific and separately executed source checks; unavailable Windows symlink privilege."
+    },
+    {
+      "name": "native-current-CLI-regressions",
+      "status": "passed",
+      "scope": "Unmodified current Linux CLI in disposable homes/databases and loopback fixtures: stock/patched project paths, listing/filtering/pagination, pairing reuse and reconnect, native connector discovery/scoped errors, hosted Apps managed-authentication failure, reserved marketplace/cache mismatch and correction, and initial/moved/cleared project memberships. No real account or model turn."
+    },
+    {
+      "name": "stock-GraphQL-Windows-Node-to-wsl.exe",
+      "status": "passed",
+      "sourceFile": ".vite/build/worker.js",
+      "workerSha256": "1c0b48134ba6564b7da680600b8d068b29d0d700cf21fc119012ce296dff2e51",
+      "stockQueryVariablesPreserved": true,
+      "doubleShell": true,
+      "wslExecutableExercised": true,
+      "externalRequests": 0,
+      "scope": "Executes current native Github quoting and the inlined WSL command/argv expressions from the stock Webpack worker."
+    },
+    {
+      "name": "stock-GraphQL-WSL-regression",
+      "status": "passed",
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 6713.976052
+    },
+    {
+      "name": "current-source-Chromium-Windows-frame-fixture",
+      "status": "passed",
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 14027.994963,
+      "cases": 32,
+      "scope": "Actual current theme/document updater/stylesheet writer, root CSS 5257da4ba4ae.css and shell CSS 59ad52d5aa88.css, including application-menu page class; both layouts, menu/non-menu frames, opacity modes and live black/colored/light/dark switches. Local Chromium 1243; source-derived rendering is not live desktop acceptance."
+    },
+    {
+      "name": "source-revision-and-CI-unit-tests",
+      "status": "passed",
+      "tests": 13,
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 237.118978
+    },
+    {
+      "name": "reviewed-package-validation-pipeline-on-Windows",
+      "status": "passed",
+      "reviewedPackage": true,
+      "reviewRequired": false,
+      "tests": 19,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 1,
+      "appPatchCombinations": 128,
+      "durationMs": 574287.1762,
+      "skipScope": "The optional Chromium case passed separately under WSL.",
+      "scope": "All seven file pins, actual source behavior, all 128 compositions and independently recorded default archive/header/executable outputs."
+    },
+    {
+      "name": "CLI-inspect-after-allowlist",
+      "status": "passed",
+      "supported": true,
+      "defaultSelection": [
+        "custom-pets",
+        "browser-wsl",
+        "browser-service-path",
+        "browser-feature-recovery",
+        "runtime-sync-recovery",
+        "theme-background",
+        "wsl-project-paths",
+        "remote-fast-list",
+        "connector-routing",
+        "primary-runtime-cache"
+      ],
+      "projectMembershipDefault": "disabled"
+    },
+    {
+      "name": "release-package-content",
+      "status": "passed",
+      "scope": "Source and public compatibility metadata only; npm pack dry run and evidence policy passed. No app binaries, extracted bundles, saved config or private state."
+    }
+  ],
+  "patchStatus": {
+    "custom-pets": "needed",
+    "browser-wsl": "needed",
+    "browser-service-path": "needed",
+    "project-memberships": "needed",
+    "browser-feature-recovery": "needed",
+    "runtime-sync-recovery": "needed",
+    "theme-background": "needed",
+    "wsl-project-paths": "needed",
+    "remote-fast-list": "needed",
+    "connector-routing": "needed",
+    "primary-runtime-cache": "needed"
+  },
+  "defaultModes": {
+    "project-memberships": "disabled",
+    "otherNeededPatches": "auto"
+  },
+  "retiredPatches": {
+    "graphql-shell": "current stock behavior verified; remains retired",
+    "wsl-home-alias": "canonical homes retained; remains superseded"
+  },
+  "pendingAcceptance": [
+    "Current-build modified-copy launch permission and desktop startup",
+    "Interactive pet rendering, selection and installation",
+    "Agent Browser navigation and Computer Use interaction after relaunch",
+    "Authenticated connector inventory and calls",
+    "Configured background in the running Windows desktop",
+    "Real-phone Remote Control reconnect and project labels"
+  ],
+  "limitations": [
+    "The earlier corrected copy was blocked by Windows Application Control; this review does not resolve that executable-trust limitation or establish current-build launch permission.",
+    "The initial background revision was ineffective in the running desktop. Current corrected-source/Chromium results do not supersede live evidence.",
+    "Android project-label mismatch remains documented.",
+    "No app copy was activated or restarted, and no saved config or user data was changed."
+  ],
+  "source": {
+    "kind": "signed-official-candidate-matching-verified-installed-store-package",
+    "candidateRecord": "compatibility/candidates/26.1027.3384.0-6fbedf054a8d.json",
+    "verificationCommand": "powershell -File scripts/ci/Get-InstalledCodexVerification.ps1 -ExpectedPackageVersion 26.1027.3384.0"
+  },
+  "sourceLayout": {
+    "mainProcess": "Webpack chunks replace prior Rolldown CommonJS bundles. Pet/runtime/config/reconciler/managed-pipe fixtures execute current native functions, including inlined ones.",
+    "utilityFixtures": "The test-only Webpack loader registers pristine module factories and omits the application entry invocation; it loads native Zod/path utilities without launching Electron.",
+    "renderer": "Exact renderer capability and publisher revisions; current theme defaults are inlined and its document updater changed to ee.",
+    "worker": "GraphQL fixture executes current inlined command and WSL argv expressions."
+  },
+  "runtimeIdentity": {
+    "cliVersion": "0.166.0-alpha.5.1",
+    "linuxCliChangedFrom": "26.1023.6621.0",
+    "cliLinuxSha256": "6253fb59fc4c21a9134b2f73237650eaec4a3d9380e5af12f3f1e9040dc24c14",
+    "codeModeLinuxChanged": true,
+    "windowsBinariesRevalidated": true
+  },
+  "hostedWslCandidate": {
+    "status": "historical-failed-candidate",
+    "candidateRecord": "compatibility/candidates/26.1027.3384.0-6fbedf054a8d.json",
+    "evidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/40997203392",
+    "originalCounts": {
+      "tests": 104,
+      "passed": 72,
+      "failed": 19,
+      "skipped": 13
+    },
+    "reason": "Hosted Ubuntu 26.04.1 WSL2 boot succeeded. Obsolete module/source fixtures and GraphQL boundaries failed. Original report remains unchanged; current local Windows source, WSL2 native and Windows-to-WSL evidence is separate."
+  },
+  "publisherSource": {
+    "path": "webview/assets/app-runtime-e4b4e09bd942.js",
+    "hash": "bfe7cc48427c12348fb0ab75806de4861caa898b815e68950e63dcfeb09b8f28"
+  },
+  "pullRequests": [
+    {
+      "number": 19,
+      "disposition": "Update existing current-build proposal after review; no older open proposals to close."
+    }
+  ]
+}
