@@ -109,3 +109,18 @@ module.exports.revisions.push({
     return source;
   },
 });
+
+const oct27CapabilityBefore = capabilityBefore.replace('t(f6,', 't(pg,');
+const oct27CapabilityAfter = capabilityAfter.replace('t(f6,', 't(pg,');
+const oct27PendingBefore = pendingBefore.replace('Ik(Q8,', '_s(Gb,').replace('IU(', 'Mb(');
+const oct27PendingAfter = pendingAfter.replace('Ik(Q8,', '_s(Gb,').replace('IU(', 'Mb(');
+module.exports.revisions.push({
+  targetPath: 'webview/assets/app-initial-4267e52fe5b0.js',
+  sourceSha256: 'ba06de8c5418586b49ca7d639ea5ad2af531c1037454ec69b10b9ea11e00992e',
+  capabilityBefore: oct27CapabilityBefore, capabilityAfter: oct27CapabilityAfter,
+  pendingBefore: oct27PendingBefore, pendingAfter: oct27PendingAfter,
+  apply(source, replace) {
+    for (const [before, after] of [[policyBefore, policyAfter], [oct27CapabilityBefore, oct27CapabilityAfter], [oct27PendingBefore, oct27PendingAfter], [requirementsBefore, requirementsAfter]]) source = replace(source, before, after);
+    return source;
+  },
+});

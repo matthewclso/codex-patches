@@ -80,3 +80,10 @@ module.exports.revisions.push({
   before: '{browser:b}', after: '{browser:_&&h.platform===`win32`?l.jt(b,null):b}',
   apply: (source, replace) => replace(source, '{browser:b}', '{browser:_&&h.platform===`win32`?l.jt(b,null):b}'),
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/early-bootstrap-491-e75c34fa1b2c0832.js',
+  sourceSha256: 'db3fd1590ec3d3c621a85c2cf925785ea6d99df8bc4eaec8bc4b1e974758a8ab',
+  before: '{browser:v}', after: '{browser:m&&h.platform==="win32"?(0,eg.MV$)(v,null):v}',
+  apply: (source, replace) => replace(source, '{browser:v}', '{browser:m&&h.platform==="win32"?(0,eg.MV$)(v,null):v}'),
+});

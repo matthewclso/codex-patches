@@ -143,3 +143,27 @@ module.exports.revisions.push({
     return replace(source, oct23ResumeBefore, oct23ResumeAfter);
   },
 });
+
+const oct27SyncBefore = 'function sH(e){let t=(sW.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(()=>s$(e));return sW.set(e.appServerConnection,t),t}';
+const oct27SyncAfter = syncAfter.replace(/\b(?:cc|rc|lc|ic|K)\b/g, name => ({cc:'sH',rc:'sW',lc:'s$',ic:'sN',K:'tl'})[name]);
+const oct27ResumeBefore = 'n=r?await sq(t):null,i=r?tl():e.desktopFeatureAvailability';
+const oct27ResumeAfter = 'n=r?(await sq(t)??await __codexPatchesRecoverRuntime(e).catch(()=>null)):null,i=r?tl():e.desktopFeatureAvailability';
+const oct27FailureBefore = 'throw ld().warning("bundled_plugins_reconcile_failed",{safe:{hasExternalPluginStateSync:d,reason:r},sensitive:{error:e}}),e';
+const oct27FailureAfter = oct27FailureBefore.replace('throw ', 'throw w===c&&(w=null),');
+const oct27FocusBefore = 'reconcileExternalPluginState:(e="focus")=>M(e)';
+const oct27FocusAfter = 'reconcileExternalPluginState:(e="focus")=>E({force:!1,reason:e}).then(()=>M(e))';
+const oct27ReconcileBefore = 'C=g,r=w,I=!1,_(t.marketplacePluginDescriptors)};return{reconcileComputerHistoryPluginInstallation:';
+const oct27ReconcileAfter = 'C=g,r=w,I=!1,_(t.marketplacePluginDescriptors);if(n.hadReconcileFailure)throw Error("Bundled plugin reconciliation incomplete")};return{reconcileComputerHistoryPluginInstallation:';
+module.exports.revisions.push({
+  targetPath: '.vite/build/early-bootstrap-491-e75c34fa1b2c0832.js',
+  sourceSha256: 'db3fd1590ec3d3c621a85c2cf925785ea6d99df8bc4eaec8bc4b1e974758a8ab',
+  syncBefore: oct27SyncBefore, syncAfter: oct27SyncAfter,
+  resumeBefore: oct27ResumeBefore, resumeAfter: oct27ResumeAfter,
+  failureBefore: oct27FailureBefore, failureAfter: oct27FailureAfter,
+  focusBefore: oct27FocusBefore, focusAfter: oct27FocusAfter,
+  reconcileBefore: oct27ReconcileBefore, reconcileAfter: oct27ReconcileAfter,
+  apply(source, replace) {
+    for (const [before, after] of [[oct27SyncBefore,oct27SyncAfter],[oct27ResumeBefore,oct27ResumeAfter],[oct27FailureBefore,oct27FailureAfter],[oct27FocusBefore,oct27FocusAfter],[oct27ReconcileBefore,oct27ReconcileAfter]]) source = replace(source, before, after);
+    return source;
+  },
+});

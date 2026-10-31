@@ -130,3 +130,18 @@ module.exports.revisions.push({
     return replace(source, 'async function _C(', currentHelper + 'async function _C(');
   },
 });
+
+// Webpack keeps the same three path mistakes in the inlined pet loader.
+module.exports.revisions.push({
+  targetPath: '.vite/build/early-bootstrap-339-096ec1020e8592e0.js',
+  sourceSha256: '25c8371f76e580829e8f387446901c5f09227fc645a0bce6efbfaaee2946ebc8',
+  apply(source, replace) {
+    assert(!source.includes('codexPetHome'), 'Pet helper is already present or collides');
+    for (const [before, after] of [
+      ['let n=(0,q.D)({preferWsl:t}),r=await e.platformPath(),', 'let r=await e.platformPath(),n=codexPetHome(r,t),'],
+      ['let i=(0,q.D)({preferWsl:n}),a=await e.platformPath();', 'let a=await e.platformPath(),i=codexPetHome(a,n);'],
+      ['let a=await e.platformPath(),s=(0,q.D)({preferWsl:r}),', 'let a=await e.platformPath(),s=codexPetHome(a,r),'],
+    ]) source = replace(source, before, after);
+    return replace(source, 'async function o0(', 'function codexPetHome(e,t){let n=(0,q.D)({preferWsl:t});return e.sep===`/`?(0,tK.cB)(n):n}async function o0(');
+  },
+});

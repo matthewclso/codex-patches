@@ -102,3 +102,11 @@ module.exports.revisions.push({
   after: after.replace('function xBr(', 'function Vjn('),
   apply: (source, replace) => replace(source, before.replace('function xBr(', 'function Vjn('), after.replace('function xBr(', 'function Vjn(')),
 });
+
+module.exports.revisions.push({
+  targetPath: 'webview/assets/app-initial-4267e52fe5b0.js',
+  sourceSha256: 'ba06de8c5418586b49ca7d639ea5ad2af531c1037454ec69b10b9ea11e00992e',
+  before: before.replace('function xBr(', 'function hKn('),
+  after: after.replace('function xBr(', 'function hKn('),
+  apply: (source, replace) => replace(source, before.replace('function xBr(', 'function hKn('), after.replace('function xBr(', 'function hKn(')),
+});

@@ -8,7 +8,7 @@ const app = require('../lib/app-patches.cjs');
 let feature = require('../patches/browser-feature-recovery/index.cjs');
 let runtime = require('../patches/runtime-sync-recovery/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
-let archive, source1007, source9446, source1013, source1016, source1021, source1023, selected;
+let archive, source1007, source9446, source1013, source1016, source1021, source1023, source1027, selected;
 // Fixture aliases are bound to one exact reviewed archive, never guessed.
 const currentNames = { Q8:'$8', Ck:'Xk', Q:'X', Kgi:'bbi', Jgi:'Sbi', Qgi:'Ebi', $gi:'Dbi', yI:'II', f6:'p6', Wgi:'vbi', e_i:'Obi',
   sGr:'GJr', cGr:'KJr', lGr:'qJr', Ik:'pA', DHr:'tKr', IU:'nW', IHr:'uKr', D2:'S2', QN:'cP', JOn:'$kn', uzt:'pzt',
@@ -50,13 +50,21 @@ const oct23Names = { ...oct21Names,
   jie:'yle',yd:'_u',La:'Lo',Ia:'Lo',Ra:'nie',hd:'pu',ai:'ga',gd:'mu',ac:'wc',Kc:'tse',Oie:'oae',sne:'Bie',Lo:'Ds',Cne:'Hie',_d:'hu',ua:'xo',kie:'_le',
   M:'L',Ts:'tc',Hs:'doe',Ks:'yc',$s:'Soe',Na:'$re',Mne:'Tae',Ma:'Fo',nc:'Doe',Us:'foe',Ws:'vc',Vs:'_c',Bs:'gc',Xs:'kc',Zs:'Ac',Gre:'Ooe',
 };
-const names = () => source1023 ? oct23Names : source1021 ? oct21Names : source1016 ? oct16Names : source1013 ? modernNames : source9446 ? latestNames : currentNames;
+const oct27Names = { ...oct23Names,
+  Q8:'Gb',Ck:'K',Q:'Q',Kgi:'aPt',Jgi:'sPt',Qgi:'dPt',$gi:'fPt',yI:'Rn',f6:'pg',Wgi:'rPt',e_i:'pPt',
+  sGr:'mKn',cGr:'hKn',lGr:'gKn',Ik:'_s',DHr:'pGn',IU:'Mb',IHr:'OGn',D2:'Ik',QN:'nr',JOn:'Kr',uzt:'ONt',lkn:'Dlt',ukn:'Olt',zK:'Og',
+  rc:'sW',ic:'sN',cc:'sH',lc:'s$',oc:'sq',ws:'i0',Qs:'sj',Aa:'rG',dc:'sX',fc:'s0',K:'tl',
+  jie:'__fixtureReconciler',yd:'lm',La:'r0',Ia:'rX',hd:'ll',ai:'th',gd:'ld',Kc:'ai',Oie:'lc',sne:'n0',Lo:'nX',Cne:'__unused',_d:'lu',ua:'rF',
+  M:'__fixtureProcess',Ts:'i1',Hs:'__fixturePipe',Ks:'sM',$s:'__fixtureGenerator',Na:'rY',Mne:'iY',Ma:'rJ',nc:'__unusedEdits',Us:'__fixtureManagedPipe',Ws:'__unusedPipe',Vs:'sI',Bs:'sC',Xs:'sJ',Zs:'sZ',Gre:'sK',
+};
+const names = () => source1027 ? oct27Names : source1023 ? oct23Names : source1021 ? oct21Names : source1016 ? oct16Names : source1013 ? modernNames : source9446 ? latestNames : currentNames;
 const named = text => source1007 ? text.replace(/[A-Za-z_$][\w$]*/g, name => names()[name] ?? name) : text;
 const context = values => source1007 ? Object.fromEntries(Object.entries(values).map(([key,value]) => [names()[key] ?? key, value])) : values;
 function setup(t) {
   if (selected) return true;
   const bytes=fs.readFileSync(sourcePath); archive=asar.parseArchive(bytes);
-  source1023=asar.sha256(bytes)==='99ed83950473e34e642f2942226bf40ce9b65e9910afbe8e406120459823c02d';
+  source1027=asar.sha256(bytes)==='6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
+  source1023=source1027 || asar.sha256(bytes)==='99ed83950473e34e642f2942226bf40ce9b65e9910afbe8e406120459823c02d';
   source1021=source1023 || asar.sha256(bytes)==='04862a659c6a90fc50514d8c0b8016709d97dece58839726c57495ed72f1d9f0';
   source1016=source1021 || asar.sha256(bytes)==='760eae730e57438a0693cab4aba5ed8b7eb0ea1c5b7a7dc26dd0e84c2398810f';
   source1013=source1016 || ['163a18c84db57ad5c50222b313dc4d11d45febc03ec065b516ba9f0380f2eb3f',
@@ -80,6 +88,13 @@ function source(patch) {
   return bytes.toString();
 }
 function between(s, first, last) {
+  if(source1027) {
+    if(first==='function jie(')return require('./fixtures/webpack-source.cjs').between(s,'function(e){var t;let r,n,i,s=e.env??process.env','}({appVersion:el')+'}';
+    if(first==='function Us(')return require('./fixtures/webpack-source.cjs').between(s,'function({codexHome:e=(0,eg.DnS)(),','}({codexCliPath:tX(')+'}';
+    if(first==='async function Qs('&&last==='function $s(')last='function sL(';
+    if(last==='var Gre=')last='var sz=';
+    if(last==='var fc=')last='let s0=';
+  }
   first=named(first);last=named(last);
   const i=s.indexOf(first), j=s.indexOf(last,i+first.length);
   assert(i>=0&&j>i, 'Missing reviewed source boundary: '+first);
@@ -100,7 +115,7 @@ function capability(s, query, policy, name='browser.in-app', provider) {
   assert.equal(descriptors['browser.in-app'].settings.length,0);assert.equal(descriptors['browser.in-app'].statsig.length,0);
   assert(between(s,'function sGr(','function cGr(').includes('a={name:`browser.in-app`}'));
   const sandbox = context({ Q:{},Ck:(_q,fn)=>fn,Qgi:vm.runInNewContext('('+between(s,'function Qgi(','function $gi(')+')'),$gi:()=>{},yI:'local',f6:'features',Wgi:{'workspace-in-app-browser':'policy'},e_i:descriptors });
-  if (source1016) Object.assign(sandbox,source1023?{Lg:'provider-gate',yg:'provider-config',ng:value=>value}:source1021?{e_:'provider-gate',Ig:'provider-config',dg:value=>value}:{Fh:'provider-gate',xh:'provider-config',Xm:value=>value});
+  if (source1016) Object.assign(sandbox,source1027?{Tg:'provider-gate',sg:'provider-config',Uh:value=>value}:source1023?{Lg:'provider-gate',yg:'provider-config',ng:value=>value}:source1021?{e_:'provider-gate',Ig:'provider-config',dg:value=>value}:{Fh:'provider-gate',xh:'provider-config',Xm:value=>value});
   const fn=vm.runInNewContext(code,sandbox);
   return JSON.parse(JSON.stringify(fn({name},{get:(key,host)=>{if(key==='provider-gate')return true;if(key==='provider-config'){assert.equal(host.hostId,'local');assert.equal(host.failClosed,true);return provider}if(key==='features'){assert.equal(host,'local');return query}return policy}})));
 }
@@ -169,13 +184,14 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
     Kn:'identity',Gn:'tools-pipe',qn:'verifier',L:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}},
   });
   if (source1016) Object.assign(ctx.sandbox,{
-    [source1023?'kc':source1021?'Pc':'Xs']:vm.runInNewContext('('+between(patched,'function Xs(',source1023?'async function koe(':source1021?'async function Rae(':'async function Zs(')+')',{n:{o:'fixture-app'}}),
+    [source1027?'sJ':source1023?'kc':source1021?'Pc':'Xs']:vm.runInNewContext('('+between(patched,'function Xs(',source1027?'async function sY(':source1023?'async function koe(':source1021?'async function Rae(':'async function Zs(')+')',(source1027?{sz:{P:'fixture-app'}}:{n:{o:'fixture-app'}})),
     Jn:'identity',qn:'tools-pipe',Yn:'verifier',R:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}},
   });
   if (source1021) {
     ctx.connection.getAuthenticatedPrincipal=async()=>null;
     Object.assign(ctx.sandbox,{[source1023?'Oc':'Nc']:JSON.stringify(['fixture-app','api-key']),[source1023?'vi':'Si']:'identity',[source1023?'_i':'xi']:'tools-pipe',[source1023?'yi':'Ci']:'verifier',[source1023?'L':'I']:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}}});
   }
+  if(source1027) Object.assign(ctx.sandbox,{sQ:JSON.stringify(['fixture-app','api-key']),ea:{OuO:'identity',b$E:'tools-pipe',$Q0:'verifier'},rD:'app-tools',eU:()=>({env:{'app-tools':'current-app-pipe',verifier:'current-verifier'}})});
   vm.runInNewContext(between(patched,'async function dc(','var fc=')+named(';globalThis.config=dc;'),ctx.sandbox);
   const requests=Array.from({length:5},()=>ctx.sandbox.config({appServerConnection:ctx.connection}));
   await Promise.all(requests);assert.equal(ctx.calls(),1);assert.equal(ctx.writes[0].reload,true);
@@ -201,7 +217,7 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
     const seen=[];
     ctx.sandbox[named('Qs')]=async options=>{seen.push(options);return {'mcp_servers.node_repl':{env:{}}}};
     const config=vm.runInNewContext('('+between(text,'async function dc(','var fc=')+')',ctx.sandbox);
-    const principal={accountId:'fixture-account',userId:'fixture-user'}, anonymous=ctx.sandbox[source1023?'Oc':'Nc'];
+    const principal={accountId:'fixture-account',userId:'fixture-user'}, anonymous=ctx.sandbox[source1027?'sQ':source1023?'Oc':'Nc'];
     ctx.connection.getAuthenticatedPrincipal=async()=>null;
     assert.equal((await config({appServerConnection:ctx.connection}))['mcp_servers.node_repl'].env.identity,anonymous);
     ctx.connection.getAuthenticatedPrincipal=async()=>principal;
@@ -215,11 +231,11 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
       await config({appServerConnection:{hostConfig:{kind:'ssh'}},desktopFeatureAvailability:{browserUseTinysky:false,computerAudio:audio},hostServicesPipePath:'remote-pipe'});
       assert.equal(seen.at(-1).hostServicesPipePath,audio?null:'remote-pipe');
     }
-    const authorize=vm.runInNewContext('('+between(text,source1023?'async function koe(':'async function Rae(','async function Zs(')+')',{[source1023?'Oc':'Nc']:anonymous,[source1023?'kc':'Pc']:ctx.sandbox[source1023?'kc':'Pc']});
+    const authorize=vm.runInNewContext('('+between(text,source1027?'async function sY(':source1023?'async function koe(':'async function Rae(','async function Zs(')+')',{[source1027?'sQ':source1023?'Oc':'Nc']:anonymous,[source1027?'sJ':source1023?'kc':'Pc']:ctx.sandbox[source1027?'sJ':source1023?'kc':'Pc']});
     let current=null,reads=0;const options={getPrincipal:()=>current,readAccess:async()=>{reads++;return true}};
     assert.equal(await authorize({...options,executorId:anonymous,isWork:false}),true);
     assert.equal(await authorize({...options,executorId:anonymous,isWork:true}),false);assert.equal(reads,0);
-    current=principal;const executorId=ctx.sandbox[source1023?'kc':'Pc'](principal);
+    current=principal;const executorId=ctx.sandbox[source1027?'sJ':source1023?'kc':'Pc'](principal);
     assert.equal(await authorize({...options,executorId,isWork:false}),true);assert.equal(reads,0);
     assert.equal(await authorize({...options,executorId,isWork:true}),true);assert.equal(reads,1);
     assert.equal(await authorize({...options,executorId,isWork:true,readAccess:async()=>false}),false);
@@ -230,10 +246,10 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
     let response={ok:true,json:async()=>({settings:{localBrowserUse:false}})}, requests=0;
     const signal=new AbortController().signal, beforeSend=()=>{}, network=()=>{};
     const access=vm.runInNewContext('('+between(text,'async function Zs(','async function dc(')+')',{
-      [source1023?'v':'_']:{[source1023?'Gt':source1021?'Wt':'ht']:async(options,fetch)=>{
+      [source1027?'sV':source1023?'v':'_']:{[source1027?'nM':source1023?'Gt':source1021?'Wt':'ht']:async(options,fetch)=>{
         requests++;assert.equal(options.path,'/wham/work/settings');assert.equal(options.request.signal,signal);
         assert.equal(options.beforeSend,beforeSend);assert.equal(fetch,network);return response;
-      }},[source1023?'Ooe':source1021?'Lae':'Gre']:{parse:value=>value},
+      }},[source1027?'sK':source1023?'Ooe':source1021?'Lae':'Gre']:{parse:value=>value},
     });
     const options={appServerClient:ctx.connection,beforeSend,fetchApplicationNetwork:network,signal};
     assert.equal(await access(options),false,'Native Work policy denial must remain authoritative');
@@ -255,6 +271,7 @@ sourceTest('actual bundled reconciler retries failed signature on focus, skips s
     if (source1007) Object.assign(sandbox,{r:{$o:()=> 'market'},l:{S:'managed'},mf:sandbox.mf,Qc:async()=>{},aie:'dev',iie:async()=>{}});
     if (source9446) sandbox.Fie=async()=>{};
     if (source1013) Object.assign(sandbox,{i:{[source1023?'Qo':source1021?'$o':source1016?'ns':'ts']:()=> 'market'},u:{S:'managed'},n:{i:{Dev:'dev',Prod:'prod'}}});
+    if(source1027) Object.assign(sandbox,{e$:{x:{Dev:'dev',Prod:'prod'}},rF:{rx:()=> 'market',J1:{}},ao:{IA:'managed'},sN:new WeakMap});
     const factory=vm.runInNewContext('('+between(text,'function jie(','function yd(')+')',sandbox);
     const instance=factory({env:{},resourcesPath:'r',runtimeMarketplaceRoot:'m',codexHome:'home',buildFlavor:'prod',isPackaged:true,appVersion:'version',globalState:{get:()=>null},getLocalAppServerConnection:()=>({listPlugins:async()=>({marketplaces:[]})})});
     await instance.reconcileExternalPluginState();assert.equal(count,0,'Focus before availability must skip destructive reconciliation');
@@ -285,6 +302,15 @@ sourceTest('actual sync and native config generator refresh current executable a
   if (source9446 && !source1016) sandbox.Pa={};
   if (source1013) Object.assign(sandbox,{l:source1023?{Bt:()=>true}:source1021?{zt:()=>true}:{St:()=>true},i:source1023?{ns:'cua_repl',os:'node_repl'}:source1021?{rs:'cua_repl',ss:'node_repl'}:source1016?{os:'cua_repl',us:'node_repl'}:{as:'cua_repl',ls:'node_repl'},oa:{}});
   if(source1023) sandbox.woe=[];
+  if(source1027) {
+    const fixture=require('./fixtures/webpack-source.cjs');
+    const paths=fixture.webpackRequire(archive)(98197);
+    Object.assign(sandbox,fixture.serviceSandbox(paths,'/mnt/c/home/plugins/browser/scripts/browser-service.mjs',options=>({'mcp_servers.node_repl':{command:options.nodeReplPath,env:options.extraEnv}})),{
+      sI:{ensureReadyPipePath:async()=>pipe},sB:[],rG:{'mcp_servers.cua_repl':{enabled:false}},rX:()=> 'resources',eg:{cPM:()=>true,cB6:paths.cB},
+    });
+    Object.assign(sandbox.ec,{Fvh:'node_repl',uC1:'cua_repl'});
+    sandbox.i0=async()=>({codexHome:'home',marketplaceName:'market',browserServicePluginVersion:'version',desktopFeatureAvailability:{},runtimePaths:{platform:'win32',nodePath:'node',nodeReplPath:'current-repl-'+(++generation),codexCliPath:'cli',nodeModuleDirs:[]},shouldUseWslPaths:true,browserBackends:['iab'],computerUse:true,computerUsePaths:{},cuaReplSurfaces:[]});
+  }
   vm.runInNewContext(between(patched,'async function Qs(','function $s(')+between(patched,'function cc(',source1013?'var Gre=':'async function dc(')+named(';globalThis.sync=cc;'),sandbox);
   await sandbox.sync({appServerConnection:connection,appVersion:'version'});
   assert.equal(calls.length,2);
@@ -298,6 +324,7 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
   const sandbox=context({process:{env:{},platform:'win32'},Vs:null,o:{bt:()=> 'helper',xt:()=> 'transport'},Bs:()=>({info(){},warning(){}})});
   if (source1007) sandbox.c={St:()=> 'helper',Ct:()=> 'transport'};
   if (source1013) sandbox.l=source1021?{W:()=> 'helper',G:()=> 'transport'}:{Et:()=> 'helper',Tt:()=> 'transport'};
+  if(source1027)Object.assign(sandbox,{eg:{nnW:()=> 'helper',slC:()=> 'transport'}});
   const factory=vm.runInNewContext('('+between(stock,'function Us(','var Ws=')+')',sandbox);
   const server={pipePath:'fixture-pipe',dispose:async()=>{disposed++},closeActiveTurn:async()=>{closed++;return true},hasActiveTurn:()=>true};
   const bridge=factory({codexHome:'fixture',platform:'win32',resourcesPath:'resources',ensureNotifyConfig:async()=>({configChanged:false}),startServer:async()=>{starts++;return server}});
@@ -308,14 +335,14 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
   bridge.dispose();await Promise.resolve();assert.equal(disposed,1);assert.equal(closed,0);
 });
 sourceTest('actual availability publisher does not send a Browser disable while capability discovery is pending',()=>{
-  const entry=source1023?{path:'webview/assets/app-runtime-22dba69f1f94.js'}:source1021?{path:'webview/assets/app-runtime-e61614157c23.js'}:asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
+  const entry=source1027?{path:'webview/assets/app-runtime-e4b4e09bd942.js'}:source1023?{path:'webview/assets/app-runtime-22dba69f1f94.js'}:source1021?{path:'webview/assets/app-runtime-e61614157c23.js'}:asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
   const initial=asar.readEntry(archive,entry.path).toString();
-  if(source1021)assert.equal(asar.sha256(Buffer.from(initial)),source1023?'e0758add2aa39e02b9adffd1277509ede5604cb9120e60de8aa1a625c251f918':'76de4e780865c9c73282a604deec2be28e9e9199836692cee2d72d3ea97fc4ed');
-  const condition=between(initial,source1023?'s||ye.isLoading||be.isLoading||':source1021?'p||De.isLoading||Oe.isLoading||':source1016?'f||_e.isLoading||ve.isLoading||':source1013?'f||ge.isLoading||_e.isLoading||':source1007?'s||le.isLoading||ue.isLoading||de.isLoading||':'s||se.isLoading||ce.isLoading||le.isLoading||',source1023?'||(Mt.dispatchMessage(`electron-desktop-features-changed`':source1021?'||(ft.dispatchMessage(`electron-desktop-features-changed`':source1016?'||(Ei.dispatchMessage(`electron-desktop-features-changed`':source1013?'||(hs.dispatchMessage(`electron-desktop-features-changed`':source1007?'||(Ho.dispatchMessage(`electron-desktop-features-changed`':'||(oh.dispatchMessage(`electron-desktop-features-changed`');
+  if(source1021)assert.equal(asar.sha256(Buffer.from(initial)),source1027?'bfe7cc48427c12348fb0ab75806de4861caa898b815e68950e63dcfeb09b8f28':source1023?'e0758add2aa39e02b9adffd1277509ede5604cb9120e60de8aa1a625c251f918':'76de4e780865c9c73282a604deec2be28e9e9199836692cee2d72d3ea97fc4ed');
+  const condition=between(initial,source1027?'s||ve.isLoading||I.isLoading||':source1023?'s||ye.isLoading||be.isLoading||':source1021?'p||De.isLoading||Oe.isLoading||':source1016?'f||_e.isLoading||ve.isLoading||':source1013?'f||ge.isLoading||_e.isLoading||':source1007?'s||le.isLoading||ue.isLoading||de.isLoading||':'s||se.isLoading||ce.isLoading||le.isLoading||',source1027?'||(jr.dispatchMessage(`electron-desktop-features-changed`':source1023?'||(Mt.dispatchMessage(`electron-desktop-features-changed`':source1021?'||(ft.dispatchMessage(`electron-desktop-features-changed`':source1016?'||(Ei.dispatchMessage(`electron-desktop-features-changed`':source1013?'||(hs.dispatchMessage(`electron-desktop-features-changed`':source1007?'||(Ho.dispatchMessage(`electron-desktop-features-changed`':'||(oh.dispatchMessage(`electron-desktop-features-changed`');
   let published=0;
-  const run=pending=>vm.runInNewContext(condition+'||publish()',source1023 ? {s:false,ye:{isLoading:pending},be:{isLoading:false},c:true,xe:{isLoading:false},Oe:{isLoading:false},je:{isLoading:false},re:'available',M:{status:'allowed'},Ze:{status:'allowed'},Qe:{status:'allowed'},publish:()=>{published++}} : source1021 ? {p:false,De:{isLoading:pending},Oe:{isLoading:false},m:true,P:{isLoading:false},Fe:{isLoading:false},Re:{isLoading:false},le:'available',ie:{status:'allowed'},rt:{status:'allowed'},it:{status:'allowed'},publish:()=>{published++}} : source1016 ? {f:false,_e:{isLoading:pending},ve:{isLoading:false},p:true,ye:{isLoading:false},Ee:{isLoading:false},Oe:{isLoading:false},U:'available',L:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1013 ? {f:false,ge:{isLoading:pending},_e:{isLoading:false},p:true,ve:{isLoading:false},Te:{isLoading:false},De:{isLoading:false},H:'available',I:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1007 ? {s:false,le:{isLoading:pending},ue:{isLoading:false},de:{isLoading:false},ve:{isLoading:false},be:{isLoading:false},I:'available',A:{status:'allowed'},Ve:{status:'allowed'},He:{status:'allowed'},publish:()=>{published++}} : {
+  const run=pending=>vm.runInNewContext(condition+'||publish()',source1027 ? {s:false,ve:{isLoading:pending},I:{isLoading:false},c:true,ye:{isLoading:false},Ee:{isLoading:false},ke:{isLoading:false},ae:'available',te:{status:'allowed'},Ye:{status:'allowed'},Xe:{status:'allowed'},publish:()=>{published++}} : source1023 ? {s:false,ye:{isLoading:pending},be:{isLoading:false},c:true,xe:{isLoading:false},Oe:{isLoading:false},je:{isLoading:false},re:'available',M:{status:'allowed'},Ze:{status:'allowed'},Qe:{status:'allowed'},publish:()=>{published++}} : source1021 ? {p:false,De:{isLoading:pending},Oe:{isLoading:false},m:true,P:{isLoading:false},Fe:{isLoading:false},Re:{isLoading:false},le:'available',ie:{status:'allowed'},rt:{status:'allowed'},it:{status:'allowed'},publish:()=>{published++}} : source1016 ? {f:false,_e:{isLoading:pending},ve:{isLoading:false},p:true,ye:{isLoading:false},Ee:{isLoading:false},Oe:{isLoading:false},U:'available',L:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1013 ? {f:false,ge:{isLoading:pending},_e:{isLoading:false},p:true,ve:{isLoading:false},Te:{isLoading:false},De:{isLoading:false},H:'available',I:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1007 ? {s:false,le:{isLoading:pending},ue:{isLoading:false},de:{isLoading:false},ve:{isLoading:false},be:{isLoading:false},I:'available',A:{status:'allowed'},Ve:{status:'allowed'},He:{status:'allowed'},publish:()=>{published++}} : {
     s:false,se:{isLoading:pending},ce:{isLoading:false},le:{isLoading:false},ge:{isLoading:false},ve:{isLoading:false},P:'available',O:{status:'allowed'},ze:{status:'allowed'},Be:{status:'allowed'},publish:()=>{published++},
   });
   run(true);assert.equal(published,0);run(false);assert.equal(published,1);
-  assert(initial.includes(source1023?'inAppBrowserUse:ye.available':source1021?'inAppBrowserUse:De.available':source1016?'inAppBrowserUse:_e.available':source1013?'inAppBrowserUse:ge.available':source1007?'inAppBrowserUse:le.available':'inAppBrowserUse:se.available')&&initial.includes(source1023?'inAppBrowserUseAllowed:ye.allowed':source1021?'inAppBrowserUseAllowed:De.allowed':source1016?'inAppBrowserUseAllowed:_e.allowed':source1013?'inAppBrowserUseAllowed:ge.allowed':source1007?'inAppBrowserUseAllowed:le.allowed':'inAppBrowserUseAllowed:se.allowed'));
+  assert(initial.includes(source1027?'inAppBrowserUse:ve.available':source1023?'inAppBrowserUse:ye.available':source1021?'inAppBrowserUse:De.available':source1016?'inAppBrowserUse:_e.available':source1013?'inAppBrowserUse:ge.available':source1007?'inAppBrowserUse:le.available':'inAppBrowserUse:se.available')&&initial.includes(source1027?'inAppBrowserUseAllowed:ve.allowed':source1023?'inAppBrowserUseAllowed:ye.allowed':source1021?'inAppBrowserUseAllowed:De.allowed':source1016?'inAppBrowserUseAllowed:_e.allowed':source1013?'inAppBrowserUseAllowed:ge.allowed':source1007?'inAppBrowserUseAllowed:le.allowed':'inAppBrowserUseAllowed:se.allowed'));
 });
