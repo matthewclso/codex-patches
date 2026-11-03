@@ -27,7 +27,7 @@ function compose(bytes, selected) {
   }
   return { ...result, changes: result.report.changes, build: result.report.build };
 }
-let original, archive, sourcePlan, currentSource, latestSource, newestSource, source7945, source1002, source1007, source9446, source1013, source1016, source1021, source1023, source1027, webpackLoad, webpackPaths;
+let original, archive, sourcePlan, currentSource, latestSource, newestSource, source7945, source1002, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, webpackLoad, webpackPaths;
 
 function modulePath(patch) { return sourcePlan.patches.find(p => p.id === patch.id).targetPath; }
 function packed(name) { return asar.readEntry(archive, name).toString('utf8'); }
@@ -38,7 +38,8 @@ function setup() {
   const known = require('../compatibility/current.json').builds.find(b => b.archiveSha256 === asar.sha256(original));
   sourcePlan = app.inspectArchive(original, app.listPatches().filter(p => !known || known.patches[p.id]?.status === 'needed').map(p => p.id), { allowUnknownForAudit: true });
   // Fixture names are selected only for the exact reviewed source archive.
-  source1027 = sourcePlan.sourceArchiveHash === '6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
+  source6604 = sourcePlan.sourceArchiveHash === 'faacb124f33b792bd2c88fbe8b1215fb6869d81b145a919260e16ac11d9c1451';
+  source1027 = source6604 || sourcePlan.sourceArchiveHash === '6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
   if(source1027) { webpackLoad=require('./fixtures/webpack-source.cjs').webpackRequire(archive);webpackPaths=webpackLoad(98197); }
   source1023 = source1027 || sourcePlan.sourceArchiveHash === '99ed83950473e34e642f2942226bf40ce9b65e9910afbe8e406120459823c02d';
   source1021 = source1023 || sourcePlan.sourceArchiveHash === '04862a659c6a90fc50514d8c0b8016709d97dece58839726c57495ed72f1d9f0';
@@ -138,7 +139,7 @@ sourceTest('actual in-app eligibility preserves all prerequisites across 256 cas
     if (before !== after) { changed++; assert.equal(before, 'wsl-disabled'); assert.equal(after, 'available'); assert.equal(options.runCodexInWsl, true); }
   }
   assert(changed > 0);
-  const external = between(source, source1027 ? 'function dKn(' : source1023 ? 'function Ljn(' : source1021 ? 'function jPn(' : source1016 ? 'function UBn(' : source1013 ? 'function cRn(' : source1007 ? 'function HJr(' : source1002 ? 'function iGr(' : newestSource ? 'function HBr(' : latestSource ? 'function VBr(' : currentSource ? 'function HBr(' : 'function _Br(', source1027 ? 'var fKn;' : source1023 ? 'var Rjn;' : source1021 ? 'var MPn;' : source1016 ? 'var WBn;' : source1013 ? 'var lRn;' : source1007 ? 'var UJr;' : source1002 ? 'var aGr;' : newestSource ? 'var UBr;' : latestSource ? 'var HBr;' : currentSource ? 'var UBr;' : 'var vBr;');
+  const external = between(source, source6604 ? 'function lKn(' : source1027 ? 'function dKn(' : source1023 ? 'function Ljn(' : source1021 ? 'function jPn(' : source1016 ? 'function UBn(' : source1013 ? 'function cRn(' : source1007 ? 'function HJr(' : source1002 ? 'function iGr(' : newestSource ? 'function HBr(' : latestSource ? 'function VBr(' : currentSource ? 'function HBr(' : 'function _Br(', source6604 ? 'var uKn;' : source1027 ? 'var fKn;' : source1023 ? 'var Rjn;' : source1021 ? 'var MPn;' : source1016 ? 'var WBn;' : source1013 ? 'var lRn;' : source1007 ? 'var UJr;' : source1002 ? 'var aGr;' : newestSource ? 'var UBr;' : latestSource ? 'var HBr;' : currentSource ? 'var UBr;' : 'var vBr;');
   assert(patched.includes(external), 'External browser gate changed');
 });
 function generator(source, platform, useWsl, servicePath, backends) {
@@ -249,9 +250,9 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
   if (source1016) { context.e2=100;context.t2=8;context.ce=context.V;context.i={...context.r,ys:keys,Cs:id=>id,Qi:context.r.Xi}; }
   if (source1021) { context.R2=100;context.z2=8;context.se=context.V;context.l.tn=context.o.Gt;context.i={...context.r,gs:keys,bs:id=>id,Gi:context.r.Xi,d:context.r.u,f:context.r.d}; }
   if (source1023) { context.B1=100;context.V1=8;context.ce=context.V;context.l.nn=context.o.Gt;context.i={...context.r,hs:keys,ys:id=>id,Ki:context.r.Xi,d:context.r.u,f:context.r.d}; }
-  if(source1027)Object.assign(context,{PD:context.V,bt:context.r.Xi,vn:context.o.Gt,ec:{Q2Y:keys,JXB:id=>id,Mxp:context.r.u,RWz:context.r.d}});
-  const synchronizerSource = source1027 ? between(source,'class efn{','class efi{').replace('class efn','class') : between(source, source1023 ? 'Cdt=class{' : source1021 ? 'Sct=class{' : source1016 ? 'vGe=class{' : source1013 ? 'qWe=class{' : source9446 ? 'kHe=class{' : source1007 ? 'DHe=class{' : source1002 ? 'hVe=class{' : latestSource ? 'gBe=class{' : currentSource ? 'hBe=class{' : 'pVe=class{', source1023 ? '},wdt=' : source1021 ? '},Cct=' : source1016 ? '},yGe=' : source1013 ? '},JWe=' : source9446 ? '},AHe=' : source1007 ? '},OHe=' : source1002 ? '},gVe=' : latestSource ? '},_Be=' : currentSource ? '},gBe=' : '},mVe=').slice(4) + '}';
-  const helpers = source1027 ? between(source,'async function efr(','class efn{') : between(source, source1023 ? 'async function z1(' : source1021 ? 'async function L2(' : source1016 ? 'async function $0(' : source1013 ? 'async function Q0(' : source9446 ? 'async function u4(' : source1007 ? 'async function d4(' : source1002 ? 'async function u4(' : currentSource ? 'async function c4(' : 'async function m3(', source1023 ? 'var B1=' : source1021 ? 'var R2=' : source1016 ? 'var e2=' : source1013 ? 'var $0=' : source9446 ? 'var d4=' : source1007 ? 'var f4=' : source1002 ? 'var d4=' : currentSource ? 'var l4=' : 'var h3=');
+  if(source1027)Object.assign(context,{[source6604?'PF':'PD']:context.V,[source6604?'bi':'bt']:context.r.Xi,vn:context.o.Gt,ec:{Q2Y:keys,JXB:id=>id,Mxp:context.r.u,RWz:context.r.d}});
+  const synchronizerSource = source1027 ? between(source,source6604?'class efl{':'class efn{',source6604?'class efc{':'class efi{').replace(/^class \w+/,'class') : between(source, source1023 ? 'Cdt=class{' : source1021 ? 'Sct=class{' : source1016 ? 'vGe=class{' : source1013 ? 'qWe=class{' : source9446 ? 'kHe=class{' : source1007 ? 'DHe=class{' : source1002 ? 'hVe=class{' : latestSource ? 'gBe=class{' : currentSource ? 'hBe=class{' : 'pVe=class{', source1023 ? '},wdt=' : source1021 ? '},Cct=' : source1016 ? '},yGe=' : source1013 ? '},JWe=' : source9446 ? '},AHe=' : source1007 ? '},OHe=' : source1002 ? '},gVe=' : latestSource ? '},_Be=' : currentSource ? '},gBe=' : '},mVe=').slice(4) + '}';
+  const helpers = source1027 ? between(source,source6604?'async function efo(':'async function efr(',source6604?'class efl{':'class efn{') : between(source, source1023 ? 'async function z1(' : source1021 ? 'async function L2(' : source1016 ? 'async function $0(' : source1013 ? 'async function Q0(' : source9446 ? 'async function u4(' : source1007 ? 'async function d4(' : source1002 ? 'async function u4(' : currentSource ? 'async function c4(' : 'async function m3(', source1023 ? 'var B1=' : source1021 ? 'var R2=' : source1016 ? 'var e2=' : source1013 ? 'var $0=' : source9446 ? 'var d4=' : source1007 ? 'var f4=' : source1002 ? 'var d4=' : currentSource ? 'var l4=' : 'var h3=');
   const Synchronizer = vm.runInNewContext(helpers + '\n(' + synchronizerSource + ')', context);
   const state = { get: key => record[key], set: (key, value) => { record[key] = value; }, update: (key, fn) => { record[key] = fn(record[key]); } };
   const connection = { sendAppServerRequest: async (method, params) => {
@@ -305,7 +306,7 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
   assert.equal(await start.call(backend, { projectKind: 'remote', projectId: 'other' }), null);
   const rendererPath = asar.listEntries(archive.tree).find(entry => /^webview\/assets\/app-initial-[^/]+\.js$/.test(entry.path)).path;
   const creation = vm.runInNewContext('({' + between(packed(rendererPath), 'async readCreationInputs(e,t){', 'async readPrewarmInputs(') + '})', {
-    [source1027 ? 'Qi' : source1023 ? 'di' : source1021 ? 'mi' : source1016 ? 'Js' : source1013 ? 'Oi' : source1007 ? 'Pd' : source1002 ? 'wu' : newestSource ? 've' : latestSource ? '_e' : currentSource ? 'Se' : 'qc']: { threadProjectAssignments: { getThreadStartProjectId: value => start.call(backend, value) } },
+    [source6604 ? 'Yi' : source1027 ? 'Qi' : source1023 ? 'di' : source1021 ? 'mi' : source1016 ? 'Js' : source1013 ? 'Oi' : source1007 ? 'Pd' : source1002 ? 'wu' : newestSource ? 've' : latestSource ? '_e' : currentSource ? 'Se' : 'qc']: { threadProjectAssignments: { getThreadStartProjectId: value => start.call(backend, value) } },
   }).readCreationInputs;
   const runtime = { params: { hostId: 'local' }, readInputs: async () => ({ hasDesktopRuntime: true }) };
   const inputs = { projectAssignment: assignment('legacy-research'), memoryPreferences: { useMemories: false } };

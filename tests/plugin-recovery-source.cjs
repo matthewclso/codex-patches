@@ -8,7 +8,7 @@ const app = require('../lib/app-patches.cjs');
 let feature = require('../patches/browser-feature-recovery/index.cjs');
 let runtime = require('../patches/runtime-sync-recovery/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
-let archive, source1007, source9446, source1013, source1016, source1021, source1023, source1027, selected;
+let archive, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, selected;
 // Fixture aliases are bound to one exact reviewed archive, never guessed.
 const currentNames = { Q8:'$8', Ck:'Xk', Q:'X', Kgi:'bbi', Jgi:'Sbi', Qgi:'Ebi', $gi:'Dbi', yI:'II', f6:'p6', Wgi:'vbi', e_i:'Obi',
   sGr:'GJr', cGr:'KJr', lGr:'qJr', Ik:'pA', DHr:'tKr', IU:'nW', IHr:'uKr', D2:'S2', QN:'cP', JOn:'$kn', uzt:'pzt',
@@ -57,13 +57,18 @@ const oct27Names = { ...oct23Names,
   jie:'__fixtureReconciler',yd:'lm',La:'r0',Ia:'rX',hd:'ll',ai:'th',gd:'ld',Kc:'ai',Oie:'lc',sne:'n0',Lo:'nX',Cne:'__unused',_d:'lu',ua:'rF',
   M:'__fixtureProcess',Ts:'i1',Hs:'__fixturePipe',Ks:'sM',$s:'__fixtureGenerator',Na:'rY',Mne:'iY',Ma:'rJ',nc:'__unusedEdits',Us:'__fixtureManagedPipe',Ws:'__unusedPipe',Vs:'sI',Bs:'sC',Xs:'sJ',Zs:'sZ',Gre:'sK',
 };
-const names = () => source1027 ? oct27Names : source1023 ? oct23Names : source1021 ? oct21Names : source1016 ? oct16Names : source1013 ? modernNames : source9446 ? latestNames : currentNames;
+const build6604Names = { ...oct27Names,
+  Q8:'Mb',Kgi:'vPt',Jgi:'bPt',Qgi:'wPt',$gi:'TPt',yI:'Ln',f6:'ag',Wgi:'gPt',e_i:'EPt',
+  sGr:'fKn',cGr:'pKn',lGr:'mKn',Ik:'fs',DHr:'sGn',IU:'vb',IHr:'SGn',D2:'qk',QN:'er',JOn:'Hr',uzt:'HNt',lkn:'Flt',ukn:'Ilt',zK:'bg',
+};
+const names = () => source6604 ? build6604Names : source1027 ? oct27Names : source1023 ? oct23Names : source1021 ? oct21Names : source1016 ? oct16Names : source1013 ? modernNames : source9446 ? latestNames : currentNames;
 const named = text => source1007 ? text.replace(/[A-Za-z_$][\w$]*/g, name => names()[name] ?? name) : text;
 const context = values => source1007 ? Object.fromEntries(Object.entries(values).map(([key,value]) => [names()[key] ?? key, value])) : values;
 function setup(t) {
   if (selected) return true;
   const bytes=fs.readFileSync(sourcePath); archive=asar.parseArchive(bytes);
-  source1027=asar.sha256(bytes)==='6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
+  source6604=asar.sha256(bytes)==='faacb124f33b792bd2c88fbe8b1215fb6869d81b145a919260e16ac11d9c1451';
+  source1027=source6604||asar.sha256(bytes)==='6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
   source1023=source1027 || asar.sha256(bytes)==='99ed83950473e34e642f2942226bf40ce9b65e9910afbe8e406120459823c02d';
   source1021=source1023 || asar.sha256(bytes)==='04862a659c6a90fc50514d8c0b8016709d97dece58839726c57495ed72f1d9f0';
   source1016=source1021 || asar.sha256(bytes)==='760eae730e57438a0693cab4aba5ed8b7eb0ea1c5b7a7dc26dd0e84c2398810f';
@@ -115,7 +120,7 @@ function capability(s, query, policy, name='browser.in-app', provider) {
   assert.equal(descriptors['browser.in-app'].settings.length,0);assert.equal(descriptors['browser.in-app'].statsig.length,0);
   assert(between(s,'function sGr(','function cGr(').includes('a={name:`browser.in-app`}'));
   const sandbox = context({ Q:{},Ck:(_q,fn)=>fn,Qgi:vm.runInNewContext('('+between(s,'function Qgi(','function $gi(')+')'),$gi:()=>{},yI:'local',f6:'features',Wgi:{'workspace-in-app-browser':'policy'},e_i:descriptors });
-  if (source1016) Object.assign(sandbox,source1027?{Tg:'provider-gate',sg:'provider-config',Uh:value=>value}:source1023?{Lg:'provider-gate',yg:'provider-config',ng:value=>value}:source1021?{e_:'provider-gate',Ig:'provider-config',dg:value=>value}:{Fh:'provider-gate',xh:'provider-config',Xm:value=>value});
+  if (source1016) Object.assign(sandbox,source6604?{_g:'provider-gate',$h:'provider-config',Ih:value=>value}:source1027?{Tg:'provider-gate',sg:'provider-config',Uh:value=>value}:source1023?{Lg:'provider-gate',yg:'provider-config',ng:value=>value}:source1021?{e_:'provider-gate',Ig:'provider-config',dg:value=>value}:{Fh:'provider-gate',xh:'provider-config',Xm:value=>value});
   const fn=vm.runInNewContext(code,sandbox);
   return JSON.parse(JSON.stringify(fn({name},{get:(key,host)=>{if(key==='provider-gate')return true;if(key==='provider-config'){assert.equal(host.hostId,'local');assert.equal(host.failClosed,true);return provider}if(key==='features'){assert.equal(host,'local');return query}return policy}})));
 }
@@ -335,9 +340,9 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
   bridge.dispose();await Promise.resolve();assert.equal(disposed,1);assert.equal(closed,0);
 });
 sourceTest('actual availability publisher does not send a Browser disable while capability discovery is pending',()=>{
-  const entry=source1027?{path:'webview/assets/app-runtime-e4b4e09bd942.js'}:source1023?{path:'webview/assets/app-runtime-22dba69f1f94.js'}:source1021?{path:'webview/assets/app-runtime-e61614157c23.js'}:asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
+  const entry=source6604?{path:'webview/assets/app-runtime-3212efed978b.js'}:source1027?{path:'webview/assets/app-runtime-e4b4e09bd942.js'}:source1023?{path:'webview/assets/app-runtime-22dba69f1f94.js'}:source1021?{path:'webview/assets/app-runtime-e61614157c23.js'}:asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
   const initial=asar.readEntry(archive,entry.path).toString();
-  if(source1021)assert.equal(asar.sha256(Buffer.from(initial)),source1027?'bfe7cc48427c12348fb0ab75806de4861caa898b815e68950e63dcfeb09b8f28':source1023?'e0758add2aa39e02b9adffd1277509ede5604cb9120e60de8aa1a625c251f918':'76de4e780865c9c73282a604deec2be28e9e9199836692cee2d72d3ea97fc4ed');
+  if(source1021)assert.equal(asar.sha256(Buffer.from(initial)),source6604?'43c18959f692f73ef7eef4024d3dff6dcffe6bc9c11cdc8b90fd0c49be9e5343':source1027?'bfe7cc48427c12348fb0ab75806de4861caa898b815e68950e63dcfeb09b8f28':source1023?'e0758add2aa39e02b9adffd1277509ede5604cb9120e60de8aa1a625c251f918':'76de4e780865c9c73282a604deec2be28e9e9199836692cee2d72d3ea97fc4ed');
   const condition=between(initial,source1027?'s||ve.isLoading||I.isLoading||':source1023?'s||ye.isLoading||be.isLoading||':source1021?'p||De.isLoading||Oe.isLoading||':source1016?'f||_e.isLoading||ve.isLoading||':source1013?'f||ge.isLoading||_e.isLoading||':source1007?'s||le.isLoading||ue.isLoading||de.isLoading||':'s||se.isLoading||ce.isLoading||le.isLoading||',source1027?'||(jr.dispatchMessage(`electron-desktop-features-changed`':source1023?'||(Mt.dispatchMessage(`electron-desktop-features-changed`':source1021?'||(ft.dispatchMessage(`electron-desktop-features-changed`':source1016?'||(Ei.dispatchMessage(`electron-desktop-features-changed`':source1013?'||(hs.dispatchMessage(`electron-desktop-features-changed`':source1007?'||(Ho.dispatchMessage(`electron-desktop-features-changed`':'||(oh.dispatchMessage(`electron-desktop-features-changed`');
   let published=0;
   const run=pending=>vm.runInNewContext(condition+'||publish()',source1027 ? {s:false,ve:{isLoading:pending},I:{isLoading:false},c:true,ye:{isLoading:false},Ee:{isLoading:false},ke:{isLoading:false},ae:'available',te:{status:'allowed'},Ye:{status:'allowed'},Xe:{status:'allowed'},publish:()=>{published++}} : source1023 ? {s:false,ye:{isLoading:pending},be:{isLoading:false},c:true,xe:{isLoading:false},Oe:{isLoading:false},je:{isLoading:false},re:'available',M:{status:'allowed'},Ze:{status:'allowed'},Qe:{status:'allowed'},publish:()=>{published++}} : source1021 ? {p:false,De:{isLoading:pending},Oe:{isLoading:false},m:true,P:{isLoading:false},Fe:{isLoading:false},Re:{isLoading:false},le:'available',ie:{status:'allowed'},rt:{status:'allowed'},it:{status:'allowed'},publish:()=>{published++}} : source1016 ? {f:false,_e:{isLoading:pending},ve:{isLoading:false},p:true,ye:{isLoading:false},Ee:{isLoading:false},Oe:{isLoading:false},U:'available',L:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1013 ? {f:false,ge:{isLoading:pending},_e:{isLoading:false},p:true,ve:{isLoading:false},Te:{isLoading:false},De:{isLoading:false},H:'available',I:{status:'allowed'},Je:{status:'allowed'},Ye:{status:'allowed'},publish:()=>{published++}} : source1007 ? {s:false,le:{isLoading:pending},ue:{isLoading:false},de:{isLoading:false},ve:{isLoading:false},be:{isLoading:false},I:'available',A:{status:'allowed'},Ve:{status:'allowed'},He:{status:'allowed'},publish:()=>{published++}} : {

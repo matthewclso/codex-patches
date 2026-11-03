@@ -110,3 +110,14 @@ module.exports.revisions.push({
   after: after.replace('function xBr(', 'function hKn('),
   apply: (source, replace) => replace(source, before.replace('function xBr(', 'function hKn('), after.replace('function xBr(', 'function hKn(')),
 });
+
+const previous = module.exports.revisions.at(-1);
+
+module.exports.revisions.push({
+  ...previous,
+  targetPath: 'webview/assets/app-initial-fb51ee65d20a.js',
+  sourceSha256: '94001fc51aec3914b369f7ffbc497980c007a45b192034234d0e3eb933136206',
+  before: previous.before.replace('function hKn(', 'function pKn('),
+  after: previous.after.replace('function hKn(', 'function pKn('),
+  apply(source, replace) { return replace(source, this.before, this.after); },
+});
