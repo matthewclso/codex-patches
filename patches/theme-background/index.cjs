@@ -43,3 +43,9 @@ module.exports.revisions.push({
     return replace(source, this.stylesheetBefore, this.stylesheetAfter);
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: 'webview/assets/app-theme-e32c698b2a48.js',
+  sourceSha256: 'ce999cd54682d518f3194a36641566173729ad6462a33b00e4b08df2b39099af',
+});

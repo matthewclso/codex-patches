@@ -124,3 +124,17 @@ module.exports.revisions.push({
     return source;
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: 'webview/assets/app-initial-fb51ee65d20a.js',
+  sourceSha256: '94001fc51aec3914b369f7ffbc497980c007a45b192034234d0e3eb933136206',
+  capabilityBefore: oct27CapabilityBefore.replace('t(pg,', 't(ag,'),
+  capabilityAfter: oct27CapabilityAfter.replace('t(pg,', 't(ag,'),
+  pendingBefore: oct27PendingBefore.replace('_s(Gb,', 'fs(Mb,').replace('Mb(`410262010`)', 'vb(`410262010`)'),
+  pendingAfter: oct27PendingAfter.replace('_s(Gb,', 'fs(Mb,').replace('Mb(`410262010`)', 'vb(`410262010`)'),
+  apply(source, replace) {
+    for (const [before, after] of [[policyBefore, policyAfter], [this.capabilityBefore, this.capabilityAfter], [this.pendingBefore, this.pendingAfter], [requirementsBefore, requirementsAfter]]) source = replace(source, before, after);
+    return source;
+  },
+});

@@ -145,3 +145,9 @@ module.exports.revisions.push({
     return replace(source, 'async function o0(', 'function codexPetHome(e,t){let n=(0,q.D)({preferWsl:t});return e.sep===`/`?(0,tK.cB)(n):n}async function o0(');
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: '.vite/build/early-bootstrap-339-6c8e32eb8f647578.js',
+  sourceSha256: '1cc6cdd387ae6a1cc14f13d9f97270c182999cec536d0edd896fe33d0a397672',
+});
