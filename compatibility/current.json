@@ -1541,6 +1541,124 @@
           "reviewRecord": "compatibility/reviews/26.1027.6604.0.json"
         }
       }
+    },
+    {
+      "packageVersion": "26.1029.7803.0",
+      "appVersion": "26.1029.61003",
+      "cliVersion": "0.166.0-alpha.6",
+      "archiveSha256": "77ed4ddc5b388ac8b29f5035f9c98f982b095df55aad6fa6c27bb80d763b9691",
+      "executableSha256": "74dcbc67421c5d5406ea5e4cc80d9c8d8a05d0df62f1d7be5690f090f182e71f",
+      "cliLinuxSha256": "61e3d01014af380737cff11499d7e624595869920097dff24a395d5607b8a150",
+      "cliWindowsSha256": "925c7d0665ffa49b0dcf748e034a805a04da984164ac92301432073b47789b99",
+      "codeModeLinuxSha256": "81f50d5e30d678b5232f6ce3329a97da169614a14d0f9a9585281e2867a05559",
+      "codeModeWindowsSha256": "ddd144291738f99b3f2254e0d9759fd7f8adac057405883ed8f1ccd9ad4502b4",
+      "nodeWindowsSha256": "716e280a42c8d433cf080de2943b85863ce2afae8061e9f8599533e56786d8e7",
+      "headerSha256": "8063f0ad77fb9ac1425dde36d90f0b7495f315f2ab154929859b7c529bb27c46",
+      "executableRelativePath": "ChatGPT.exe",
+      "auditedAt": "2026-11-03",
+      "acceptance": "Automated package and source review; interactive desktop and real-phone acceptance pending. See compatibility/reviews/26.1029.7803.0.json",
+      "patches": {
+        "custom-pets": {
+          "status": "needed",
+          "targetPath": ".vite/build/early-bootstrap-339-f66dad1753c54789.js",
+          "sourceSha256": "862a1b283e239cda5eb840e39b822b8dfbfffe12427dc765539579ecc526cca0",
+          "outputSha256": "1bb8a72b02ca5bcbc12eba81e86dc6711f8ccda7ba547f26b1cc1a7ddacc96df",
+          "evidence": "The Webpack pet loader still joins a Windows home using POSIX paths. Native source functions and filesystem/validation utilities verify discovery, selection, installation, collision suffixes and traversal rejection across Windows, POSIX and WSL UNC homes. PET-1/2.",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        },
+        "browser-wsl": {
+          "status": "needed",
+          "targetPath": "webview/assets/async/24191.589dcc9878.js",
+          "sourceSha256": "bd23d61085fcad60b8f582112d4ca0695b34204510cff900ba0f87c9c61228d0",
+          "outputSha256": "47d74a5f5ad777edaa769372874bfdcb0a9950ef7e1cfdcb96c89c46539de256",
+          "evidence": "The current stock inlined in-app predicate still rejects WSL. All 256 prerequisite combinations change only that rejection; the native external-browser module remains unchanged. BROWSER-1.",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        },
+        "browser-service-path": {
+          "status": "needed",
+          "targetPath": ".vite/build/early-bootstrap-632-62c641245a52ef0e.js",
+          "sourceSha256": "c16675e64dae86bdb09f7720f038a8c2f2beacf0e85bbadd369f407d38662aa4",
+          "outputSha256": "f4dc82317301c4084725cd0da10decb0915b8d266e93713d623f77e0729acf4a",
+          "evidence": "The native inlined generator still emits a POSIX trusted-service path on Windows. Across 90 cases its patch uses the existing Windows converter only under WSL on win32, retaining other generated fields. BROWSER-2/3.",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        },
+        "project-memberships": {
+          "status": "needed",
+          "targetPath": ".vite/build/early-bootstrap-632-62c641245a52ef0e.js",
+          "sourceSha256": "c16675e64dae86bdb09f7720f038a8c2f2beacf0e85bbadd369f407d38662aa4",
+          "outputSha256": "1a71bd3e69807fc020c356dfa27f0ab72f55b1bf8e921d6baaf3fb218f2bd950",
+          "evidence": "Native membership gate remains separately controlled by localProjectTaskMembership. Actual-source tests cover explicit migration, shared cwd, new assignments, moves, clearing and backend/host guards; stock CLI tests persist initial/moved/cleared IDs. Android display acceptance remains pending. PROJECT-2/3/4.",
+          "defaultMode": "disabled",
+          "nativeSynchronizerSha256": "819f24c3431fa0fe431a2459bb3d62e27d1b49163a727bf55a70aad144fb0833",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        },
+        "browser-feature-recovery": {
+          "status": "needed",
+          "targetPath": "webview/assets/async/24191.589dcc9878.js",
+          "sourceSha256": "bd23d61085fcad60b8f582112d4ca0695b34204510cff900ba0f87c9c61228d0",
+          "outputSha256": "e4e7875ed6c8ab82bb1cc9fefcb1bd7c33d23ad0645286d8a28491be3b6982c6",
+          "evidence": "Current Rspack module factories preserve confirmed Browser config across transient discovery errors, keep unknown results pending, and enforce explicit denial, native workspace policy and unrelated first-party inference restrictions. The inlined hook and native pending publisher are tested. BROWSER-1/2/3/4; live agent acceptance pending.",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        },
+        "runtime-sync-recovery": {
+          "status": "needed",
+          "targetPath": ".vite/build/early-bootstrap-632-62c641245a52ef0e.js",
+          "sourceSha256": "c16675e64dae86bdb09f7720f038a8c2f2beacf0e85bbadd369f407d38662aa4",
+          "outputSha256": "62d3ec2c74548d10b02bf156bf1455b9f3eed4a25507fa048f3864cd3eed0df8",
+          "evidence": "Current native functions still need bounded sync retries, coalesced snapshot recovery, failed-signature invalidation and focus retry. Preserve latest explicit disables, API-key/authenticated identities, Work policy denials, account-switch checks, active-turn protection and the native generator\u2019s local-only audio restriction. BROWSER-1/2/3/4, LIFECYCLE-3/4; live acceptance pending.",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        },
+        "theme-background": {
+          "status": "needed",
+          "targetPath": "webview/assets/async/496175.cf5ad221c1.js",
+          "sourceSha256": "79cd497b3586afdb4edd6a50e9cab6e0c255ea60ee0e04808c1b5dd7cc649376",
+          "outputSha256": "d0fa6dca0cd2cfeb405e66b66095fb9d136deed4e54731da67f8f07b96a465d1",
+          "evidence": "THEME-1: current stock theme still derives a different sidebar/native-window background and leaves Windows frames exposed to native material. Current-source palette/stylesheet checks and 32 Chromium layout/theme cases use the current root/shell CSS and application-menu layout, preserve contrast/opacity preferences, and verify the corrected scoped frame rule. Earlier live mismatch and Application Control block remain recorded; current desktop acceptance is pending.",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        }
+      },
+      "verifiedPackedEntries": 19388,
+      "composedApp": {
+        "selectedIds": [
+          "custom-pets",
+          "browser-wsl",
+          "browser-service-path",
+          "browser-feature-recovery",
+          "runtime-sync-recovery",
+          "theme-background"
+        ],
+        "archiveSha256": "56c8e7a47047effeca674e12b22ea6d118ce571b493defc391bf39ebb3d7da22",
+        "headerSha256": "cb47a44cc4f45051ac6b2c75a18533dbb2fa45dc3dbd89252ebae2b13260f9d5",
+        "executableSha256": "21333a188891bd0faea3a5242451a5dbf94053c793a65e65b0e961715e5196c6"
+      },
+      "runtimePatches": {
+        "wsl-project-paths": {
+          "status": "needed",
+          "evidence": "Bundled stock CLI 0.166.0-alpha.6 rejects matching WSL UNC project/create roots. Proxy plus relay returns canonical POSIX roots in isolated home/database; EOF and SIGTERM release owned children and relay port. PATH-1/2.",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        },
+        "remote-fast-list": {
+          "status": "needed",
+          "evidence": "Bundled stock CLI 0.166.0-alpha.6 returns project-filtered SQLite witnesses but omits both witnesses from unfiltered native Remote Control requests with false or omitted useStateDbOnly. Relay returns both while preserving filters, pagination, pairing reuse and cursor reconnect. REMOTE-1/2/3; real-phone acceptance pending.",
+          "nativeMockWitnesses": {
+            "stateDbWitnesses": 2,
+            "stockProjectFiltered": 1,
+            "stockUnfiltered": 0,
+            "relayedUnfiltered": 2
+          },
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        },
+        "connector-routing": {
+          "status": "needed",
+          "evidence": "Stock CLI 0.166.0-alpha.6 sends managed credentials to account checks but omits them from hosted Apps MCP requests at a global loopback backend and attempts OAuth discovery. Native per-thread chatgpt_base_url routing retains the official managed-auth endpoint; current native remote-first discovery, scoped errors, normal lifecycle and listing/reconnect tests pass. No credentials are copied by the adapter. CONNECTOR-1/2; authenticated desktop inventory for this build remains pending.",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        },
+        "primary-runtime-cache": {
+          "status": "needed",
+          "evidence": "Stock CLI 0.166.0-alpha.6 rejects openai-primary-runtime at the mismatched cache location and accepts it after process-local cache alignment. Native reserved-name/source checks and existing cache data remain intact; explicit conflicting preferences fail closed. RUNTIME-1.",
+          "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
+        }
+      }
     }
   ],
   "retired": [
@@ -1576,7 +1694,8 @@
         "26.1021.3705.0",
         "26.1023.6621.0",
         "26.1027.3384.0",
-        "26.1027.6604.0"
+        "26.1027.6604.0",
+        "26.1029.7803.0"
       ],
       "sourceSha256ByPackageVersion": {
         "26.928.1915.0": "99d12495c2a50e2a55b888ff0a5785563480614b345455ef56e1b100b5df7490",
@@ -1594,7 +1713,8 @@
         "26.1021.3705.0": "fbc7dbcb1402ac10c7594d009ee0ef7303261d8ab67c49b9646accdd791f15f1",
         "26.1023.6621.0": "5730c672547f933e5dd942220001815975fdd3a44b73769c6d39194822cf443a",
         "26.1027.3384.0": "1c0b48134ba6564b7da680600b8d068b29d0d700cf21fc119012ce296dff2e51",
-        "26.1027.6604.0": "6c23370c39465d187602a019b837304e3085502f04e71efbc9589e481c57f2f9"
+        "26.1027.6604.0": "6c23370c39465d187602a019b837304e3085502f04e71efbc9589e481c57f2f9",
+        "26.1029.7803.0": "6e21c8ba254e89d4cf04a20d1d0695cff582950f67e206ddef936878ca13e537"
       }
     },
     {
@@ -1617,7 +1737,8 @@
         "26.1021.3705.0",
         "26.1023.6621.0",
         "26.1027.3384.0",
-        "26.1027.6604.0"
+        "26.1027.6604.0",
+        "26.1029.7803.0"
       ]
     }
   ]

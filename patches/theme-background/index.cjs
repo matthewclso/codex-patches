@@ -49,3 +49,16 @@ module.exports.revisions.push({
   targetPath: 'webview/assets/app-theme-e32c698b2a48.js',
   sourceSha256: 'ce999cd54682d518f3194a36641566173729ad6462a33b00e4b08df2b39099af',
 });
+
+module.exports.revisions.push({
+  targetPath: 'webview/assets/async/496175.cf5ad221c1.js',
+  sourceSha256: '79cd497b3586afdb4edd6a50e9cab6e0c255ea60ee0e04808c1b5dd7cc649376',
+  before: '"--app-color-background-surface-under":G.surfaceUnder,',
+  after: '"--app-color-background-surface-under":G.theme.surface,"--app-color-background-shell":G.theme.surface,',
+  stylesheetBefore: 'l.textContent!==C&&(l.textContent=C),c}',
+  stylesheetAfter: 'l.textContent!==C&&(l.textContent=C),l.textContent+='+JSON.stringify(shellCss)+',c}',
+  apply(source, replace) {
+    source = replace(source, this.before, this.after);
+    return replace(source, this.stylesheetBefore, this.stylesheetAfter);
+  },
+});

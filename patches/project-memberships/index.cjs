@@ -99,3 +99,11 @@ module.exports.revisions.push({
   targetPath: '.vite/build/early-bootstrap-499-8b3807f1185eeae8.js',
   sourceSha256: '91ed814e18c0d55a585dfa359829746df6e8eb2f7488bfe9bfd71378ef24cdf1',
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/early-bootstrap-632-62c641245a52ef0e.js',
+  sourceSha256: 'c16675e64dae86bdb09f7720f038a8c2f2beacf0e85bbadd369f407d38662aa4',
+  before: 'M.setThreadAssignmentsEnabled(tl().localProjectTaskMembership)',
+  after: 'M.setThreadAssignmentsEnabled(!0)',
+  apply(source, replace) { return replace(source, this.before, this.after); },
+});

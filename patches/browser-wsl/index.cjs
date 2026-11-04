@@ -121,3 +121,11 @@ module.exports.revisions.push({
   after: previous.after.replace('function hKn(', 'function pKn('),
   apply(source, replace) { return replace(source, this.before, this.after); },
 });
+
+module.exports.revisions.push({
+  targetPath: 'webview/assets/async/24191.589dcc9878.js',
+  sourceSha256: 'bd23d61085fcad60b8f582112d4ca0695b34204510cff900ba0f87c9c61228d0',
+  before: 'function({areRequirementsPending:e,isBrowserAgentGateEnabled:t,isBrowserAndComputerUseAllowed:n,isBrowserEnabled:r,isBrowserUseEnabled:i,isLoading:a,runCodexInWsl:s,windowType:o}){return"chrome-extension"===o?"window-type-disabled":e?"loading":n?a?"loading":r?t?i?s?"wsl-disabled":"available":"config-requirement-disabled":"statsig-disabled":"browser-pane-disabled":"config-requirement-disabled"}',
+  after: 'function({areRequirementsPending:e,isBrowserAgentGateEnabled:t,isBrowserAndComputerUseAllowed:n,isBrowserEnabled:r,isBrowserUseEnabled:i,isLoading:a,runCodexInWsl:s,windowType:o}){return"chrome-extension"===o?"window-type-disabled":e?"loading":n?a?"loading":r?t?i?"available":"config-requirement-disabled":"statsig-disabled":"browser-pane-disabled":"config-requirement-disabled"}',
+  apply(source, replace) { return replace(source, this.before, this.after); },
+});
