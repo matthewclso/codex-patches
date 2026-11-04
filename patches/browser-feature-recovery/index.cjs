@@ -138,3 +138,20 @@ module.exports.revisions.push({
     return source;
   },
 });
+
+module.exports.revisions.push({
+  targetPath: 'webview/assets/async/24191.589dcc9878.js',
+  sourceSha256: 'bd23d61085fcad60b8f582112d4ca0695b34204510cff900ba0f87c9c61228d0',
+  capabilityBefore: 'let i=t(o.u9,r),a=i.isError,s=i.isLoading||!a&&null==i.data,l=i.data?.find(e=>e.name===n.key);return{isLoading:s,isError:a,isCapable:!s&&!a&&l?.enabled!==!1}',
+  capabilityAfter: 'let i=t(o.u9,r),a=i.isError,s=i.isLoading||!a&&null==i.data,l=i.data?.find(e=>e.name===n.key);if(e.name==="browser.in-app"&&a&&!/unauthorized|forbidden|permission denied|access denied|not authorized|entitlement.*(?:denied|disabled)|(?:^|[^0-9])(?:401|403)(?:[^0-9]|$)/i.test(String(i.error?.message??i.error)))return{isLoading:i.data==null,isError:a,isCapable:i.data!=null&&l?.enabled!==!1};return{isLoading:s,isError:a,isCapable:!s&&!a&&l?.enabled!==!1}',
+  pendingBefore: 'let I=(0,i._U)(s.G,t).isCapable,C=(0,d.Zj)("410262010")',
+  pendingAfter: 'let I=(()=>{let e=(0,i._U)(s.G,t);return e.isLoading?null:e.isCapable})(),C=(0,d.Zj)("410262010")',
+  requirementsBefore: 'N=E&&(!!A?.isLoading||b.isPending),D=!E||b.allowed',
+  requirementsAfter: 'N=E&&(I===null||!!A?.isLoading||b.isPending),D=!E||b.allowed',
+  policyBefore: 'return 0===l.length?{isLoading:!1,isError:!1,isCapable:!0}:{isLoading:l.some(e=>e.isLoading),isError:l.some(e=>e.isError),isCapable:l.every(e=>e.isCapable)}',
+  policyAfter: 'if(e.name==="browser.in-app"&&l.some(e=>!e.isLoading&&!e.isError&&!e.isCapable))return{isLoading:!1,isError:l.some(e=>e.isError),isCapable:!1};return 0===l.length?{isLoading:!1,isError:!1,isCapable:!0}:{isLoading:l.some(e=>e.isLoading),isError:l.some(e=>e.isError),isCapable:l.every(e=>e.isCapable)}',
+  apply(source, replace) {
+    for (const key of ['policy','capability','pending','requirements']) source = replace(source, this[key+'Before'], this[key+'After']);
+    return source;
+  },
+});

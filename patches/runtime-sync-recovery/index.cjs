@@ -173,3 +173,22 @@ module.exports.revisions.push({
   targetPath: '.vite/build/early-bootstrap-499-8b3807f1185eeae8.js',
   sourceSha256: '91ed814e18c0d55a585dfa359829746df6e8eb2f7488bfe9bfd71378ef24cdf1',
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/early-bootstrap-632-62c641245a52ef0e.js',
+  sourceSha256: 'c16675e64dae86bdb09f7720f038a8c2f2beacf0e85bbadd369f407d38662aa4',
+  syncBefore: 'function s$(e){let t=(sN.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(()=>sz(e));return sN.set(e.appServerConnection,t),t}',
+  syncAfter: oct27SyncAfter.replace(/\b(?:sH|sW|sN)\b|s\$/g, name => ({sH:'s$',sW:'sN',sN:'sq','s$':'sz'})[name]),
+  resumeBefore: 'n=r?await sU(t):null,i=r?tl():e.desktopFeatureAvailability',
+  resumeAfter: 'n=r?(await sU(t)??await __codexPatchesRecoverRuntime(e).catch(()=>null)):null,i=r?tl():e.desktopFeatureAvailability',
+  failureBefore: 'throw lu().warning("bundled_plugins_reconcile_failed",{safe:{hasExternalPluginStateSync:d,reason:r},sensitive:{error:e}}),e',
+  failureAfter: 'throw y===c&&(y=null),lu().warning("bundled_plugins_reconcile_failed",{safe:{hasExternalPluginStateSync:d,reason:r},sensitive:{error:e}}),e',
+  focusBefore: 'reconcileExternalPluginState:(e="focus")=>O(e)',
+  focusAfter: 'reconcileExternalPluginState:(e="focus")=>A({force:!1,reason:e}).then(()=>O(e))',
+  reconcileBefore: 'I=f,r=y,x=!1,P(t.marketplacePluginDescriptors)};return{reconcileComputerHistoryPluginInstallation:',
+  reconcileAfter: 'I=f,r=y,x=!1,P(t.marketplacePluginDescriptors);if(n.hadReconcileFailure)throw Error("Bundled plugin reconciliation incomplete")};return{reconcileComputerHistoryPluginInstallation:',
+  apply(source, replace) {
+    for (const key of ['sync','resume','failure','focus','reconcile']) source = replace(source, this[key+'Before'], this[key+'After']);
+    return source;
+  },
+});
