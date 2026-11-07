@@ -86,6 +86,8 @@ The saved configuration is reused. The installer snapshots its runtime and launc
 
 A running app or app-server backend from a previous patched copy blocks activation. The error identifies its platform, process name and PID. Independent tools (for example, a review command referencing an older CLI or a Node worker using that copy) do not block activation, but cleanup preserves the files they still use.
 
+If Windows reports a file or directory lock during cleanup, that copy is skipped and cleanup continues with other unused copies. Close the application or terminal holding the directory, then retry `cleanup -Apply`. Cleanup may already have removed some unused files from the skipped copy; its ownership records and WSL runtime configuration are retained for retry.
+
 To explicitly stop blocking processes and continue installation:
 
 ```powershell
