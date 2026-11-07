@@ -151,15 +151,45 @@ function Remove-OldDeployments {
         if (Test-DeploymentInUse $directory.FullName) { Write-Host "In-use deployment preserved: $($directory.Name)"; continue }
         if ($Apply) {
             $old = Read-JsonFile (Join-Path $directory.FullName 'install.json')
-            Invoke-WslPython @'
+            $runtimeCleanup = @'
 import pathlib,sys
 p=pathlib.Path(sys.argv[1]);root=pathlib.Path(sys.argv[2])/'deployments'
 if p.name!='runtime.json' or p.parent.parent!=root or p.parent.is_symlink():raise SystemExit('Unrecognized runtime path')
-p.unlink(missing_ok=True)
-try:p.parent.rmdir()
-except OSError:pass
-'@ @($old.runtimeConfig,$old.stateRoot) | Out-Null
-            Remove-Item -LiteralPath $directory.FullName -Recurse -Force
+if sys.argv[3]=='remove':
+ p.unlink(missing_ok=True)
+ try:p.parent.rmdir()
+ except OSError:pass
+'@
+            Invoke-WslPython $runtimeCleanup @($old.runtimeConfig,$old.stateRoot,'check') | Out-Null
+            $metadata = @{}
+            foreach ($name in @('install.json','receipt.json')) {
+                $metadata[$name] = [IO.File]::ReadAllBytes((Join-Path $directory.FullName $name))
+            }
+            try {
+                # Keep ownership records until the payload is gone so a locked
+                # copy remains recognizable on the next cleanup attempt.
+                foreach ($item in Get-ChildItem -LiteralPath $directory.FullName -Force -ErrorAction Stop) {
+                    if ($metadata.ContainsKey($item.Name)) { continue }
+                    Remove-Item -LiteralPath $item.FullName -Recurse -Force -ErrorAction Stop
+                }
+                Remove-Item -LiteralPath $directory.FullName -Recurse -Force -ErrorAction Stop
+            } catch {
+                $failure = $_
+                # The final removal can delete the records before discovering
+                # a handle on the deployment directory itself. Restore them.
+                foreach ($name in $metadata.Keys) {
+                    $path = Join-Path $directory.FullName $name
+                    if ([IO.Directory]::Exists($directory.FullName) -and -not [IO.File]::Exists($path)) {
+                        [IO.File]::WriteAllBytes($path, $metadata[$name])
+                    }
+                }
+                $exception = $failure.Exception
+                while ($exception -and ($exception.HResult -band 0xffff) -notin @(32,33)) { $exception = $exception.InnerException }
+                if (-not $exception) { throw $failure }
+                Write-Host "In-use deployment skipped: $($directory.Name). Close the application or terminal using this directory and retry cleanup -Apply."
+                continue
+            }
+            Invoke-WslPython $runtimeCleanup @($old.runtimeConfig,$old.stateRoot,'remove') | Out-Null
             Write-Host "Removed $($directory.Name)"
         } else { Write-Host "Would remove $($directory.Name). Use cleanup -Apply after reviewing this list." }
     }
