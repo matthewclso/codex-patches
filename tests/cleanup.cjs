@@ -18,7 +18,8 @@ function powershell(code) {
 }
 
 function fixture() {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-cleanup-'));
+  // Hosted Windows TEMP can use an 8.3 alias; Get-ChildItem returns long paths.
+  const directory = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), 'codex-cleanup-')));
   const versions = path.join(directory, 'versions');
   const deployments = {};
   for (const name of ['active', 'locked', 'unused', 'protected']) {
@@ -102,8 +103,8 @@ for (const lock of ['nested file', 'app working directory', 'deployment working 
       assert.equal(result.runtime, false);
       assert.equal(result.calls.filter(call => call.path === old.runtime && call.mode === 'remove').length, 1);
       for (const name of ['active', 'protected']) {
-        assert(fs.existsSync(f.deployments[name].deployment));
-        assert(fs.existsSync(f.deployments[name].runtime));
+        assert(fs.existsSync(f.deployments[name].deployment), `${name} deployment must be retained`);
+        assert(fs.existsSync(f.deployments[name].runtime), `${name} runtime must be retained`);
       }
       assert.equal(fs.readFileSync(path.join(f.unknown, 'keep.txt'), 'utf8'), 'unowned');
       assert.equal(fs.readFileSync(f.data, 'utf8'), 'shared user data');
