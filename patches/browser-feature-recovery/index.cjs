@@ -155,3 +155,11 @@ module.exports.revisions.push({
     return source;
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: 'webview/assets/async/182735.bb2cb0d2af.js',
+  sourceSha256: 'ab463aa100bbd1c6306d7b32c9de911db22d9bd03ee7a30f844e32d0069916ce',
+  requirementsBefore: module.exports.revisions.at(-1).requirementsBefore.replace('D=!E', 'k=!E'),
+  requirementsAfter: module.exports.revisions.at(-1).requirementsAfter.replace('D=!E', 'k=!E'),
+});

@@ -8,7 +8,7 @@ const app = require('../lib/app-patches.cjs');
 let feature = require('../patches/browser-feature-recovery/index.cjs');
 let runtime = require('../patches/runtime-sync-recovery/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
-let archive, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, source1029, selected;
+let archive, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, source1029, source1103, selected;
 // Fixture aliases are bound to one exact reviewed archive, never guessed.
 const currentNames = { Q8:'$8', Ck:'Xk', Q:'X', Kgi:'bbi', Jgi:'Sbi', Qgi:'Ebi', $gi:'Dbi', yI:'II', f6:'p6', Wgi:'vbi', e_i:'Obi',
   sGr:'GJr', cGr:'KJr', lGr:'qJr', Ik:'pA', DHr:'tKr', IU:'nW', IHr:'uKr', D2:'S2', QN:'cP', JOn:'$kn', uzt:'pzt',
@@ -66,13 +66,17 @@ const oct29Names={...oct27Names,
  yd:'lg',La:'r0',Ia:'r0',hd:'lc',gd:'lu',Kc:'as',Oie:'ld',sne:'n1',Lo:'n0',_d:'lh',ua:'rj',
  Ts:'i2',Hs:'sM',Ks:'sO',Na:'rZ',Mne:'iZ',Ma:'rY',Vs:'sx',Bs:'sI',Xs:'sY',Zs:'sX',Gre:'sG',
 };
-const names = () => source1029 ? oct29Names : source6604 ? build6604Names : source1027 ? oct27Names : source1023 ? oct23Names : source1021 ? oct21Names : source1016 ? oct16Names : source1013 ? modernNames : source9446 ? latestNames : currentNames;
+const nov3Names={...oct29Names,rc:'i9',ic:'i3',cc:'i8',lc:'__fixtureNativeSync',oc:'i5',ws:'ig',Qs:'i0',Aa:'rP',dc:'ss',fc:'so',K:'tr',
+ La:'rG',Ia:'rG',hd:'oe',ai:'ta',gd:'ot',Kc:'__fixtureCleanup',Oie:'__fixtureRetire',sne:'nN',Lo:'nX',_d:'or',ua:'rC',yd:'os',
+ Ts:'ib',Na:'__fixtureNativePipe',Mne:'__fixtureSkills',Ma:'rM',Vs:'iU',Bs:'iD',Xs:'sn',Zs:'si',Gre:'se'};
+const names = () => source1103 ? nov3Names : source1029 ? oct29Names : source6604 ? build6604Names : source1027 ? oct27Names : source1023 ? oct23Names : source1021 ? oct21Names : source1016 ? oct16Names : source1013 ? modernNames : source9446 ? latestNames : currentNames;
 const named = text => source1007 ? text.replace(/[A-Za-z_$][\w$]*/g, name => names()[name] ?? name) : text;
 const context = values => source1007 ? Object.fromEntries(Object.entries(values).map(([key,value]) => [names()[key] ?? key, value])) : values;
 function setup(t) {
   if (selected) return true;
   const bytes=fs.readFileSync(sourcePath); archive=asar.parseArchive(bytes);
-  source1029=asar.sha256(bytes)==='77ed4ddc5b388ac8b29f5035f9c98f982b095df55aad6fa6c27bb80d763b9691';
+  source1103=asar.sha256(bytes)==='fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa';
+  source1029=source1103||asar.sha256(bytes)==='77ed4ddc5b388ac8b29f5035f9c98f982b095df55aad6fa6c27bb80d763b9691';
   source6604=asar.sha256(bytes)==='faacb124f33b792bd2c88fbe8b1215fb6869d81b145a919260e16ac11d9c1451';
   source1027=source1029||source6604||asar.sha256(bytes)==='6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
   source1023=source1027 || asar.sha256(bytes)==='99ed83950473e34e642f2942226bf40ce9b65e9910afbe8e406120459823c02d';
@@ -99,6 +103,18 @@ function source(patch) {
   return bytes.toString();
 }
 function between(s, first, last) {
+  if(source1103){
+    const native=require('./fixtures/webpack-1103-source.cjs'),slice=require('./fixtures/webpack-source.cjs').between;
+    if(first==='function cc(')return native.sync(s,last==='async function lc(');
+    if(first==='function Us(')return native.pipe(s);
+    if(first==='__inlineAuthorization')return native.authorization(s);
+    if(first==='function jie(')return slice(s,'function(e){var t;let r,n,i,s=e.env??process.env','}({appVersion:')+'}';
+    if(first==='function Xs(')return slice(s,'function sn(','async function si(');
+    if(first==='async function dc(')return slice(s,'async function ss(','let sa=');
+    if(first==='async function Zs(')return slice(s,'async function si(','async function ss(');
+    if(first==='async function Qs(')return slice(s,'async function i0(','function i2(');
+  }
+
   if(source1027) {
     if(first==='function jie(')return require('./fixtures/webpack-source.cjs').between(s,'function(e){var t;let r,n,i,s=e.env??process.env','}({appVersion:el')+'}';
     if(source1029){
@@ -203,14 +219,15 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
     Kn:'identity',Gn:'tools-pipe',qn:'verifier',L:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}},
   });
   if (source1016) Object.assign(ctx.sandbox,{
-    [source1029?'sY':source1027?'sJ':source1023?'kc':source1021?'Pc':'Xs']:vm.runInNewContext('('+between(patched,'function Xs(',source1029?'async function sZ(':source1027?'async function sY(':source1023?'async function koe(':source1021?'async function Rae(':'async function Zs(')+')',(source1029?{sV:{P:'fixture-app'}}:source1027?{sz:{P:'fixture-app'}}:{n:{o:'fixture-app'}})),
+    [source1103?'sn':source1029?'sY':source1027?'sJ':source1023?'kc':source1021?'Pc':'Xs']:vm.runInNewContext('('+between(patched,'function Xs(',source1029?'async function sZ(':source1027?'async function sY(':source1023?'async function koe(':source1021?'async function Rae(':'async function Zs(')+')',(source1103?{i6:{P:'fixture-app'}}:source1029?{sV:{P:'fixture-app'}}:source1027?{sz:{P:'fixture-app'}}:{n:{o:'fixture-app'}})),
     Jn:'identity',qn:'tools-pipe',Yn:'verifier',R:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}},
   });
   if (source1021) {
     ctx.connection.getAuthenticatedPrincipal=async()=>null;
     Object.assign(ctx.sandbox,{[source1023?'Oc':'Nc']:JSON.stringify(['fixture-app','api-key']),[source1023?'vi':'Si']:'identity',[source1023?'_i':'xi']:'tools-pipe',[source1023?'yi':'Ci']:'verifier',[source1023?'L':'I']:{default:{env:{CODEX_APP_TOOLS_PIPE_PATH:'current-app-pipe',BROWSER_USE_ACCESS_VERIFYING_IDENTITY:'current-verifier'}}}});
   }
-  if(source1029)Object.assign(ctx.sandbox,{sJ:JSON.stringify(['fixture-app','api-key']),ea:{OuO:'identity',b$E:'tools-pipe',$Q0:'verifier'},rM:'app-tools',eU:()=>({env:{'app-tools':'current-app-pipe',verifier:'current-verifier'}})});
+  if(source1103)Object.assign(ctx.sandbox,{sr:JSON.stringify(['fixture-app','api-key']),er:{OuO:'identity',b$E:'tools-pipe',$Q0:'verifier'},rS:'app-tools',e_:()=>({env:{'app-tools':'current-app-pipe',verifier:'current-verifier'}})});
+  else if(source1029)Object.assign(ctx.sandbox,{sJ:JSON.stringify(['fixture-app','api-key']),ea:{OuO:'identity',b$E:'tools-pipe',$Q0:'verifier'},rM:'app-tools',eU:()=>({env:{'app-tools':'current-app-pipe',verifier:'current-verifier'}})});
   else if(source1027) Object.assign(ctx.sandbox,{sQ:JSON.stringify(['fixture-app','api-key']),ea:{OuO:'identity',b$E:'tools-pipe',$Q0:'verifier'},rD:'app-tools',eU:()=>({env:{'app-tools':'current-app-pipe',verifier:'current-verifier'}})});
   vm.runInNewContext(between(patched,'async function dc(','var fc=')+named(';globalThis.config=dc;'),ctx.sandbox);
   const requests=Array.from({length:5},()=>ctx.sandbox.config({appServerConnection:ctx.connection}));
@@ -237,7 +254,7 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
     const seen=[];
     ctx.sandbox[named('Qs')]=async options=>{seen.push(options);return {'mcp_servers.node_repl':{env:{}}}};
     const config=vm.runInNewContext('('+between(text,'async function dc(','var fc=')+')',ctx.sandbox);
-    const principal={accountId:'fixture-account',userId:'fixture-user'}, anonymous=ctx.sandbox[source1029?'sJ':source1027?'sQ':source1023?'Oc':'Nc'];
+    const principal={accountId:'fixture-account',userId:'fixture-user'}, anonymous=ctx.sandbox[source1103?'sr':source1029?'sJ':source1027?'sQ':source1023?'Oc':'Nc'];
     ctx.connection.getAuthenticatedPrincipal=async()=>null;
     assert.equal((await config({appServerConnection:ctx.connection}))['mcp_servers.node_repl'].env.identity,anonymous);
     ctx.connection.getAuthenticatedPrincipal=async()=>principal;
@@ -251,11 +268,11 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
       await config({appServerConnection:{hostConfig:{kind:'ssh'}},desktopFeatureAvailability:{browserUseTinysky:false,computerAudio:audio},hostServicesPipePath:'remote-pipe'});
       assert.equal(seen.at(-1).hostServicesPipePath,!source1029&&audio?null:'remote-pipe');
     }
-    const authorize=vm.runInNewContext('('+between(text,source1029?'async function sZ(':source1027?'async function sY(':source1023?'async function koe(':'async function Rae(','async function Zs(')+')',{[source1029?'sJ':source1027?'sQ':source1023?'Oc':'Nc']:anonymous,[source1029?'sY':source1027?'sJ':source1023?'kc':'Pc']:ctx.sandbox[source1029?'sY':source1027?'sJ':source1023?'kc':'Pc']});
+    const authorize=vm.runInNewContext('('+between(text,source1103?'__inlineAuthorization':source1029?'async function sZ(':source1027?'async function sY(':source1023?'async function koe(':'async function Rae(','async function Zs(')+')',{[source1103?'sr':source1029?'sJ':source1027?'sQ':source1023?'Oc':'Nc']:anonymous,[source1103?'sn':source1029?'sY':source1027?'sJ':source1023?'kc':'Pc']:ctx.sandbox[source1103?'sn':source1029?'sY':source1027?'sJ':source1023?'kc':'Pc']});
     let current=null,reads=0;const options={getPrincipal:()=>current,readAccess:async()=>{reads++;return true}};
     assert.equal(await authorize({...options,executorId:anonymous,isWork:false}),true);
     assert.equal(await authorize({...options,executorId:anonymous,isWork:true}),false);assert.equal(reads,0);
-    current=principal;const executorId=ctx.sandbox[source1029?'sY':source1027?'sJ':source1023?'kc':'Pc'](principal);
+    current=principal;const executorId=ctx.sandbox[source1103?'sn':source1029?'sY':source1027?'sJ':source1023?'kc':'Pc'](principal);
     assert.equal(await authorize({...options,executorId,isWork:false}),true);assert.equal(reads,0);
     assert.equal(await authorize({...options,executorId,isWork:true}),true);assert.equal(reads,1);
     assert.equal(await authorize({...options,executorId,isWork:true,readAccess:async()=>false}),false);
@@ -266,10 +283,10 @@ sourceTest('actual local chat runtime recovery coalesces refresh, reloads app-ma
     let response={ok:true,json:async()=>({settings:{localBrowserUse:false}})}, requests=0;
     const signal=new AbortController().signal, beforeSend=()=>{}, network=()=>{};
     const access=vm.runInNewContext('('+between(text,'async function Zs(','async function dc(')+')',{
-      [source1029?'sK':source1027?'sV':source1023?'v':'_']:{[source1027?'nM':source1023?'Gt':source1021?'Wt':'ht']:async(options,fetch)=>{
+      [source1103?'i7':source1029?'sK':source1027?'sV':source1023?'v':'_']:{[source1027?'nM':source1023?'Gt':source1021?'Wt':'ht']:async(options,fetch)=>{
         requests++;assert.equal(options.path,'/wham/work/settings');assert.equal(options.request.signal,signal);
         assert.equal(options.beforeSend,beforeSend);assert.equal(fetch,network);return response;
-      }},[source1029?'sG':source1027?'sK':source1023?'Ooe':source1021?'Lae':'Gre']:{parse:value=>value},
+      }},[source1103?'se':source1029?'sG':source1027?'sK':source1023?'Ooe':source1021?'Lae':'Gre']:{parse:value=>value},
     });
     const options={appServerClient:ctx.connection,beforeSend,fetchApplicationNetwork:network,signal};
     assert.equal(await access(options),false,'Native Work policy denial must remain authoritative');
@@ -284,17 +301,18 @@ sourceTest('actual bundled reconciler retries failed signature on focus, skips s
   async function exercise(text,keepFail=false,partial=false) {
     let count=0,syncs=0,external=0,migrations=0,names=[],failed=true,warnings=[];
     const sandbox=context({process:{env:{},platform:'win32'},r:{Zo:()=> 'market'},La:()=> 'root',Ia:()=> 'resources',Ra:()=>new Set(),s:{},u:{t:{Dev:'dev',Prod:'prod'}},
-      hd:[{name:'browser',migrate:async()=>{migrations++},isAvailable:({features})=>features.inAppBrowserUseAllowed}],Yr:{},ai:()=>true,gd:()=>({info(){},warning:(_name,details)=>warnings.push(String(details?.sensitive?.error??''))}),
+      hd:[{name:'browser',syncInstallStateWithChromeExtension:source1103,migrate:async()=>{migrations++},isAvailable:({features})=>features.inAppBrowserUseAllowed}],Yr:{},ai:()=>true,gd:()=>({info(){},warning:(_name,details)=>warnings.push(String(details?.sensitive?.error??''))}),
       yd:()=>undefined,ac:()=>{},Kc:async()=>{},cc:async()=>{syncs++},Oie:async()=>{},sne:async()=>{external++;return null},
       Lo:async e=>{count++;names.push(e.marketplacePluginNames);if(failed){failed=keepFail;if(partial)return{hadReconcileFailure:true,hadUnknownChromeExtensionSyncState:false};throw Error('Timed out waiting for MCP response to marketplace/add')}return{hadReconcileFailure:false,hadUnknownChromeExtensionSyncState:false}},
       Cne:async()=>{},_d:new Set(),ua:{},kie:'dev'});
     if (source1007) Object.assign(sandbox,{r:{$o:()=> 'market'},l:{S:'managed'},mf:sandbox.mf,Qc:async()=>{},aie:'dev',iie:async()=>{}});
     if (source9446) sandbox.Fie=async()=>{};
     if (source1013) Object.assign(sandbox,{i:{[source1023?'Qo':source1021?'$o':source1016?'ns':'ts']:()=> 'market'},u:{S:'managed'},n:{i:{Dev:'dev',Prod:'prod'}}});
-    if(source1029) Object.assign(sandbox,{e$:{x:{Dev:'dev',Prod:'prod'}},rj:{rx:()=> 'market',J1:{}},al:{IA:'managed'},sq:new WeakMap});
+    if(source1103) Object.assign(sandbox,{eY:{x:{Dev:'dev',Prod:'prod'}},rC:{rx:()=> 'market',J1:{}},sb:{IA:'managed'},i3:new WeakMap,sg:async()=>null,eu:{cPM:()=>true},es:{},rk:()=>null});
+    else if(source1029) Object.assign(sandbox,{e$:{x:{Dev:'dev',Prod:'prod'}},rj:{rx:()=> 'market',J1:{}},al:{IA:'managed'},sq:new WeakMap});
     else if(source1027) Object.assign(sandbox,{e$:{x:{Dev:'dev',Prod:'prod'}},rF:{rx:()=> 'market',J1:{}},ao:{IA:'managed'},sN:new WeakMap});
     const factory=vm.runInNewContext('('+between(text,'function jie(','function yd(')+')',sandbox);
-    const instance=factory({env:{},resourcesPath:'r',runtimeMarketplaceRoot:'m',codexHome:'home',buildFlavor:'prod',isPackaged:true,appVersion:'version',globalState:{get:()=>null},getLocalAppServerConnection:()=>({listPlugins:async()=>({marketplaces:[]})})});
+    const instance=factory({env:{},resourcesPath:'r',runtimeMarketplaceRoot:'m',codexHome:'home',buildFlavor:'prod',isPackaged:true,appVersion:'version',globalState:{get:()=>null},getLocalAppServerConnection:()=>({hostConfig:{kind:'local'},listPlugins:async()=>({marketplaces:[]}),codexHome:async()=> 'home'})});
     await instance.reconcileExternalPluginState();assert.equal(count,0,'Focus before availability must skip destructive reconciliation');
     await instance.setDesktopFeatureAvailability({inAppBrowserUseAllowed:true});assert.equal(count,1, warnings.join('; '));
     await instance.reconcileExternalPluginState();
@@ -326,11 +344,12 @@ sourceTest('actual sync and native config generator refresh current executable a
   if(source1027) {
     const fixture=require('./fixtures/webpack-source.cjs');
     const paths=fixture.webpackRequire(archive)(98197);
-    Object.assign(sandbox,fixture.serviceSandbox(paths,'/mnt/c/home/plugins/browser/scripts/browser-service.mjs',options=>({'mcp_servers.node_repl':{command:options.nodeReplPath,env:options.extraEnv}}),source1029),{
-      [source1029?'sx':'sI']:{ensureReadyPipePath:async()=>pipe},[source1029?'sW':'sB']:[],[source1029?'rQ':'rG']:{'mcp_servers.cua_repl':{enabled:false}},rX:()=> 'resources',eg:{cPM:()=>true,cB6:paths.cB},
+    Object.assign(sandbox,fixture.serviceSandbox(paths,'/mnt/c/home/plugins/browser/scripts/browser-service.mjs',options=>({'mcp_servers.node_repl':{command:options.nodeReplPath,env:options.extraEnv}}),source1029,source1103),{
+      [source1103?'iU':source1029?'sx':'sI']:{ensureReadyPipePath:async()=>pipe},[source1103?'i1':source1029?'sW':'sB']:[],[source1103?'rP':source1029?'rQ':'rG']:{'mcp_servers.cua_repl':{enabled:false}},rX:()=> 'resources',eg:{cPM:()=>true,cB6:paths.cB},
     });
-    Object.assign(sandbox.ec,{Fvh:'node_repl',uC1:'cua_repl'});
-    sandbox[source1029?'i1':'i0']=async()=>({codexHome:'home',marketplaceName:'market',browserServicePluginVersion:'version',desktopFeatureAvailability:{},runtimePaths:{platform:'win32',nodePath:'node',nodeReplPath:'current-repl-'+(++generation),codexCliPath:'cli',nodeModuleDirs:[]},shouldUseWslPaths:true,browserBackends:['iab'],computerUse:true,computerUsePaths:{},cuaReplSurfaces:[]});
+    if(source1103)Object.assign(sandbox,{eu:sandbox.eg,es:sandbox.ec,rR:()=>[],rk:()=>null,rG:()=> 'resources',__fixtureNotify:()=>{}});
+    Object.assign(sandbox[source1103?'es':'ec'],{Fvh:'node_repl',uC1:'cua_repl'});
+    sandbox[source1103?'ig':source1029?'i1':'i0']=async()=>({codexHome:'home',marketplaceName:'market',browserServicePluginVersion:'version',desktopFeatureAvailability:{},runtimePaths:{platform:'win32',nodePath:'node',nodeReplPath:'current-repl-'+(++generation),codexCliPath:'cli',nodeModuleDirs:[]},shouldUseWslPaths:true,browserBackends:['iab'],computerUse:true,computerUsePaths:{},cuaReplSurfaces:[]});
   }
   vm.runInNewContext(between(patched,'async function Qs(','function $s(')+between(patched,'function cc(',source1013?'var Gre=':'async function dc(')+named(';globalThis.sync=cc;'),sandbox);
   await sandbox.sync({appServerConnection:connection,appVersion:'version'});
@@ -341,11 +360,15 @@ sourceTest('actual sync and native config generator refresh current executable a
   assert.equal(calls[1].reloadUserConfig,true);
   if(source1029) {
     // Current upstream enforces remote audio restrictions in the final generator.
-    sandbox.sM=async()=>['fixture-audio'];sandbox.ec.JFB=()=>true;
-    const config=sandbox.sL, selection=await sandbox.i1();
+    sandbox.sM=async()=>['fixture-audio'];sandbox[source1103?'es':'ec'].JFB=()=>true;
+    const config=sandbox[source1103?'i0':'sL'], selection=await sandbox[source1103?'ig':'i1']();
+    if(source1103){
+      selection.runtimePaths.nodeModuleDirs=['fixture-modules'];
+      Object.assign(sandbox,{et:()=>require('node:path').posix,ey:{readFile:async()=>JSON.stringify({version:'1.0.0'})},iz:{parse:value=>value},iH:()=>true,iO:()=>1});
+    }
     selection.desktopFeatureAvailability={computerAudio:true};selection.cuaReplSurfaces=['computer'];
     for(const kind of ['local','ssh']){
-      const result=await config({appServerConnection:{hostConfig:{kind},appServerVersion:'version'},appVersion:'version',selection,hostServicesPipePath:'explicit-pipe'});
+      const result=await config({appServerConnection:{hostConfig:{kind},appServerVersion:'version',listModels:async()=>({data:[{id:'fixture-audio',model:'fixture-audio',inputModalities:['audio']}],nextCursor:null})},appVersion:'version',selection,hostServicesPipePath:'explicit-pipe'});
       for(const key of ['SKY_ENABLE_AUDIO','NODE_REPL_ENABLE_AUDIO'])assert.equal(result['mcp_servers.node_repl'].env[key],kind==='local'?'1':'0');
     }
   }
@@ -356,7 +379,7 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
   const sandbox=context({process:{env:{},platform:'win32'},Vs:null,o:{bt:()=> 'helper',xt:()=> 'transport'},Bs:()=>({info(){},warning(){}})});
   if (source1007) sandbox.c={St:()=> 'helper',Ct:()=> 'transport'};
   if (source1013) sandbox.l=source1021?{W:()=> 'helper',G:()=> 'transport'}:{Et:()=> 'helper',Tt:()=> 'transport'};
-  if(source1027)Object.assign(sandbox,{eg:{nnW:()=> 'helper',slC:()=> 'transport'}});
+  if(source1027)Object.assign(sandbox,{[source1103?'eu':'eg']:{nnW:()=> 'helper',slC:()=> 'transport'},__fixtureNotify:()=>{}});
   const factory=vm.runInNewContext('('+between(stock,'function Us(','var Ws=')+')',sandbox);
   const server={pipePath:'fixture-pipe',dispose:async()=>{disposed++},closeActiveTurn:async()=>{closed++;return true},hasActiveTurn:()=>true};
   const bridge=factory({codexHome:'fixture',platform:'win32',resourcesPath:'resources',ensureNotifyConfig:async()=>({configChanged:false}),startServer:async()=>{starts++;return server}});
@@ -367,7 +390,7 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
   bridge.dispose();await Promise.resolve();assert.equal(disposed,1);assert.equal(closed,0);
 });
 sourceTest('actual availability publisher does not send a Browser disable while capability discovery is pending',()=>{
-  if(source1029)return require('./fixtures/rspack-source.cjs').publisher(archive);
+  if(source1029)return require('./fixtures/rspack-source.cjs').publisher(archive,source1103);
   const entry=source6604?{path:'webview/assets/app-runtime-3212efed978b.js'}:source1027?{path:'webview/assets/app-runtime-e4b4e09bd942.js'}:source1023?{path:'webview/assets/app-runtime-22dba69f1f94.js'}:source1021?{path:'webview/assets/app-runtime-e61614157c23.js'}:asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
   const initial=asar.readEntry(archive,entry.path).toString();
   if(source1021)assert.equal(asar.sha256(Buffer.from(initial)),source6604?'43c18959f692f73ef7eef4024d3dff6dcffe6bc9c11cdc8b90fd0c49be9e5343':source1027?'bfe7cc48427c12348fb0ab75806de4861caa898b815e68950e63dcfeb09b8f28':source1023?'e0758add2aa39e02b9adffd1277509ede5604cb9120e60de8aa1a625c251f918':'76de4e780865c9c73282a604deec2be28e9e9199836692cee2d72d3ea97fc4ed');

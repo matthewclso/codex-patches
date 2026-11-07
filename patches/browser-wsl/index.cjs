@@ -129,3 +129,9 @@ module.exports.revisions.push({
   after: 'function({areRequirementsPending:e,isBrowserAgentGateEnabled:t,isBrowserAndComputerUseAllowed:n,isBrowserEnabled:r,isBrowserUseEnabled:i,isLoading:a,runCodexInWsl:s,windowType:o}){return"chrome-extension"===o?"window-type-disabled":e?"loading":n?a?"loading":r?t?i?"available":"config-requirement-disabled":"statsig-disabled":"browser-pane-disabled":"config-requirement-disabled"}',
   apply(source, replace) { return replace(source, this.before, this.after); },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: 'webview/assets/async/182735.bb2cb0d2af.js',
+  sourceSha256: 'ab463aa100bbd1c6306d7b32c9de911db22d9bd03ee7a30f844e32d0069916ce',
+});
