@@ -107,3 +107,11 @@ module.exports.revisions.push({
   after: 'M.setThreadAssignmentsEnabled(!0)',
   apply(source, replace) { return replace(source, this.before, this.after); },
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/early-bootstrap-199-e3316cddb4ea6a6b.js',
+  sourceSha256: '3202cb775ee05404d2b08f6dbb6fa3e524321da435564d8b2a7c6359ccdc6b0a',
+  before: 'T.setThreadAssignmentsEnabled(tr().localProjectTaskMembership)',
+  after: 'T.setThreadAssignmentsEnabled(!0)',
+  apply(source, replace) { return replace(source, this.before, this.after); },
+});

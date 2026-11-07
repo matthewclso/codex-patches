@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "26.1103.4239.0",
+  "appVersion": "26.1103.32239",
+  "cliVersion": "0.167.0-alpha.3.2",
+  "reviewedAt": "2026-11-07",
+  "status": "automated-validation-passed; current-build-interactive-acceptance-pending",
+  "affectedRequirements": [
+    "PET-1",
+    "PET-2",
+    "BROWSER-1",
+    "BROWSER-2",
+    "BROWSER-3",
+    "BROWSER-4",
+    "THEME-1",
+    "PATH-1",
+    "PATH-2",
+    "REMOTE-1",
+    "REMOTE-2",
+    "REMOTE-3",
+    "CONNECTOR-1",
+    "CONNECTOR-2",
+    "RUNTIME-1",
+    "PROJECT-2",
+    "PROJECT-3",
+    "PROJECT-4",
+    "SELECT-1",
+    "SELECT-2",
+    "SELECT-3",
+    "SELECT-4",
+    "CI-3",
+    "CI-4",
+    "VERIFY-1",
+    "VERIFY-2",
+    "VERIFY-3",
+    "VERIFY-4",
+    "SCOPE-3",
+    "LIFECYCLE-3",
+    "LIFECYCLE-4"
+  ],
+  "packageVerification": {
+    "packageVersion": "26.1103.4239.0",
+    "msixSignature": "not-run",
+    "publisher": "matched-pin",
+    "executableSignature": "valid",
+    "installedPackageSignature": "Store",
+    "installedPackageStatus": "Ok",
+    "installedPackageContentIntegrity": true,
+    "identity": {
+      "name": "OpenAI.Codex",
+      "packageVersion": "26.1103.4239.0",
+      "architecture": "x64",
+      "publisher": "CN=50BDFD77-8903-4850-9FFE-6E8522F64D5B"
+    },
+    "hashes": {
+      "archiveSha256": "fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa",
+      "executableSha256": "5586707af6624c04959ba2c5b4ad6d216a1d8ed17c04937a757495649de44b92",
+      "cliLinuxSha256": "c8242fc9e1bac7c6d661a228cecfaf50e6db74da219e4a9ca8912827e11607f0",
+      "cliWindowsSha256": "4b3286e35d7fe866c6b0eb3f07d7a4cdb5e96489576170dfd6b3a15aa1c67382",
+      "codeModeLinuxSha256": "2c0531dc1d16d70f7c4f074b8ab2f418721e063e38e528ec757631442f2a2bdd",
+      "codeModeWindowsSha256": "a628447ae7784b4a7a2d3045da9cb0b06785abe4fb4387dc74c1cb2faff4b451",
+      "nodeWindowsSha256": "ecf28d918cee4119a958f35755cd30820ff3df174c901c2ce4f7ff5b885f4e94"
+    },
+    "note": "Windows verified the installed Store package identity, pinned publisher, signing kind, status, content integrity and executable signature. This review uses that signed Store package. No standalone MSIX signature/hash is claimed for this newer build."
+  },
+  "checks": [
+    {
+      "name": "packed-entry-integrity",
+      "status": "passed",
+      "verifiedPackedEntries": 19785,
+      "emptyEntries": 3
+    },
+    {
+      "name": "unknown-build-install-gate",
+      "status": "passed",
+      "detail": "Before allowlisting, exact-source auditing worked while the pristine archive was rejected by the installation transform."
+    },
+    {
+      "name": "Windows-package-validator",
+      "status": "passed",
+      "reviewedPackage": true,
+      "reviewRequired": false,
+      "sourceSuite": {
+        "tests": 19,
+        "pass": 18,
+        "fail": 0,
+        "skipped": 1
+      },
+      "combinations": 128,
+      "detail": "Every patch selection composes deterministically, parses and preserves unrelated entries. Standalone module and default archive/header/executable hashes match the independent review pins."
+    },
+    {
+      "name": "theme-source-and-Chromium",
+      "status": "passed",
+      "suite": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0
+      },
+      "layoutThemeCases": 32,
+      "detail": "Native palette/document updater and current root/shell CSS with actual layout classes. The optional Chromium case in the Windows suite passed separately under WSL. This is source-derived rendering evidence."
+    },
+    {
+      "name": "local-Ubuntu-26.04-WSL2-toolkit-and-native-runtime",
+      "status": "passed",
+      "suite": {
+        "tests": 104,
+        "pass": 72,
+        "fail": 0,
+        "skipped": 32
+      },
+      "kernel": "6.18.33.2-microsoft-standard-WSL2",
+      "detail": "Current native stock failures and patched paths, listing/filtering/pagination, pairing reuse/reconnect, connector discovery/errors/authentication, cache alignment and membership persistence in temporary state. Source and GraphQL tests ran separately."
+    },
+    {
+      "name": "stock-WSL2-app-server",
+      "status": "passed",
+      "observations": [
+        {
+          "method": "initialize",
+          "status": "passed"
+        },
+        {
+          "method": "project/create",
+          "status": "passed"
+        },
+        {
+          "method": "thread/list",
+          "status": "passed",
+          "useStateDbOnly": true
+        },
+        {
+          "method": "account/read",
+          "status": "passed",
+          "authenticated": false
+        }
+      ],
+      "scope": "Bundled stock CLI under Ubuntu WSL2 with temporary home/database and no user credentials."
+    },
+    {
+      "name": "stock-GraphQL-Windows-to-WSL",
+      "status": "passed",
+      "sourceFile": ".vite/build/worker.js",
+      "workerSha256": "775f268976046c12f132fd572dc30e665445360592b72872ee832987b4cca38c",
+      "stockQueryVariablesPreserved": true,
+      "doubleShell": true,
+      "wslExecutableExercised": true,
+      "externalRequests": 0
+    },
+    {
+      "name": "CI-evidence-unit-tests",
+      "status": "passed",
+      "suite": {
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "CLI-inspection",
+      "status": "passed",
+      "selected": 10,
+      "memberships": "disabled"
+    },
+    {
+      "name": "source-only-release-payload",
+      "status": "passed"
+    }
+  ],
+  "patchDecisions": {
+    "app": "All seven app patches remain needed. Current source revisions cover the changed pet loader, Browser predicate/capability/hook/publisher, native membership gate/synchronizer, inlined runtime sync/reconciler and managed-pipe defaults, service generator and native theme updater.",
+    "runtime": "All four runtime patches remain needed with bundled CLI 0.167.0-alpha.3.2. Native regression tests reproduce stock defects and verify adapter behavior.",
+    "pet": "Stock still joins a Windows home with POSIX path semantics. Actual-source discovery, selection, installation, collision and traversal checks pass with the path patch.",
+    "security": "Existing workspace/provider restrictions, authorization and Work policy denials, account-switch checks, authenticated/API-key identities, latest disables, local-only audio and active-turn protection remain covered. The newly inlined authorization function is executed directly.",
+    "fixtures": "Isolated queue tests replace only the inlined sync callee with a fixture; integration tests execute the native sync body. The managed-pipe fixture supplies the existing ensure/configuration dependency instead of executing its default filesystem initializer.",
+    "retired": "The GraphQL shell guard and pet-home aliases remain retired. Current stock inlined GitHub/WSL command generators preserve variables and apostrophe arguments across Windows Node and wsl.exe."
+  },
+  "composedApp": {
+    "selectedIds": [
+      "custom-pets",
+      "browser-wsl",
+      "browser-service-path",
+      "browser-feature-recovery",
+      "runtime-sync-recovery",
+      "theme-background"
+    ],
+    "archiveSha256": "35b106194c0d7a03afc017ef019aa7033a20686f049a98e133245fd589e1bb90",
+    "headerSha256": "42637de15ff4a157ec3532f0e954b7fd31c22df76e6e942aefcec781709feaee",
+    "executableSha256": "61f107d2fc36693f8e2dde766def333d0e3f1dd8fe1270951eddb5f6c66a9eae"
+  },
+  "proposal": {
+    "number": 22,
+    "originalPackageVersion": "26.1103.3517.0",
+    "evidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/42205843909",
+    "originalCandidate": "preserved unchanged; not allowlisted by this review",
+    "originalWslStatus": "failed",
+    "note": "The installed Store build is newer than the proposal. This review supports only 26.1103.4239.0. Local WSL2 results are recorded separately from the older hosted proposal failure."
+  },
+  "limitations": [
+    "No generated app copy was activated; the app was not restarted and saved settings/data were not changed.",
+    "Current-build Application Control permission, startup, desktop theme, interactive pets, actual agent Browser/Computer Use, authenticated connector inventory and real-phone reconnect remain pending.",
+    "Existing Application Control and initial theme-mismatch observations remain recorded. Android project-label display remains a separate accepted limitation.",
+    "Local WSL2 passes do not establish a hosted WSL2 pass for this Store build."
+  ]
+}

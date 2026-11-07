@@ -100,3 +100,10 @@ module.exports.revisions.push({
   before: '{browser:v}', after: '{browser:m&&h.platform==="win32"?(0,eg.MV$)(v,null):v}',
   apply(source, replace) { return replace(source, this.before, this.after); },
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/early-bootstrap-199-e3316cddb4ea6a6b.js',
+  sourceSha256: '3202cb775ee05404d2b08f6dbb6fa3e524321da435564d8b2a7c6359ccdc6b0a',
+  before: '{browser:w}', after: '{browser:m&&h.platform==="win32"?(0,eu.MV$)(w,null):w}',
+  apply(source, replace) { return replace(source, this.before, this.after); },
+});

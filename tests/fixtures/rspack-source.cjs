@@ -34,6 +34,7 @@ function capability(text, query, policy, name, provider) {
     OeLR:{Y$:value=>value},uppa:{uV:'provider'},Gg2s:{u9:'features'},OWtl:{u:{}},RxZZ:{},
     OMIV:{JW:'gate'},ZnQ7:{B:{'workspace-in-app-browser':'policy'}},
   };
+  if(text.includes('n("zTeN")')) { imports.zTeN=imports.y5DF; }
   const api=execute(factory(text,'ChYf'),imports,';t.descriptors=p;');
   const raw=api.descriptors['browser.in-app'];
   assert.deepEqual(Array.from(raw.accessPolicies),['workspace-in-app-browser']);
@@ -47,13 +48,14 @@ function capability(text, query, policy, name, provider) {
   }})));
 }
 function browserHook(text, cap) {
-  const exports=execute(factory(text,'yrds'),{
+  const imports={
     QosV:{c:()=>Array(22).fill(Symbol.for('react.memo_cache_sentinel'))},
     y5DF:{_U:key=>key==='cap'?cap:{allowed:true,isPending:false}},DBCl:{Szl:{runCodexInWsl:'wsl'},PAg:'wsl'},
     ChYf:{G:'cap'},EOo5:{tn:()=>({})},RxZZ:{iK:()=>false},kfGJ:{Qz:()=>({kind:'local'})},
     hZax:{Zj:()=>true},GGpr:{$:'requirements'},mMIg:{V:()=>({enabled:true,isLoading:false})},
-  });
-  return exports.I({hostId:'local'});
+  };
+  if(text.includes('n("zTeN")'))imports.zTeN=imports.y5DF;
+  return execute(factory(text,'yrds'),imports).I({hostId:'local'});
 }
 function externalBrowser(text) {
   const values=Object.values(factories(text)).filter(fn=>fn.toString().includes('isExternalBrowserUseGateEnabled:'));
@@ -66,34 +68,34 @@ function theme(text) {
     assert(table[id],'Missing native theme utility '+id);
     const fn=table[id],imports={};
     for(const [,dep] of fn.toString().matchAll(/\bi\("([^"]+)"\)/g))imports[dep]=load(dep);
-    return cache[id]=execute(fn,imports,id==='KvLy'?';t.build=U;t.defaults={dark:o,light:n};':'');
+    return cache[id]=execute(fn,imports,(id==='KvLy'||id==='BQgU')?';t.build=U;t.defaults={dark:o,light:n};':'');
   };
-  const api=load('KvLy');
+  const api=load(table.BQgU?'BQgU':'KvLy');
   return {defaults:JSON.parse(JSON.stringify(api.defaults)),engine:(value,variant)=>({variables:JSON.parse(JSON.stringify(api.build(value,variant)))})};
 }
 function updater(text) {
-  const source=factory(text,'KvLy').toString(),start=source.indexOf('function A('),end=source.indexOf('function j(',start);
+  const source=factory(text,factories(text).BQgU?'BQgU':'KvLy').toString(),start=source.indexOf(factories(text).BQgU?'function F(':'function A('),end=source.indexOf('function j(',start);
   assert(start>=0&&end>start);return source.slice(start,end);
 }
 function applyTheme(text,engine) {
-  return vm.runInNewContext(updater(text)+';A',{U:(value,variant)=>engine(value,variant).variables,j:()=>false});
+  return vm.runInNewContext(updater(text)+(factories(text).BQgU?';F':';A'),{U:(value,variant)=>engine(value,variant).variables,j:()=>false});
 }
 module.exports={paths,factories,factory,execute,capability,browserHook,externalBrowser,theme,updater,applyTheme};
 function workspace(text) { return execute(factory(text,'vw1R'),{}).H; }
-function publisher(archive) {
-  const source=asar.readEntry(archive,paths.publisher).toString();
-  assert.equal(asar.sha256(Buffer.from(source)),'0c77555cce0cb92e8d8594c60ff7333af8fb18662a856b719dfa1f05229cf1db');
-  const start=source.indexOf('l||es.isLoading||er.isLoading||'),end=source.indexOf('||(t0.O1.dispatchMessage("electron-desktop-features-changed"',start);
+function publisher(archive, source1103=false) {
+  const source=asar.readEntry(archive,source1103?'webview/assets/async/366057.8dff3ed0b6.js':paths.publisher).toString();
+  assert.equal(asar.sha256(Buffer.from(source)),source1103?'d5e8a2fcbc633f7059f5089a6cc7a9320e8e88e0bc756942faf3209572284418':'0c77555cce0cb92e8d8594c60ff7333af8fb18662a856b719dfa1f05229cf1db');
+  const start=source.indexOf(source1103?'l||ei.isLoading||er.isLoading||':'l||es.isLoading||er.isLoading||'),end=source.indexOf((source1103?'||(tH.O1.dispatchMessage':'||(t0.O1.dispatchMessage')+'("electron-desktop-features-changed"',start);
   assert(start>=0&&end>start);
   const condition=source.slice(start,end);let published=0;
   for(const pending of [true,false]){
-    vm.runInNewContext(condition+'||publish()',{l:false,es:{isLoading:pending},er:{isLoading:false},c:true,eo:{isLoading:false},eg:{isLoading:false},e_:{isLoading:false},G:'available',L:{status:'allowed'},eF:{status:'allowed'},eq:{status:'allowed'},publish:()=>published++});
+    vm.runInNewContext(condition+'||publish()',source1103?{l:false,ei:{isLoading:pending},er:{isLoading:false},c:true,es:{isLoading:false},ep:{isLoading:false},ev:{isLoading:false},V:'available',L:{status:'allowed'},eU:{status:'allowed'},eF:{status:'allowed'},publish:()=>published++}:{l:false,es:{isLoading:pending},er:{isLoading:false},c:true,eo:{isLoading:false},eg:{isLoading:false},e_:{isLoading:false},G:'available',L:{status:'allowed'},eF:{status:'allowed'},eq:{status:'allowed'},publish:()=>published++});
     assert.equal(published,pending?0:1);
   }
-  assert(source.includes('inAppBrowserUse:es.available')&&source.includes('inAppBrowserUseAllowed:es.allowed'));
+  assert(source.includes(source1103?'inAppBrowserUse:ei.available':'inAppBrowserUse:es.available')&&source.includes(source1103?'inAppBrowserUseAllowed:ei.allowed':'inAppBrowserUseAllowed:es.allowed'));
 }
-function css(archive) {
-  const text=['webview/assets/async/361a1f04b890.css','webview/assets/async/55fbafee337b.css'].map(path=>asar.readEntry(archive,path).toString()).join('\n');
+function css(archive, source1103=false) {
+  const text=(source1103?['webview/assets/async/e77f816560c6.css','webview/assets/async/e9cca08fb35b.css']:['webview/assets/async/361a1f04b890.css','webview/assets/async/55fbafee337b.css']).map(path=>asar.readEntry(archive,path).toString()).join('\n');
   for(const name of Object.values(classes))assert(text.includes('.'+name),'Re-audit the native shell class '+name);
   return text;
 }

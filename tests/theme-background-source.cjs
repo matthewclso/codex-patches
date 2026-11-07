@@ -24,7 +24,8 @@ function load() {
   const plan = app.inspectArchive(bytes, [patch.id], { allowUnknownForAudit: true });
   patch = app.patchForSource(patch.id, plan.patches[0].sourceHash);
   const source = asar.readEntry(archive, patch.targetPath).toString();
-  const source1029 = asar.sha256(bytes) === '77ed4ddc5b388ac8b29f5035f9c98f982b095df55aad6fa6c27bb80d763b9691';
+  const source1103 = asar.sha256(bytes) === 'fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa';
+  const source1029 = source1103 || asar.sha256(bytes) === '77ed4ddc5b388ac8b29f5035f9c98f982b095df55aad6fa6c27bb80d763b9691';
   const source6604 = asar.sha256(bytes) === 'faacb124f33b792bd2c88fbe8b1215fb6869d81b145a919260e16ac11d9c1451';
   const source1027 = source1029 || source6604 || asar.sha256(bytes) === '6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
   const source1023 = asar.sha256(bytes) === '99ed83950473e34e642f2942226bf40ce9b65e9910afbe8e406120459823c02d';
@@ -32,7 +33,7 @@ function load() {
   const patched = patch.apply(source, app.replaceExactlyOnce);
   if(source1029){
     const native=require('./fixtures/rspack-source.cjs'), stock=native.theme(source), fixed=native.theme(patched);
-    return fixture={bytes,archive,build,source,patched,source1029,source1027,defaults:stock.defaults,stock:stock.engine,fixed:fixed.engine};
+    return fixture={bytes,archive,build,source,patched,source1029,source1103,source1027,defaults:stock.defaults,stock:stock.engine,fixed:fixed.engine};
   }
   const styleVarsPath = path.posix.join(path.posix.dirname(patch.targetPath), source.match(source1023 ? /import\{r as d,t as f\}from"([^"]+)"/ : /import\{r as l,t as u\}from"([^"]+)"/)[1]);
   const styleVarsSource = asar.readEntry(archive, styleVarsPath).toString();
@@ -153,7 +154,7 @@ sourceTest('archive selection adds only the reviewed theme entry and disabling i
 
 sourceTest('Chromium covers actual Windows frames, native material, menu chrome and Electron surface overrides', async t => {
   if (!process.env.CODEX_PLAYWRIGHT_MODULE) return t.skip('Set CODEX_PLAYWRIGHT_MODULE to a local playwright or playwright-core module');
-  const { archive, source, patched, stock, fixed, defaults, styleVarsSource, source1027, source6604, source1029 } = load();
+  const { archive, source, patched, stock, fixed, defaults, styleVarsSource, source1027, source6604, source1029, source1103 } = load();
   const { chromium } = require(process.env.CODEX_PLAYWRIGHT_MODULE);
   const browser = await chromium.launch({ headless: true });
   function documentUpdater(text) {
@@ -165,7 +166,7 @@ sourceTest('Chromium covers actual Windows frames, native material, menu chrome 
   try {
     const page = await browser.newPage({ viewport: { width: 1000, height: 700 } });
     const paths = asar.listEntries(archive.tree).map(e => e.path);
-    const css = source1029 ? require('./fixtures/rspack-source.cjs').css(archive) : source1027 ? [source6604?'webview/assets/fd9b7fd80db1.css':'webview/assets/5257da4ba4ae.css','webview/assets/59ad52d5aa88.css'].map(name=>asar.readEntry(archive,name).toString()).join(String.fromCharCode(10)) : ['shared', 'primary'].map(name => {
+    const css = source1029 ? require('./fixtures/rspack-source.cjs').css(archive,source1103) : source1027 ? [source6604?'webview/assets/fd9b7fd80db1.css':'webview/assets/5257da4ba4ae.css','webview/assets/59ad52d5aa88.css'].map(name=>asar.readEntry(archive,name).toString()).join(String.fromCharCode(10)) : ['shared', 'primary'].map(name => {
       const matches = paths.filter(p => new RegExp('^webview/assets/app-' + name + '-[^/]+\\.css$').test(p));
       assert.equal(matches.length, 1);
       return asar.readEntry(archive, matches[0]).toString();
@@ -196,7 +197,7 @@ sourceTest('Chromium covers actual Windows frames, native material, menu chrome 
         // Actual document updater and stylesheet writer; only palette lookup
         // and the unrelated account-color predicate are supplied here.
         window.fixturePalettes = palettes;
-        const apply = new Function('l', 'd', 'X', 'Y', 'Q', 'U', 'j', updater + ';return '+(updater.startsWith('function A(')?'A':updater.startsWith('function ee(')?'ee':'Z')+';')(
+        const apply = new Function('l', 'd', 'X', 'Y', 'Q', 'U', 'j', updater + ';return '+(updater.startsWith('function F(')?'F':updater.startsWith('function A(')?'A':updater.startsWith('function ee(')?'ee':'Z')+';')(
           window.writeNativeTheme, window.writeNativeTheme, (_,v)=>window.fixturePalettes[v], (_, v) => window.fixturePalettes[v], () => false, (_,v)=>window.fixturePalettes[v],()=>false);
         window.applyFixtureTheme = v => apply(document, { light: {}, dark: {} }, v);
         window.applyFixtureTheme(variant);

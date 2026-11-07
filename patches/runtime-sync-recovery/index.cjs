@@ -192,3 +192,26 @@ module.exports.revisions.push({
     return source;
   },
 });
+
+module.exports.revisions.push({
+  targetPath: '.vite/build/early-bootstrap-199-e3316cddb4ea6a6b.js',
+  sourceSha256: '3202cb775ee05404d2b08f6dbb6fa3e524321da435564d8b2a7c6359ccdc6b0a',
+  syncBefore: 'function i8(e){let t=(i9.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(()=>',
+  syncAfter: 'function i8(e){let t=(i9.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(async()=>{for(let t=0;;t++)try{return await',
+  syncEndBefore: '})(e));return i9.set(e.appServerConnection,t),t}',
+  syncEndAfter: '})(e)}catch(n){if(t>=2||!/timed out|expired while queued|app server.*(?:disconnected|not connected)/i.test(String(n?.message??n)))throw n;await new Promise(e=>setTimeout(e,1e3*(t+1)))}});return i9.set(e.appServerConnection,t),t}'+oct27SyncAfter.slice(oct27SyncAfter.indexOf('var __codexPatchesRuntimeRecovery')).replace(/\b(?:sH|sW|sN|tl)\b/g,name=>({sH:'i8',sW:'i9',sN:'i3',tl:'tr'})[name]),
+  resumeBefore: 'n=r?await i5(t):null,i=r?tr():e.desktopFeatureAvailability',
+  resumeAfter: 'n=r?(await i5(t)??await __codexPatchesRecoverRuntime(e).catch(()=>null)):null,i=r?tr():e.desktopFeatureAvailability',
+  failureBefore: 'throw ot().warning("bundled_plugins_reconcile_failed",{safe:{hasExternalPluginStateSync:d,reason:r},sensitive:{error:e}}),e',
+  failureAfter: 'throw y===c&&(y=null),ot().warning("bundled_plugins_reconcile_failed",{safe:{hasExternalPluginStateSync:d,reason:r},sensitive:{error:e}}),e',
+  focusBefore: 'reconcileExternalPluginState:(t="focus")=>',
+  focusAfter: 'reconcileExternalPluginState:(t="focus")=>V({force:!1,reason:t}).then(()=>',
+  focusEndBefore: '})(t),reloadBundledPlugins:()=>V(',
+  focusEndAfter: '})(t)),reloadBundledPlugins:()=>V(',
+  reconcileBefore: 'C=f,r=y,E(t.marketplacePluginDescriptors)};return{reconcileComputerHistoryPluginInstallation:',
+  reconcileAfter: 'C=f,r=y,E(t.marketplacePluginDescriptors);if(n.hadReconcileFailure)throw Error("Bundled plugin reconciliation incomplete")};return{reconcileComputerHistoryPluginInstallation:',
+  apply(source, replace) {
+    for (const key of ['sync','syncEnd','resume','failure','focus','focusEnd','reconcile']) source = replace(source, this[key+'Before'], this[key+'After']);
+    return source;
+  },
+});
