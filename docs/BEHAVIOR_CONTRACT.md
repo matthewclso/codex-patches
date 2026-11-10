@@ -114,6 +114,12 @@ acceptance of tool availability in the running desktop before activation.
 
 Sources: U08, U11–U15. The optional module and conservative repair semantics are the delivered operational specification supporting that request; they are not a claim that the requested Android display behavior is implemented.
 
+### Project folder chat list
+
+**SIDEBAR-1.** After using **Show more** in a desktop sidebar project folder, closing and reopening that folder must restore its initial five chats in the usual order. **Show more** must still work after reopening. Closing one project must leave other projects' list expansion alone.
+
+Current module: `project-list-reset`. Source: U23. The patch is independently selectable under SELECT-1/2.
+
 ## Installation, updating and removal
 
 **LIFECYCLE-1 — A documented ordinary-user workflow.** Provide inspect, install, launch, validation, patch selection, update, explicit stock launch, cleanup and uninstall operations with clear prerequisites and actionable failures. Installation must be reproducible from the repository and documented downloads, without private scripts. Keep generated output in clearly owned locations and avoid persistent shell-profile workarounds. Today's entry point is `codex-patches.ps1`; [README](../README.md) documents the commands.
@@ -157,6 +163,7 @@ Sources: U01–U03, U21 and accepted update-proposal defaults. Exact UTC run tim
 | Remote listing/routing | Existing chat listing, pagination and reconnect; preserve pairing and account preferences across updates. |
 | Plugin connectors/runtime | Fresh native connector inventory and authenticated status alongside the relay; desktop agent tool discovery after activation; bundled marketplace synchronization without weakening native source/name checks. |
 | Project membership | Distinct projects sharing a folder, creation/move/clear persistence, and conflict handling. Android label display remains a separate check. |
+| Project folder chat list | Expand with **Show more**, close and reopen, verify the first five and expand again; confirm a second project's expansion is unaffected. |
 | Installation/cleanup | Real shortcut target and activation, session protection, owned-file removal, retained data and operation without old paths. |
 | Compatibility/CI | Stock versus patched applicability, composed selections and an honest Windows/WSL result; reviewed support decisions. |
 
@@ -194,5 +201,6 @@ All times below are September 30, 2026, America/New_York; later follow-ups witho
 | U20 · October 9, 2026 | Investigate unavailable Browser and Computer Use, implement the diagnosed fixes, push to the same branch and test. | BROWSER-4; preserve BROWSER-1/2/3 and lifecycle safeguards. |
 | U21 · October 17, 2026 | Run compatibility checks four times daily, every six hours, to detect frequent updates sooner; confirm repeated failures do not create duplicate branches. | CI-2: six-hour scheduling with one proposal per package version/archive hash; distinct builds may have separate proposals. |
 | U22 · October 27, 2026 | Apply the configured background color, currently `#000000`, to the top bar and sidebar as well as chat; implement, test and add it to this repository. | THEME-1; SELECT-1/2/3 and VERIFY-1/2/4. |
+| U23 · November 10, 2026 | Restore the first five chats when reopening a project folder after **Show more**; implement the fix in this repository. | SIDEBAR-1; SELECT-1/2/3 and VERIFY-1/2/4. |
 
 “Accepted defaults” above refers to the two design responses preceding U02 and U03: a small modular toolkit and one composed app copy, reviewed build support, explicit stock fallback, deliberate preview/backup state repairs, reproducible downloads, deterministic update proposals, and cleanup only after validating independence from old code. Later explicit user decisions override those proposals. Unchosen alternatives and implementation details are not silently promoted into owner requests.

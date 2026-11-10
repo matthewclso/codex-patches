@@ -125,6 +125,7 @@ test('theme patch is independently selectable and unsupported builds remain gate
 });
 sourceTest('archive selection adds only the reviewed theme entry and disabling it restores pristine theme bytes', () => {
   const { bytes, archive, build, source, patched } = load();
+  const defaultIds = build ? resolveSelection({ schemaVersion: 1, patches: {} }, build).appPatches : [patch.id];
   const otherIds = build ? resolveSelection({ schemaVersion: 1, patches: { 'theme-background': 'disabled' } }, build).appPatches : [];
   const compose = ids => {
     if (build) return app.transformArchive(bytes, ids);
@@ -133,9 +134,9 @@ sourceTest('archive selection adds only the reviewed theme entry and disabling i
     assert.throws(() => app.transformArchive(bytes, ids), /Unsupported Codex archive/);
     return result;
   };
-  const without = compose(otherIds), withTheme = compose([...otherIds, patch.id]);
+  const without = compose(otherIds), withTheme = compose(defaultIds);
   if (build) {
-    assert.deepEqual([...otherIds, patch.id], build.composedApp.selectedIds);
+    assert.deepEqual(defaultIds, build.composedApp.selectedIds);
     assert.equal(withTheme.outputArchiveHash, build.composedApp.archiveSha256);
     assert.equal(withTheme.outputHeaderHash, build.composedApp.headerSha256);
     if (process.env.CODEX_SOURCE_EXE) {
@@ -146,8 +147,15 @@ sourceTest('archive selection adds only the reviewed theme entry and disabling i
   const disabled = asar.parseArchive(without.buffer), enabled = asar.parseArchive(withTheme.buffer);
   assert.equal(asar.readEntry(disabled, patch.targetPath).toString(), source);
   assert.equal(asar.readEntry(enabled, patch.targetPath).toString(), patched);
+  const otherTargets = new Set((without.changes ?? without.report.changes).map(change => change.targetPath));
   for (const { path: name } of asar.listEntries(archive.tree)) {
-    if (name !== patch.targetPath) assert.deepEqual(asar.lookup(enabled.tree, name), asar.lookup(disabled.tree, name));
+    if (name === patch.targetPath) continue;
+    const before = asar.lookup(disabled.tree, name), after = asar.lookup(enabled.tree, name);
+    if (otherTargets.has(name)) {
+      // Appended patched entries can move when an earlier patch is disabled.
+      assert.deepEqual({ ...after, offset: before.offset }, before);
+      assert(asar.readEntry(enabled, name).equals(asar.readEntry(disabled, name)));
+    } else assert.deepEqual(after, before);
   }
   const unknown = asar.serializeArchive({ ...archive.tree, themeAudit: true }, archive.payload);
   assert.throws(() => app.transformArchive(unknown, [patch.id]), /Unsupported Codex archive/);

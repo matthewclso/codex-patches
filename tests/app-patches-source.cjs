@@ -64,7 +64,7 @@ function between(source, first, last) {
   assert(start >= 0 && end > start, 'Missing source boundaries: ' + first);
   return source.slice(start, end);
 }
-const sourceTest = (name, fn) => test(name, { skip: !sourcePath && 'Set CODEX_SOURCE_ASAR to a pristine Codex app.asar' }, async () => { setup(); await fn(); });
+const sourceTest = (name, fn) => test(name, { skip: !sourcePath && 'Set CODEX_SOURCE_ASAR to a pristine Codex app.asar' }, async t => { setup(); await fn(t); });
 function packedRequire(name, cache = new Map()) {
   if(source1027) return webpackLoad(35553);
   if (cache.has(name)) return cache.get(name).exports;
@@ -325,13 +325,87 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
   assert.equal((await creation.call(runtime, inputs)).projectId, 'server-research');
   runtime.params.hostId = 'remote-host'; assert.equal((await creation.call(runtime, inputs)).projectId, undefined);
 });
-sourceTest('all valid app-patch combinations are deterministic, source-gated and preserve unrelated entries', () => {
+sourceTest('reopening a project restores the first five chats after Show more', t => {
+  const row = sourcePlan.patches.find(p => p.id === 'project-list-reset');
+  if (!row) return t.skip('Project list reset is not reviewed for this historical build');
+  const patch = app.patchForSource(row.id, row.sourceHash);
+  const source = packed(row.targetPath);
+  const patched = patch.apply(source, app.replaceExactlyOnce);
+  const { factory, execute } = require('./fixtures/rspack-source.cjs');
+  const memo = size => Array(size).fill(Symbol.for('react.memo_cache_sentinel'));
+  const jsx = (type, props, key) => ({ type, props, key });
+  const noop = () => {};
+  const list = execute(factory(packed('webview/assets/async/927552.2a3666383e.js'), 'SR2c'), {
+    ABep: { jsx, jsxs: jsx }, QosV: { c: memo }, on57: { A: () => '' },
+    zd8w: { memo: fn => fn, createContext: noop, useContext: noop, useEffect: noop,
+      useEffectEvent: fn => fn, useState: init => [typeof init === 'function' ? init() : init, noop],
+      useRef: current => ({ current }) },
+    T1PX: { I: () => true }, GzOO: { l: 'pagination', z: 'paginationButton' },
+    HgLj: { P: noop }, bIvi: { K: fn => fn }, LIss: {}, oyxz: {}, wZQ4: {}, V8uZ: {}, UxLy: {},
+  }, ';globalThis.queueMicrotask=()=>{};').d;
+  const chats = Array.from({ length: 12 }, (_, i) => 'chat-' + i);
+  for (const [text, reopenedCount] of [[source, 12], [patched, 5]]) {
+    const atom = (_scope, read) => ({ read });
+    const state = execute(factory(packed('webview/assets/async/182735.7f13786b92.js'), 'RFDv'), {
+      zTeN: { un: atom, i1: atom, vP: (_scope, initial) => ({ initial }) },
+      DBCl: { aiU: {} }, Nwp9: { m3: (_name, initial) => ({ initial }), Kn: name => ({ name }) },
+      V3rO: { nu: noop }, E8Sp: {}, TjTj: {}, nlNF: {}, B3N0: {}, OWtl: {}, Oj9r: {}, d6Ff: {}, mq1u: {}, jcQS: {},
+    });
+    const store = new Map();
+    const ep = {
+      get(key, id) {
+        if (key.read) return key.read(id, ep);
+        return store.get(key.name?.(id) ?? key) ?? key.initial;
+      },
+      set(key, id, value) { store.set(key.name ? key.name(id) : key, key.name ? value : id); },
+    };
+    function folder(id) {
+      const start = 'G[37]!==ek||G[38]!==ep?(j=';
+      const toggle = vm.runInNewContext(between(text, start, ',G[37]=ek').slice(start.length), { ep, eW: state, ek: id });
+      const listKey = 'project:' + id;
+      const render = () => ep.get(state.Jk, id) ? null : list({
+        items: chats, getKey: key => key, maxItems: 5, expanded: ep.get(state.eP, listKey),
+        onExpandedChange: expanded => state.wE(ep, listKey, expanded),
+      });
+      return { toggle, render };
+    }
+    const visible = view => Array.from(view.props.children[0], row => row.key);
+    const showMore = view => view.props.children[4].props.children[0].props.children[1].props.children;
+    const one = folder('one'), two = folder('two');
+    assert.deepEqual(visible(one.render()), chats.slice(0, 5));
+    showMore(one.render()).props.onClick();
+    showMore(two.render()).props.onClick();
+    assert.deepEqual(visible(one.render()), chats);
+    one.toggle();
+    assert.equal(one.render(), null);
+    one.toggle();
+    assert.deepEqual(visible(one.render()), chats.slice(0, reopenedCount));
+    assert.deepEqual(visible(two.render()), chats);
+    if (reopenedCount === 5) {
+      showMore(one.render()).props.onClick();
+      assert.deepEqual(visible(one.render()), chats);
+    }
+  }
+});
+sourceTest('standalone, shared-target and combined app patches are deterministic and source-gated', () => {
   const ids = sourcePlan.patches.map(p => p.id);
-  const combinations = Array.from({ length: 1 << ids.length }, (_, mask) => ids.filter((_, index) => mask & (1 << index)));
+  const combinations = new Map();
+  const include = selection => combinations.set(selection.join(','), selection);
+  include(ids);
+  if (sourcePlan.build?.composedApp) include(sourcePlan.build.composedApp.selectedIds);
+  for (const id of ids) include(ids.filter(other => other !== id));
+  // Patches on separate entries cannot change each other's replacement
+  // anchors. Exercise every shared-entry combination, then combine and toggle
+  // modules in the full archive without rebuilding it for every subset.
+  for (const group of Map.groupBy(sourcePlan.patches, p => p.targetPath).values()) {
+    for (let mask = 0; mask < (1 << group.length); mask++) {
+      include(group.filter((_, i) => mask & (1 << i)).map(p => p.id));
+    }
+  }
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-patch-syntax-'));
   const syntaxChecked = new Set();
   try {
-    for (const selected of combinations) {
+    for (const selected of combinations.values()) {
       const result = compose(original, selected), resultAgain = compose(original, selected);
       assert(result.buffer.equals(resultAgain.buffer)); assert.equal(result.changes.length, selected.length);
       const reviewed = result.build?.composedApp;
