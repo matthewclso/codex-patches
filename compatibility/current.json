@@ -1851,6 +1851,14 @@
           "outputSha256": "8f4ab67ce8a47125f7d72e746889c2e65f0d1890ad18a4b9ef30544e37ddbf74",
           "evidence": "THEME-1: current stock theme still derives a different sidebar/native-window background and leaves Windows frames exposed to native material. Current-source palette/stylesheet checks and 32 Chromium layout/theme cases use the current root/shell CSS and application-menu layout, preserve contrast/opacity preferences, and verify the corrected scoped frame rule. Earlier live mismatch and Application Control block remain recorded; current desktop acceptance is pending.",
           "reviewRecord": "compatibility/reviews/26.1103.7773.0.json"
+        },
+        "project-list-reset": {
+          "status": "needed",
+          "targetPath": "webview/assets/async/499225.6d2e47bea2.js",
+          "sourceSha256": "80f7a6b651f9f56ac97463123d72963c2a78570f6f0162c75d0d6d9d0a03f074",
+          "outputSha256": "3d59cf4e9d6bfe847582523f7661f4999481fa925d35360f309e57699fe04571",
+          "evidence": "SIDEBAR-1: stock retains the expanded chat list after closing and reopening. The patched project toggle clears only its own list expansion on close.",
+          "reviewRecord": "compatibility/reviews/26.1103.7773.0-project-list-reset.json"
         }
       },
       "verifiedPackedEntries": 19785,
@@ -1861,11 +1869,12 @@
           "browser-service-path",
           "browser-feature-recovery",
           "runtime-sync-recovery",
-          "theme-background"
+          "theme-background",
+          "project-list-reset"
         ],
-        "archiveSha256": "faf6034acaf7df0b69e0e91222285d030affc24bdbebcbf6f87e47178ece56f2",
-        "headerSha256": "20cdd89ed818cb531e0e85f3bace424f78c419b878e611dd1fca8565d0f5f31c",
-        "executableSha256": "25eced1764f034bd289d130021227a70986cb225db4c759547b00b38da6c8b56"
+        "archiveSha256": "3c3847dda8970fdfb79cea7ff8e232cba30ce667ac772e96dc508dfdeb4a1d6c",
+        "headerSha256": "75797c707ddcf00e039c03eaa238c41bacedd31c90bb281e310ef5309f835096",
+        "executableSha256": "8cf1fb7b953545c563ca6982755e8fc24de3fe00ce2006769a3120f15be6488e"
       },
       "runtimePatches": {
         "wsl-project-paths": {

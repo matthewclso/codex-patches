@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "26.1103.7773.0",
+  "appVersion": "26.1103.60933",
+  "cliVersion": "0.167.0-alpha.3.2",
+  "reviewedAt": "2026-11-10",
+  "status": "automated-validation-passed; current-build-interactive-acceptance-pending",
+  "affectedRequirements": [
+    "SIDEBAR-1",
+    "SELECT-1",
+    "SELECT-2",
+    "SELECT-3",
+    "SELECT-4",
+    "VERIFY-1",
+    "VERIFY-2",
+    "VERIFY-4"
+  ],
+  "packageReview": "compatibility/reviews/26.1103.7773.0.json",
+  "checks": [
+    {
+      "name": "project-folder-stock-versus-patched",
+      "status": "passed",
+      "detail": "The actual project toggle, list state and native pagination code ran with two 12-chat fixtures. Stock reopened with 12; patched reopened with the original first five. Show more expanded it again and the other project stayed expanded."
+    },
+    {
+      "name": "project-list-selection",
+      "status": "passed",
+      "detail": "Default and explicit selection match the reviewed patch bytes. Disabling the patch restores the stock sidebar bytes and preserves other patch outputs, including with project membership synchronization enabled."
+    },
+    {
+      "name": "Windows-inspect",
+      "status": "passed",
+      "detail": "The ordinary PowerShell inspector selected project-list-reset in auto mode with the saved selection."
+    },
+    {
+      "name": "installed-package-validator",
+      "status": "passed",
+      "sourceSuite": {
+        "tests": 20,
+        "pass": 20,
+        "fail": 0,
+        "skipped": 0
+      },
+      "combinations": 23,
+      "detail": "Exact installed archive, executable and bundled runtime pins matched. Standalone, shared-target and combined selections composed deterministically, parsed and preserved unrelated entries. The default archive, header and executable hashes matched the review pins."
+    }
+  ],
+  "composedApp": {
+    "selectedIds": [
+      "custom-pets",
+      "browser-wsl",
+      "browser-service-path",
+      "browser-feature-recovery",
+      "runtime-sync-recovery",
+      "theme-background",
+      "project-list-reset"
+    ],
+    "archiveSha256": "3c3847dda8970fdfb79cea7ff8e232cba30ce667ac772e96dc508dfdeb4a1d6c",
+    "headerSha256": "75797c707ddcf00e039c03eaa238c41bacedd31c90bb281e310ef5309f835096",
+    "executableSha256": "8cf1fb7b953545c563ca6982755e8fc24de3fe00ce2006769a3120f15be6488e"
+  },
+  "interactiveAcceptance": "Project folder collapse and reopen still need a check in the running Windows app."
+}

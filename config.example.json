@@ -8,6 +8,7 @@
     "browser-feature-recovery": "auto",
     "runtime-sync-recovery": "auto",
     "theme-background": "auto",
+    "project-list-reset": "auto",
     "wsl-project-paths": "auto",
     "remote-fast-list": "auto",
     "connector-routing": "auto",
