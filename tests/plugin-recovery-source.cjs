@@ -8,7 +8,7 @@ const app = require('../lib/app-patches.cjs');
 let feature = require('../patches/browser-feature-recovery/index.cjs');
 let runtime = require('../patches/runtime-sync-recovery/index.cjs');
 const sourcePath = process.env.CODEX_SOURCE_ASAR;
-let archive, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, source1029, source1103, selected;
+let archive, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, source1029, source1103, source7773, selected;
 // Fixture aliases are bound to one exact reviewed archive, never guessed.
 const currentNames = { Q8:'$8', Ck:'Xk', Q:'X', Kgi:'bbi', Jgi:'Sbi', Qgi:'Ebi', $gi:'Dbi', yI:'II', f6:'p6', Wgi:'vbi', e_i:'Obi',
   sGr:'GJr', cGr:'KJr', lGr:'qJr', Ik:'pA', DHr:'tKr', IU:'nW', IHr:'uKr', D2:'S2', QN:'cP', JOn:'$kn', uzt:'pzt',
@@ -75,7 +75,8 @@ const context = values => source1007 ? Object.fromEntries(Object.entries(values)
 function setup(t) {
   if (selected) return true;
   const bytes=fs.readFileSync(sourcePath); archive=asar.parseArchive(bytes);
-  source1103=asar.sha256(bytes)==='fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa';
+  source7773=asar.sha256(bytes)==='ee88fdd77fb7346efb5e91ce73c7c0eee4eba390ffba3192635d5cdbe44e4097';
+  source1103=source7773||asar.sha256(bytes)==='fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa';
   source1029=source1103||asar.sha256(bytes)==='77ed4ddc5b388ac8b29f5035f9c98f982b095df55aad6fa6c27bb80d763b9691';
   source6604=asar.sha256(bytes)==='faacb124f33b792bd2c88fbe8b1215fb6869d81b145a919260e16ac11d9c1451';
   source1027=source1029||source6604||asar.sha256(bytes)==='6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
@@ -390,7 +391,7 @@ sourceTest('actual managed pipe runtime coalesces repeated readiness requests wi
   bridge.dispose();await Promise.resolve();assert.equal(disposed,1);assert.equal(closed,0);
 });
 sourceTest('actual availability publisher does not send a Browser disable while capability discovery is pending',()=>{
-  if(source1029)return require('./fixtures/rspack-source.cjs').publisher(archive,source1103);
+  if(source1029)return require('./fixtures/rspack-source.cjs').publisher(archive,source1103,source7773);
   const entry=source6604?{path:'webview/assets/app-runtime-3212efed978b.js'}:source1027?{path:'webview/assets/app-runtime-e4b4e09bd942.js'}:source1023?{path:'webview/assets/app-runtime-22dba69f1f94.js'}:source1021?{path:'webview/assets/app-runtime-e61614157c23.js'}:asar.listEntries(archive.tree).find(e=>/^webview\/assets\/app-initial-[^/]+\.js$/.test(e.path));assert(entry);
   const initial=asar.readEntry(archive,entry.path).toString();
   if(source1021)assert.equal(asar.sha256(Buffer.from(initial)),source6604?'43c18959f692f73ef7eef4024d3dff6dcffe6bc9c11cdc8b90fd0c49be9e5343':source1027?'bfe7cc48427c12348fb0ab75806de4861caa898b815e68950e63dcfeb09b8f28':source1023?'e0758add2aa39e02b9adffd1277509ede5604cb9120e60de8aa1a625c251f918':'76de4e780865c9c73282a604deec2be28e9e9199836692cee2d72d3ea97fc4ed');

@@ -107,3 +107,9 @@ module.exports.revisions.push({
   before: '{browser:w}', after: '{browser:m&&h.platform==="win32"?(0,eu.MV$)(w,null):w}',
   apply(source, replace) { return replace(source, this.before, this.after); },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: ".vite/build/early-bootstrap-480-5def667ddfcd786d.js",
+  sourceSha256: "be8eba3b9283d6a9784fa069a019b83a89fd02277cc13e4f7d32d57faf0ada65",
+});

@@ -163,3 +163,9 @@ module.exports.revisions.push({
   requirementsBefore: module.exports.revisions.at(-1).requirementsBefore.replace('D=!E', 'k=!E'),
   requirementsAfter: module.exports.revisions.at(-1).requirementsAfter.replace('D=!E', 'k=!E'),
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: "webview/assets/async/182735.7f13786b92.js",
+  sourceSha256: "119afcc814fe83e733d5b494d3201afe203c51b8d059998b2a8dbf3ed03ccd85",
+});
