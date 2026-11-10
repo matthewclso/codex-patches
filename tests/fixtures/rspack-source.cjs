@@ -82,9 +82,9 @@ function applyTheme(text,engine) {
 }
 module.exports={paths,factories,factory,execute,capability,browserHook,externalBrowser,theme,updater,applyTheme};
 function workspace(text) { return execute(factory(text,'vw1R'),{}).H; }
-function publisher(archive, source1103=false) {
-  const source=asar.readEntry(archive,source1103?'webview/assets/async/366057.8dff3ed0b6.js':paths.publisher).toString();
-  assert.equal(asar.sha256(Buffer.from(source)),source1103?'d5e8a2fcbc633f7059f5089a6cc7a9320e8e88e0bc756942faf3209572284418':'0c77555cce0cb92e8d8594c60ff7333af8fb18662a856b719dfa1f05229cf1db');
+function publisher(archive, source1103=false, source7773=false) {
+  const source=asar.readEntry(archive,source7773?'webview/assets/async/366057.08ca21677c.js':source1103?'webview/assets/async/366057.8dff3ed0b6.js':paths.publisher).toString();
+  assert.equal(asar.sha256(Buffer.from(source)),source7773?'40a7a2cabfc767584f268a10a4201ccb0655ec3b87bd1e934195a83a3194994c':source1103?'d5e8a2fcbc633f7059f5089a6cc7a9320e8e88e0bc756942faf3209572284418':'0c77555cce0cb92e8d8594c60ff7333af8fb18662a856b719dfa1f05229cf1db');
   const start=source.indexOf(source1103?'l||ei.isLoading||er.isLoading||':'l||es.isLoading||er.isLoading||'),end=source.indexOf((source1103?'||(tH.O1.dispatchMessage':'||(t0.O1.dispatchMessage')+'("electron-desktop-features-changed"',start);
   assert(start>=0&&end>start);
   const condition=source.slice(start,end);let published=0;

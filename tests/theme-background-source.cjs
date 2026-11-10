@@ -24,7 +24,8 @@ function load() {
   const plan = app.inspectArchive(bytes, [patch.id], { allowUnknownForAudit: true });
   patch = app.patchForSource(patch.id, plan.patches[0].sourceHash);
   const source = asar.readEntry(archive, patch.targetPath).toString();
-  const source1103 = asar.sha256(bytes) === 'fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa';
+  const source1103 = ['fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa',
+    'ee88fdd77fb7346efb5e91ce73c7c0eee4eba390ffba3192635d5cdbe44e4097'].includes(asar.sha256(bytes));
   const source1029 = source1103 || asar.sha256(bytes) === '77ed4ddc5b388ac8b29f5035f9c98f982b095df55aad6fa6c27bb80d763b9691';
   const source6604 = asar.sha256(bytes) === 'faacb124f33b792bd2c88fbe8b1215fb6869d81b145a919260e16ac11d9c1451';
   const source1027 = source1029 || source6604 || asar.sha256(bytes) === '6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';

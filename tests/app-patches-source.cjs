@@ -27,7 +27,7 @@ function compose(bytes, selected) {
   }
   return { ...result, changes: result.report.changes, build: result.report.build };
 }
-let original, archive, sourcePlan, currentSource, latestSource, newestSource, source7945, source1002, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, source1029, source1103, webpackLoad, webpackPaths;
+let original, archive, sourcePlan, currentSource, latestSource, newestSource, source7945, source1002, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, source1029, source1103, source7773, webpackLoad, webpackPaths;
 
 function modulePath(patch) { return sourcePlan.patches.find(p => p.id === patch.id).targetPath; }
 function packed(name) { return asar.readEntry(archive, name).toString('utf8'); }
@@ -38,7 +38,8 @@ function setup() {
   const known = require('../compatibility/current.json').builds.find(b => b.archiveSha256 === asar.sha256(original));
   sourcePlan = app.inspectArchive(original, app.listPatches().filter(p => !known || known.patches[p.id]?.status === 'needed').map(p => p.id), { allowUnknownForAudit: true });
   // Fixture names are selected only for the exact reviewed source archive.
-  source1103 = sourcePlan.sourceArchiveHash === 'fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa';
+  source7773 = sourcePlan.sourceArchiveHash === 'ee88fdd77fb7346efb5e91ce73c7c0eee4eba390ffba3192635d5cdbe44e4097';
+  source1103 = source7773 || sourcePlan.sourceArchiveHash === 'fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa';
   source1029 = source1103 || sourcePlan.sourceArchiveHash === '77ed4ddc5b388ac8b29f5035f9c98f982b095df55aad6fa6c27bb80d763b9691';
   source6604 = sourcePlan.sourceArchiveHash === 'faacb124f33b792bd2c88fbe8b1215fb6869d81b145a919260e16ac11d9c1451';
   source1027 = source1029 || source6604 || sourcePlan.sourceArchiveHash === '6fbedf054a8d8cafaf5c745b40aa59176512e106e0bd6308275ae123b60fd074';
@@ -245,17 +246,22 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
   if (source1002) { context.d4 = 100; context.f4 = 8; context.ne = context.V; context.r.ms = keys; context.r.Wi = context.r.u; context.r.c = context.r.s; context.r.vs = id => id; }
   if (source1007) {
     context.f4 = 100; context.p4 = 8; context.oe = context.V; context.r.gs = keys; context.r.Xi = context.r.u; context.r.bs = id => id; context.c = { Yt: context.o.Gt };
-    const common = source1103 ? webpackLoad.m[85452].toString() : source1029 ? webpackLoad.m[53031].toString() : source1027 ? webpackLoad.m[39092].toString() : packed(source1023 ? '.vite/build/src-D0VLwrLy.js' : source1021 ? '.vite/build/src-CTNXdakG.js' : source1016 ? '.vite/build/src-CSKkIr_z.js' : source1013 ? '.vite/build/src-Dtwb7yKT.js' : '.vite/build/src-CP7XXlpZ.js');
-    Object.assign(context.r, vm.runInNewContext(source1103 ? between(common,'function sS(','function sj(')+between(common,'function sO(','function sT(')+';({u:sS,d:sO})' : source1029 ? between(common,'function sS(','function sj(')+between(common,'function sE(','function sT(')+';({u:sS,d:sE})' : source1027 ? between(common,'function sE(','function sP(')+between(common,'function sz(','function sR(')+';({u:sE,d:sz})' : source1023 ? between(common, 'function Rm(', 'function zm(') + between(common, 'function Bm(', 'function Um(') + ';({u:Rm,d:Bm})' : source1021 ? between(common, 'function Bm(', 'function Vm(') + between(common, 'function Hm(', 'function Gm(') + ';({u:Bm,d:Hm})' : source1016 ? between(common, 'function Gm(', 'function Km(') + between(common, 'function qm(', 'var Xm=') + ';({u:Gm,d:qm})' : source1013 ? between(common, 'function Fm(', 'function Im(') + between(common, 'function Lm(', 'var Bm=') + ';({u:Fm,d:Lm})' : between(common, 'function Nm(', 'function Pm(') + between(common, 'function Fm(', 'var Rm=') + ';({u:Nm,d:Fm})'));
+    if (source7773) {
+      const { Mx, RW } = webpackLoad(63068);
+      Object.assign(context.r, { u: Mx, d: RW });
+    } else {
+      const common = source1103 ? webpackLoad.m[85452].toString() : source1029 ? webpackLoad.m[53031].toString() : source1027 ? webpackLoad.m[39092].toString() : packed(source1023 ? '.vite/build/src-D0VLwrLy.js' : source1021 ? '.vite/build/src-CTNXdakG.js' : source1016 ? '.vite/build/src-CSKkIr_z.js' : source1013 ? '.vite/build/src-Dtwb7yKT.js' : '.vite/build/src-CP7XXlpZ.js');
+      Object.assign(context.r, vm.runInNewContext(source1103 ? between(common,'function sS(','function sj(')+between(common,'function sO(','function sT(')+';({u:sS,d:sO})' : source1029 ? between(common,'function sS(','function sj(')+between(common,'function sE(','function sT(')+';({u:sS,d:sE})' : source1027 ? between(common,'function sE(','function sP(')+between(common,'function sz(','function sR(')+';({u:sE,d:sz})' : source1023 ? between(common, 'function Rm(', 'function zm(') + between(common, 'function Bm(', 'function Um(') + ';({u:Rm,d:Bm})' : source1021 ? between(common, 'function Bm(', 'function Vm(') + between(common, 'function Hm(', 'function Gm(') + ';({u:Bm,d:Hm})' : source1016 ? between(common, 'function Gm(', 'function Km(') + between(common, 'function qm(', 'var Xm=') + ';({u:Gm,d:qm})' : source1013 ? between(common, 'function Fm(', 'function Im(') + between(common, 'function Lm(', 'var Bm=') + ';({u:Fm,d:Lm})' : between(common, 'function Nm(', 'function Pm(') + between(common, 'function Fm(', 'var Rm=') + ';({u:Nm,d:Fm})'));
+    }
   }
   if (source9446) { context.d4 = 100; context.f4 = 8; }
   if (source1013) { context.$0=100;context.e2=8;context.ae=context.V;context.l=context.c;context.i={...context.r,vs:keys,Zi:id=>id,Ss:context.r.Xi}; }
   if (source1016) { context.e2=100;context.t2=8;context.ce=context.V;context.i={...context.r,ys:keys,Cs:id=>id,Qi:context.r.Xi}; }
   if (source1021) { context.R2=100;context.z2=8;context.se=context.V;context.l.tn=context.o.Gt;context.i={...context.r,gs:keys,bs:id=>id,Gi:context.r.Xi,d:context.r.u,f:context.r.d}; }
   if (source1023) { context.B1=100;context.V1=8;context.ce=context.V;context.l.nn=context.o.Gt;context.i={...context.r,hs:keys,ys:id=>id,Ki:context.r.Xi,d:context.r.u,f:context.r.d}; }
-  if(source1027)Object.assign(context,{[source1103?'kL':source1029?'P6':source6604?'PF':'PD']:context.V,[source1103?'v6':source1029?'by':source6604?'bi':'bt']:context.r.Xi,vn:context.o.Gt,[source1103?'es':'ec']:{Q2Y:keys,JXB:id=>id,Mxp:context.r.u,RWz:context.r.d}});
-  const synchronizerSource = source1027 ? between(source,source1103?'class ed4{':source1029?'class efU{':source6604?'class efl{':'class efn{',source1103?'class ed8{':source1029?'class efH{':source6604?'class efc{':'class efi{').replace(/^class \w+/,'class') : between(source, source1023 ? 'Cdt=class{' : source1021 ? 'Sct=class{' : source1016 ? 'vGe=class{' : source1013 ? 'qWe=class{' : source9446 ? 'kHe=class{' : source1007 ? 'DHe=class{' : source1002 ? 'hVe=class{' : latestSource ? 'gBe=class{' : currentSource ? 'hBe=class{' : 'pVe=class{', source1023 ? '},wdt=' : source1021 ? '},Cct=' : source1016 ? '},yGe=' : source1013 ? '},JWe=' : source9446 ? '},AHe=' : source1007 ? '},OHe=' : source1002 ? '},gVe=' : latestSource ? '},_Be=' : currentSource ? '},gBe=' : '},mVe=').slice(4) + '}';
-  const helpers = source1027 ? between(source,source1103?'async function ed5(':source1029?'async function efq(':source6604?'async function efo(':'async function efr(',source1103?'class ed4{':source1029?'class efU{':source6604?'class efl{':'class efn{') : between(source, source1023 ? 'async function z1(' : source1021 ? 'async function L2(' : source1016 ? 'async function $0(' : source1013 ? 'async function Q0(' : source9446 ? 'async function u4(' : source1007 ? 'async function d4(' : source1002 ? 'async function u4(' : currentSource ? 'async function c4(' : 'async function m3(', source1023 ? 'var B1=' : source1021 ? 'var R2=' : source1016 ? 'var e2=' : source1013 ? 'var $0=' : source9446 ? 'var d4=' : source1007 ? 'var f4=' : source1002 ? 'var d4=' : currentSource ? 'var l4=' : 'var h3=');
+  if(source1027)Object.assign(context,{[source7773?'kH':source1103?'kL':source1029?'P6':source6604?'PF':'PD']:context.V,[source1103?'v6':source1029?'by':source6604?'bi':'bt']:context.r.Xi,vn:context.o.Gt,bJ:context.o.Gt,[source1103?'es':'ec']:{Q2Y:keys,JXB:id=>id,Mxp:context.r.u,RWz:context.r.d}});
+  const synchronizerSource = source1027 ? between(source,source7773?'class eua{':source1103?'class ed4{':source1029?'class efU{':source6604?'class efl{':'class efn{',source7773?'class euo{':source1103?'class ed8{':source1029?'class efH{':source6604?'class efc{':'class efi{').replace(/^class \w+/,'class') : between(source, source1023 ? 'Cdt=class{' : source1021 ? 'Sct=class{' : source1016 ? 'vGe=class{' : source1013 ? 'qWe=class{' : source9446 ? 'kHe=class{' : source1007 ? 'DHe=class{' : source1002 ? 'hVe=class{' : latestSource ? 'gBe=class{' : currentSource ? 'hBe=class{' : 'pVe=class{', source1023 ? '},wdt=' : source1021 ? '},Cct=' : source1016 ? '},yGe=' : source1013 ? '},JWe=' : source9446 ? '},AHe=' : source1007 ? '},OHe=' : source1002 ? '},gVe=' : latestSource ? '},_Be=' : currentSource ? '},gBe=' : '},mVe=').slice(4) + '}';
+  const helpers = source1027 ? between(source,source7773?'async function eus(':source1103?'async function ed5(':source1029?'async function efq(':source6604?'async function efo(':'async function efr(',source7773?'class eua{':source1103?'class ed4{':source1029?'class efU{':source6604?'class efl{':'class efn{') : between(source, source1023 ? 'async function z1(' : source1021 ? 'async function L2(' : source1016 ? 'async function $0(' : source1013 ? 'async function Q0(' : source9446 ? 'async function u4(' : source1007 ? 'async function d4(' : source1002 ? 'async function u4(' : currentSource ? 'async function c4(' : 'async function m3(', source1023 ? 'var B1=' : source1021 ? 'var R2=' : source1016 ? 'var e2=' : source1013 ? 'var $0=' : source9446 ? 'var d4=' : source1007 ? 'var f4=' : source1002 ? 'var d4=' : currentSource ? 'var l4=' : 'var h3=');
   const Synchronizer = vm.runInNewContext(helpers + '\n(' + synchronizerSource + ')', context);
   const state = { get: key => record[key], set: (key, value) => { record[key] = value; }, update: (key, fn) => { record[key] = fn(record[key]); } };
   const connection = { sendAppServerRequest: async (method, params) => {
@@ -323,6 +329,7 @@ sourceTest('all valid app-patch combinations are deterministic, source-gated and
   const ids = sourcePlan.patches.map(p => p.id);
   const combinations = Array.from({ length: 1 << ids.length }, (_, mask) => ids.filter((_, index) => mask & (1 << index)));
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-patch-syntax-'));
+  const syntaxChecked = new Set();
   try {
     for (const selected of combinations) {
       const result = compose(original, selected), resultAgain = compose(original, selected);
@@ -345,11 +352,18 @@ sourceTest('all valid app-patch combinations are deterministic, source-gated and
       for (const { path: name, entry } of asar.listEntries(archive.tree)) {
         if (!changedPaths.has(name)) { assert.deepEqual(asar.lookup(output.tree, name), entry); if (!entry.unpacked && !entry.link) assert(asar.readEntry(archive, name).equals(asar.readEntry(output, name))); }
       }
-      for (const change of result.changes) {
-        const patch = app.listPatches().find(p => p.id === change.id), extension = app.patchForSource(patch.id, change.sourceHash).sourceType === 'commonjs' ? '.cjs' : '.mjs', filename = path.join(directory, patch.id + extension);
-        fs.writeFileSync(filename, asar.readEntry(output, change.targetPath));
+      // Many selections produce identical module bytes. Check each distinct
+      // output in its module format, while still validating every archive.
+      for (const name of changedPaths) {
+        const change = result.changes.find(change => change.targetPath === name);
+        const extension = app.patchForSource(change.id, change.sourceHash).sourceType === 'commonjs' ? '.cjs' : '.mjs';
+        const bytes = asar.readEntry(output, name), key = extension + ':' + asar.sha256(bytes);
+        if (syntaxChecked.has(key)) continue;
+        const filename = path.join(directory, 'module' + extension);
+        fs.writeFileSync(filename, bytes);
         const syntax = spawnSync(process.execPath, ['--check', filename], { encoding: 'utf8' });
         assert.equal(syntax.status, 0, syntax.stderr);
+        syntaxChecked.add(key);
       }
       if (selected.length) assert.throws(() => app.transformArchive(result.buffer, selected), /Unsupported Codex archive/);
     }
