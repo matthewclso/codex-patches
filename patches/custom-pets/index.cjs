@@ -185,3 +185,17 @@ module.exports.revisions.push({
   targetPath: ".vite/build/early-bootstrap-339-8b97a30a8b57b9dd.js",
   sourceSha256: "fc074730e0934afbfc1a974e8435670c44a4980015b5468114d9e827d7ced0bd",
 });
+
+module.exports.revisions.push({
+  targetPath: ".vite/build/early-bootstrap-631-8a15b3cfc1548366.js",
+  sourceSha256: "6220f9e2c741a3a1b474a6635e7b9132313b09db81b333392b8d1e5b9fad5c9b",
+  apply(source, replace) {
+    assert(!source.includes("codexPetHome"), "Pet helper is already present or collides");
+    for (const [before, after] of [
+      ["let n=(0,k.D)({preferWsl:t}),r=await e.platformPath(),", "let r=await e.platformPath(),n=codexPetHome(r,t),"],
+      ["let i=(0,k.D)({preferWsl:n}),a=await e.platformPath();", "let a=await e.platformPath(),i=codexPetHome(a,n);"],
+      ["let a=await e.platformPath(),s=(0,k.D)({preferWsl:r}),", "let a=await e.platformPath(),s=codexPetHome(a,r),"],
+    ]) source = replace(source, before, after);
+    return replace(source, "async function s$(", "function codexPetHome(e,t){let n=(0,k.D)({preferWsl:t});return e.sep===\"/\"?(0,tg.cB)(n):n}async function s$(");
+  },
+});

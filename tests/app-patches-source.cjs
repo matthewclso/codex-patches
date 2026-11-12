@@ -27,7 +27,7 @@ function compose(bytes, selected) {
   }
   return { ...result, changes: result.report.changes, build: result.report.build };
 }
-let original, archive, sourcePlan, currentSource, latestSource, newestSource, source7945, source1002, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, source1029, source1103, source7773, webpackLoad, webpackPaths;
+let original, archive, sourcePlan, currentSource, latestSource, newestSource, source7945, source1002, source1007, source9446, source1013, source1016, source1021, source1023, source1027, source6604, source1029, source1103, source7773, source1106, webpackLoad, webpackPaths;
 
 function modulePath(patch) { return sourcePlan.patches.find(p => p.id === patch.id).targetPath; }
 function packed(name) { return asar.readEntry(archive, name).toString('utf8'); }
@@ -38,7 +38,8 @@ function setup() {
   const known = require('../compatibility/current.json').builds.find(b => b.archiveSha256 === asar.sha256(original));
   sourcePlan = app.inspectArchive(original, app.listPatches().filter(p => !known || known.patches[p.id]?.status === 'needed').map(p => p.id), { allowUnknownForAudit: true });
   // Fixture names are selected only for the exact reviewed source archive.
-  source7773 = sourcePlan.sourceArchiveHash === 'ee88fdd77fb7346efb5e91ce73c7c0eee4eba390ffba3192635d5cdbe44e4097';
+  source1106 = sourcePlan.sourceArchiveHash === '54b74a9131680fc9eead711ed5d9f718f6127c22222ca60d2e3b577a707e2485';
+  source7773 = source1106 || sourcePlan.sourceArchiveHash === 'ee88fdd77fb7346efb5e91ce73c7c0eee4eba390ffba3192635d5cdbe44e4097';
   source1103 = source7773 || sourcePlan.sourceArchiveHash === 'fb47d6491dc3006b708cb1e14de479b882bf50f88b7daa81818f154c253266aa';
   source1029 = source1103 || sourcePlan.sourceArchiveHash === '77ed4ddc5b388ac8b29f5035f9c98f982b095df55aad6fa6c27bb80d763b9691';
   source6604 = sourcePlan.sourceArchiveHash === 'faacb124f33b792bd2c88fbe8b1215fb6869d81b145a919260e16ac11d9c1451';
@@ -84,10 +85,10 @@ function pathHelpers() {
 }
 async function petCase(loader, home, unix) {
   const o = { rt: () => home, at: () => home, ot: () => home, lt: () => home, V: () => home }, sandbox = { __webpackPaths:webpackPaths, Buffer, Response, n: packedRequire(source1023 ? '.vite/build/zod-D8lgFUbf.js' : source1021 ? '.vite/build/zod-DDAr8jEZ.js' : source1013 ? '.vite/build/zod-C7Kk26Xx.js' : '.vite/build/zod-ClKgiFhi.js'), t: packedRequire(source1023 ? '.vite/build/zod-D8lgFUbf.js' : source1021 ? '.vite/build/zod-DDAr8jEZ.js' : source1013 ? '.vite/build/zod-C7Kk26Xx.js' : '.vite/build/zod-ClKgiFhi.js'), o, Vn: () => 'Ubuntu', [source1023 ? 'dC' : source1021 ? 'hC' : source1016 ? 'tJ' : source1013 ? '$K' : source1007 ? 'WK' : source1002 ? 'Gz' : source7945 ? 'rB' : latestSource ? 'nB' : currentSource ? 'rB' : 'eB']: { default: source1016 ? name => name.toLowerCase() : () => 'probe-pet' } };
-  if(source1027)Object.assign(sandbox,{[source1103?'$':source1029?'H':'q']:{D:()=>home},[source1103?'tk':'tK']:{cB:webpackPaths.cB},d:webpackLoad(35553),[source1103?'sZ':'oJ']:()=>name=>name.toLowerCase()});
+  if(source1027)Object.assign(sandbox,{[source1106?'k':source1103?'$':source1029?'H':'q']:{D:()=>home},[source1106?'tg':source1103?'tk':'tK']:{cB:webpackPaths.cB},d:webpackLoad(35553),[source1106?'sj':source1103?'sZ':'oJ']:()=>name=>name.toLowerCase()});
   vm.createContext(sandbox);
-  const bootstrap = packed(modulePath(petPatch)), fsUtils = source1027 ? between(bootstrap,source1103?'let V={readFile:async':source1029?'let G={':'let $={',source1103?'async function G(':source1029?'async function Y(':'async function W(') : 'let ' + between(bootstrap, source1023 ? 'N={async readFile(' : source1021 ? 'P={async readFile(' : source1016 ? 'U={async readFile(' : source1013 ? 'W={async readFile(' : source1007 ? 'G={async readFile(' : 'W={async readFile(', source1021 ? 'async function Qt(' : source1016 ? 'async function en(' : source1013 ? 'async function Qt(' : source1007 ? 'async function Zt(' : source1002 ? 'async function Ga(' : currentSource ? 'async function qa(' : 'async function $a(');
-  vm.runInContext(pathHelpers() + ';Object.assign(o,{'+ (source1023 ? 'Xt' : source1021 ? 'Yt' : source1007 ? 'Ut' : latestSource ? 'Vt' : 'zt') + ':' + (source1021 ? '_e' : source1007 ? 'R' : currentSource ? '_e' : 'ge') + '});' + fsUtils + loader + ';globalThis.api=' + (source1103 ? '{load:s1,loadAvatar:s2,install:s5,createId:'+between(loader,'function(e,t){let n=sZ()', '}(t,new Set')+'}}' : source1027 ? '{load:o0,loadAvatar:o1,install:o3,createId:'+between(loader,'function(e,t){let n=oJ()', '}(t,new Set')+'}}' : source1023 ? '{load:_C,loadAvatar:vC,install:bC,createId:wC}' : source1021 ? '{load:xC,loadAvatar:SC,install:wC,createId:OC}' : source1016 ? '{load:sJ,loadAvatar:cJ,install:uJ,createId:mJ}' : source1013 ? '{load:aq,loadAvatar:oq,install:cq}' : source1007 ? '{load:XK,loadAvatar:ZK,install:$K}' : source1002 ? '{load:Zz,loadAvatar:Qz,install:eB}' : source7945 ? '{load:lB,loadAvatar:uB,install:fB}' : latestSource ? '{load:cB,loadAvatar:lB,install:dB}' : currentSource ? '{load:lB,loadAvatar:uB,install:fB}' : '{load:oB,loadAvatar:sB,install:lB}') + ';', sandbox);
+  const bootstrap = packed(modulePath(petPatch)), fsUtils = source1027 ? between(bootstrap,source1106?'let O={readFile:async':source1103?'let V={readFile:async':source1029?'let G={':'let $={',source1106?'async function P(':source1103?'async function G(':source1029?'async function Y(':'async function W(') : 'let ' + between(bootstrap, source1023 ? 'N={async readFile(' : source1021 ? 'P={async readFile(' : source1016 ? 'U={async readFile(' : source1013 ? 'W={async readFile(' : source1007 ? 'G={async readFile(' : 'W={async readFile(', source1021 ? 'async function Qt(' : source1016 ? 'async function en(' : source1013 ? 'async function Qt(' : source1007 ? 'async function Zt(' : source1002 ? 'async function Ga(' : currentSource ? 'async function qa(' : 'async function $a(');
+  vm.runInContext(pathHelpers() + ';Object.assign(o,{'+ (source1023 ? 'Xt' : source1021 ? 'Yt' : source1007 ? 'Ut' : latestSource ? 'Vt' : 'zt') + ':' + (source1021 ? '_e' : source1007 ? 'R' : currentSource ? '_e' : 'ge') + '});' + fsUtils + loader + ';globalThis.api=' + (source1106 ? '{load:s$,loadAvatar:sV,install:sG,createId:'+between(loader,'function(e,t){let n=sj()', '}(t,new Set')+'}}' : source1103 ? '{load:s1,loadAvatar:s2,install:s5,createId:'+between(loader,'function(e,t){let n=sZ()', '}(t,new Set')+'}}' : source1027 ? '{load:o0,loadAvatar:o1,install:o3,createId:'+between(loader,'function(e,t){let n=oJ()', '}(t,new Set')+'}}' : source1023 ? '{load:_C,loadAvatar:vC,install:bC,createId:wC}' : source1021 ? '{load:xC,loadAvatar:SC,install:wC,createId:OC}' : source1016 ? '{load:sJ,loadAvatar:cJ,install:uJ,createId:mJ}' : source1013 ? '{load:aq,loadAvatar:oq,install:cq}' : source1007 ? '{load:XK,loadAvatar:ZK,install:$K}' : source1002 ? '{load:Zz,loadAvatar:Qz,install:eB}' : source7945 ? '{load:lB,loadAvatar:uB,install:fB}' : latestSource ? '{load:cB,loadAvatar:lB,install:dB}' : currentSource ? '{load:lB,loadAvatar:uB,install:fB}' : '{load:oB,loadAvatar:sB,install:lB}') + ';', sandbox);
   const platform = unix ? path.posix : path.win32, normalizedHome = unix ? (source1023 ? o.Xt : source1021 ? o.Yt : source1007 ? o.Ut : latestSource ? o.Vt : o.zt)(home) : home, petRoot = platform.join(normalizedHome, 'pets'), legacyRoot = platform.join(normalizedHome, 'avatars');
   // Minimal valid PNG header for the actual stock dimension checker.
   const image = Buffer.alloc(24); Buffer.from([137,80,78,71,13,10,26,10]).copy(image); image.write('IHDR', 12); image.writeUInt32BE(1536, 16); image.writeUInt32BE(2288, 20);
@@ -120,7 +121,7 @@ async function petCase(loader, home, unix) {
   return { ids, installCalls, expectedInstall: [ ['mkdir', petRoot], ['mkdir', platform.join(petRoot, installId)], ['write', platform.join(petRoot, installId, 'spritesheet.png')], ['write', platform.join(petRoot, installId, 'pet.json')] ] };
 }
 sourceTest('actual pet loader: stock fails Windows home under POSIX; patch fixes all three paths and retains traversal checks', async () => {
-  const bootstrap = packed(modulePath(petPatch)), loader = source1027 ? between(bootstrap,source1103?'let s0=d.object(':'let oZ=d.object(',source1103?'var s9=':'var o6=') : 'let ' + between(bootstrap, source1023 ? 'fC=1536,' : source1021 ? 'gC=1536,' : source1016 ? 'nJ=1536,' : source1013 ? 'eq=1536,' : source1007 ? 'GK=1536,' : source1002 ? 'Kz=1536,' : source7945 ? 'iB=1536,' : latestSource ? 'rB=1536,' : currentSource ? 'iB=1536,' : 'tB=1536,', source1023 ? 'function kC(' : source1021 ? 'function NC(' : source1016 ? 'function yJ(' : source1013 ? 'function _q(' : source1007 ? 'function sq(' : source1002 ? 'function lB(' : source7945 ? 'function xB(' : latestSource ? 'function bB(' : currentSource ? 'function xB(' : 'function vB('), patched = petPatch.apply(loader, app.replaceExactlyOnce);
+  const bootstrap = packed(modulePath(petPatch)), loader = source1027 ? between(bootstrap,source1106?'let sF=d.object(':source1103?'let s0=d.object(':'let oZ=d.object(',source1106?'var sz=':source1103?'var s9=':'var o6=') : 'let ' + between(bootstrap, source1023 ? 'fC=1536,' : source1021 ? 'gC=1536,' : source1016 ? 'nJ=1536,' : source1013 ? 'eq=1536,' : source1007 ? 'GK=1536,' : source1002 ? 'Kz=1536,' : source7945 ? 'iB=1536,' : latestSource ? 'rB=1536,' : currentSource ? 'iB=1536,' : 'tB=1536,', source1023 ? 'function kC(' : source1021 ? 'function NC(' : source1016 ? 'function yJ(' : source1013 ? 'function _q(' : source1007 ? 'function sq(' : source1002 ? 'function lB(' : source7945 ? 'function xB(' : latestSource ? 'function bB(' : currentSource ? 'function xB(' : 'function vB('), patched = petPatch.apply(loader, app.replaceExactlyOnce);
   const windows = 'D:\\Profiles\\Example User\\.codex';
   const stock = await petCase(loader, windows, true);
   assert.deepEqual(stock.ids, []); assert.notDeepEqual(stock.installCalls, stock.expectedInstall);
@@ -147,7 +148,7 @@ sourceTest('actual in-app eligibility preserves all prerequisites across 256 cas
   assert(patched.includes(external), 'External browser gate changed');
 });
 function generator(source, platform, useWsl, servicePath, backends) {
-  if(source1027){const fixture=require('./fixtures/webpack-source.cjs');const fn=vm.runInNewContext('('+fixture.serviceFunction(source)+')',fixture.serviceSandbox(webpackPaths,servicePath,undefined,source1029,source1103));return fn({appVersion:'version',codexHome:'home',marketplaceName:'market',availableBrowserUseBackends:backends,browserUseTinysky:false,computerUse:false,enforceModelCheck:true,computerUseNativePipePath:null,computerUsePaths:{},hostServicesPipePath:null,includePrivateProcessEnv:false,runtimePaths:{platform,nodePath:'node',nodeReplPath:'repl',codexCliPath:'cli',nodeModuleDirs:[]},shouldUseWslPaths:useWsl});}
+  if(source1027){const fixture=require('./fixtures/webpack-source.cjs');const fn=vm.runInNewContext('('+fixture.serviceFunction(source)+')',fixture.serviceSandbox(webpackPaths,servicePath,undefined,source1029,source1103,source1106));return fn({appVersion:'version',codexHome:'home',marketplaceName:'market',availableBrowserUseBackends:backends,browserUseTinysky:false,computerUse:false,enforceModelCheck:true,computerUseNativePipePath:null,computerUsePaths:{},hostServicesPipePath:null,includePrivateProcessEnv:false,runtimePaths:{platform,nodePath:'node',nodeReplPath:'repl',codexCliPath:'cli',nodeModuleDirs:[]},shouldUseWslPaths:useWsl});}
 
   const fn = between(source, source1023 ? 'function Soe(' : source1021 ? 'function jae(' : source1013 ? 'function zre(' : source9446 ? 'function Dc(' : source1007 ? 'function ac(' : source1002 ? 'function $s(' : currentSource ? 'function rc(' : 'function cc(', source1023 ? 'function xc(' : source1021 ? 'function Dc(' : source1016 ? 'function Ws(' : source1013 ? 'function Us(' : source9446 ? 'function Oc(' : source1007 ? 'function oc(' : source1002 ? 'function ec(' : currentSource ? 'function ic(' : 'function lc('), native = vm.runInNewContext(pathHelpers() + (source1021 ? ';zt' : source1013 ? ';yn' : source1007 ? ';br' : currentSource ? ';yr' : ';vr'));
   const sandbox = {
@@ -218,7 +219,7 @@ sourceTest('actual trusted-service generator fixes native Windows mount paths on
 });
 sourceTest('actual native membership synchronizer migrates and persists explicit projects for new chats, moves and clearing', async () => {
   const source = packed(modulePath(membershipPatch)), patched = membershipPatch.apply(source, app.replaceExactlyOnce);
-  const gate = text => source1103 ? between(text,'Z=()=>{T.setThreadAssignmentsEnabled(', '};Z(),this.disposables.add(ti(Z))').slice('Z=()=>{'.length) : source1029 ? between(text,'O=()=>{M.setThreadAssignmentsEnabled(', '};O(),this.disposables.add(td(O))').slice('O=()=>{'.length) : source1027 ? between(text,'A=()=>{E.setThreadAssignmentsEnabled(', '};A(),this.disposables.add(td(A))').slice('A=()=>{'.length) : between(text, source1021 ? 'f=()=>{d.setThreadAssignmentsEnabled(' : source1013 ? 'p=()=>{f.setThreadAssignmentsEnabled(' : source1002 ? 'f=()=>{d.setThreadAssignmentsEnabled(' : 'f=()=>{u.setThreadAssignmentsEnabled(', source1023 ? '};f(),this.disposables.add(ma(f))' : source1021 ? '};f(),this.disposables.add(ba(f))' : source1016 ? '};p(),this.disposables.add(pi(p))' : source1013 ? '};p(),this.disposables.add(fi(p))' : source9446 ? '};f(),this.disposables.add(Ti(f))' : source1007 ? '};f(),this.disposables.add(Oi(f))' : source1002 ? '};f(),this.disposables.add(ri(f))' : latestSource ? '};f(),this.disposables.add(oi(f))' : currentSource ? '};f(),this.disposables.add(ii(f))' : '};f(),this.disposables.add(ri(f))').slice('f=()=>{'.length);
+  const gate = text => source1103 ? between(text,'Z=()=>{T.setThreadAssignmentsEnabled(', source1106?'};Z(),this.disposables.add(ts(Z))':'};Z(),this.disposables.add(ti(Z))').slice('Z=()=>{'.length) : source1029 ? between(text,'O=()=>{M.setThreadAssignmentsEnabled(', '};O(),this.disposables.add(td(O))').slice('O=()=>{'.length) : source1027 ? between(text,'A=()=>{E.setThreadAssignmentsEnabled(', '};A(),this.disposables.add(td(A))').slice('A=()=>{'.length) : between(text, source1021 ? 'f=()=>{d.setThreadAssignmentsEnabled(' : source1013 ? 'p=()=>{f.setThreadAssignmentsEnabled(' : source1002 ? 'f=()=>{d.setThreadAssignmentsEnabled(' : 'f=()=>{u.setThreadAssignmentsEnabled(', source1023 ? '};f(),this.disposables.add(ma(f))' : source1021 ? '};f(),this.disposables.add(ba(f))' : source1016 ? '};p(),this.disposables.add(pi(p))' : source1013 ? '};p(),this.disposables.add(fi(p))' : source9446 ? '};f(),this.disposables.add(Ti(f))' : source1007 ? '};f(),this.disposables.add(Oi(f))' : source1002 ? '};f(),this.disposables.add(ri(f))' : latestSource ? '};f(),this.disposables.add(oi(f))' : currentSource ? '};f(),this.disposables.add(ii(f))' : '};f(),this.disposables.add(ri(f))').slice('f=()=>{'.length);
   const enable = (text, flag) => {
     let enabled;
     vm.runInNewContext('(function(' + (source1103 ? 'T' : source1029 ? 'M' : source1027 ? 'E' : source1021 ? 'd' : source1013 ? 'f' : source1002 ? 'd' : 'u') + ',' + (source1103 ? 'tr' : source1027 ? 'tl' : source1023 ? 'fa' : source1021 ? 'va' : source1013 ? 'q' : latestSource ? 'K' : currentSource ? 'q' : 'K') + '){' + gate(text) + '})')({ setThreadAssignmentsEnabled: value => { enabled = value; } }, () => ({ localProjectTaskMembership: flag }));
@@ -259,9 +260,9 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
   if (source1016) { context.e2=100;context.t2=8;context.ce=context.V;context.i={...context.r,ys:keys,Cs:id=>id,Qi:context.r.Xi}; }
   if (source1021) { context.R2=100;context.z2=8;context.se=context.V;context.l.tn=context.o.Gt;context.i={...context.r,gs:keys,bs:id=>id,Gi:context.r.Xi,d:context.r.u,f:context.r.d}; }
   if (source1023) { context.B1=100;context.V1=8;context.ce=context.V;context.l.nn=context.o.Gt;context.i={...context.r,hs:keys,ys:id=>id,Ki:context.r.Xi,d:context.r.u,f:context.r.d}; }
-  if(source1027)Object.assign(context,{[source7773?'kH':source1103?'kL':source1029?'P6':source6604?'PF':'PD']:context.V,[source1103?'v6':source1029?'by':source6604?'bi':'bt']:context.r.Xi,vn:context.o.Gt,bJ:context.o.Gt,[source1103?'es':'ec']:{Q2Y:keys,JXB:id=>id,Mxp:context.r.u,RWz:context.r.d}});
-  const synchronizerSource = source1027 ? between(source,source7773?'class eua{':source1103?'class ed4{':source1029?'class efU{':source6604?'class efl{':'class efn{',source7773?'class euo{':source1103?'class ed8{':source1029?'class efH{':source6604?'class efc{':'class efi{').replace(/^class \w+/,'class') : between(source, source1023 ? 'Cdt=class{' : source1021 ? 'Sct=class{' : source1016 ? 'vGe=class{' : source1013 ? 'qWe=class{' : source9446 ? 'kHe=class{' : source1007 ? 'DHe=class{' : source1002 ? 'hVe=class{' : latestSource ? 'gBe=class{' : currentSource ? 'hBe=class{' : 'pVe=class{', source1023 ? '},wdt=' : source1021 ? '},Cct=' : source1016 ? '},yGe=' : source1013 ? '},JWe=' : source9446 ? '},AHe=' : source1007 ? '},OHe=' : source1002 ? '},gVe=' : latestSource ? '},_Be=' : currentSource ? '},gBe=' : '},mVe=').slice(4) + '}';
-  const helpers = source1027 ? between(source,source7773?'async function eus(':source1103?'async function ed5(':source1029?'async function efq(':source6604?'async function efo(':'async function efr(',source7773?'class eua{':source1103?'class ed4{':source1029?'class efU{':source6604?'class efl{':'class efn{') : between(source, source1023 ? 'async function z1(' : source1021 ? 'async function L2(' : source1016 ? 'async function $0(' : source1013 ? 'async function Q0(' : source9446 ? 'async function u4(' : source1007 ? 'async function d4(' : source1002 ? 'async function u4(' : currentSource ? 'async function c4(' : 'async function m3(', source1023 ? 'var B1=' : source1021 ? 'var R2=' : source1016 ? 'var e2=' : source1013 ? 'var $0=' : source9446 ? 'var d4=' : source1007 ? 'var f4=' : source1002 ? 'var d4=' : currentSource ? 'var l4=' : 'var h3=');
+  if(source1027)Object.assign(context,{[source1106?'Em':source7773?'kH':source1103?'kL':source1029?'P6':source6604?'PF':'PD']:context.V,[source1106?'S8':source1103?'v6':source1029?'by':source6604?'bi':'bt']:context.r.Xi,vn:context.o.Gt,bJ:context.o.Gt,yA:context.o.Gt,[source1106?'ea':source1103?'es':'ec']:{Q2Y:keys,JXB:id=>id,Mxp:context.r.u,RWz:context.r.d}});
+  const synchronizerSource = source1027 ? between(source,source1106?'class ehi{':source7773?'class eua{':source1103?'class ed4{':source1029?'class efU{':source6604?'class efl{':'class efn{',source1106?'class ehs{':source7773?'class euo{':source1103?'class ed8{':source1029?'class efH{':source6604?'class efc{':'class efi{').replace(/^class \w+/,'class') : between(source, source1023 ? 'Cdt=class{' : source1021 ? 'Sct=class{' : source1016 ? 'vGe=class{' : source1013 ? 'qWe=class{' : source9446 ? 'kHe=class{' : source1007 ? 'DHe=class{' : source1002 ? 'hVe=class{' : latestSource ? 'gBe=class{' : currentSource ? 'hBe=class{' : 'pVe=class{', source1023 ? '},wdt=' : source1021 ? '},Cct=' : source1016 ? '},yGe=' : source1013 ? '},JWe=' : source9446 ? '},AHe=' : source1007 ? '},OHe=' : source1002 ? '},gVe=' : latestSource ? '},_Be=' : currentSource ? '},gBe=' : '},mVe=').slice(4) + '}';
+  const helpers = source1106 ? between(source,'async function VJ(','let Vj=') : source1027 ? between(source,source1106?'async function ehb(':source7773?'async function eus(':source1103?'async function ed5(':source1029?'async function efq(':source6604?'async function efo(':'async function efr(',source1106?'class ehi{':source7773?'class eua{':source1103?'class ed4{':source1029?'class efU{':source6604?'class efl{':'class efn{') : between(source, source1023 ? 'async function z1(' : source1021 ? 'async function L2(' : source1016 ? 'async function $0(' : source1013 ? 'async function Q0(' : source9446 ? 'async function u4(' : source1007 ? 'async function d4(' : source1002 ? 'async function u4(' : currentSource ? 'async function c4(' : 'async function m3(', source1023 ? 'var B1=' : source1021 ? 'var R2=' : source1016 ? 'var e2=' : source1013 ? 'var $0=' : source9446 ? 'var d4=' : source1007 ? 'var f4=' : source1002 ? 'var d4=' : currentSource ? 'var l4=' : 'var h3=');
   const Synchronizer = vm.runInNewContext(helpers + '\n(' + synchronizerSource + ')', context);
   const state = { get: key => record[key], set: (key, value) => { record[key] = value; }, update: (key, fn) => { record[key] = fn(record[key]); } };
   const connection = { sendAppServerRequest: async (method, params) => {
@@ -313,7 +314,7 @@ sourceTest('actual native membership synchronizer migrates and persists explicit
   assert.equal(await start.call(backend, assignment('legacy-engineering')), 'server-engineering');
   backend.projectSupport = 'unsupported'; assert.equal(await start.call(backend, assignment('legacy-engineering')), null);
   assert.equal(await start.call(backend, { projectKind: 'remote', projectId: 'other' }), null);
-  const rendererPath = source1103 ? 'webview/assets/async/854790.09134f5ddc.js' : source1029 ? 'webview/assets/async/383401.d87113ab2a.js' : asar.listEntries(archive.tree).find(entry => /^webview\/assets\/app-initial-[^/]+\.js$/.test(entry.path)).path;
+  const rendererPath = source1106 ? 'webview/assets/async/555965.3e5a3cd3c9.js' : source1103 ? 'webview/assets/async/854790.09134f5ddc.js' : source1029 ? 'webview/assets/async/383401.d87113ab2a.js' : asar.listEntries(archive.tree).find(entry => /^webview\/assets\/app-initial-[^/]+\.js$/.test(entry.path)).path;
   const creation = vm.runInNewContext('({' + between(packed(rendererPath), 'async readCreationInputs(e,t){', 'async readPrewarmInputs(') + '})', {
     [source1103 ? 'E' : source1029 ? 'I' : source6604 ? 'Yi' : source1027 ? 'Qi' : source1023 ? 'di' : source1021 ? 'mi' : source1016 ? 'Js' : source1013 ? 'Oi' : source1007 ? 'Pd' : source1002 ? 'wu' : newestSource ? 've' : latestSource ? '_e' : currentSource ? 'Se' : 'qc']: source1029 ? {appServices:{threadProjectAssignments:{getThreadStartProjectId:value=>start.call(backend,value)}}} : { threadProjectAssignments: { getThreadStartProjectId: value => start.call(backend, value) } },
   }).readCreationInputs;
@@ -335,18 +336,18 @@ sourceTest('reopening a project restores the first five chats after Show more', 
   const memo = size => Array(size).fill(Symbol.for('react.memo_cache_sentinel'));
   const jsx = (type, props, key) => ({ type, props, key });
   const noop = () => {};
-  const list = execute(factory(packed('webview/assets/async/927552.2a3666383e.js'), 'SR2c'), {
+  const list = execute(factory(packed(source1106?'webview/assets/async/730806.4c1b5e5426.js':'webview/assets/async/927552.2a3666383e.js'), 'SR2c'), {
     ABep: { jsx, jsxs: jsx }, QosV: { c: memo }, on57: { A: () => '' },
     zd8w: { memo: fn => fn, createContext: noop, useContext: noop, useEffect: noop,
       useEffectEvent: fn => fn, useState: init => [typeof init === 'function' ? init() : init, noop],
       useRef: current => ({ current }) },
     T1PX: { I: () => true }, GzOO: { l: 'pagination', z: 'paginationButton' },
-    HgLj: { P: noop }, bIvi: { K: fn => fn }, LIss: {}, oyxz: {}, wZQ4: {}, V8uZ: {}, UxLy: {},
+    HgLj: { P: noop }, jDom: { K: fn => fn }, bIvi: { K: fn => fn }, LIss: {}, oyxz: {}, wZQ4: {}, V8uZ: {}, UxLy: {},
   }, ';globalThis.queueMicrotask=()=>{};').d;
   const chats = Array.from({ length: 12 }, (_, i) => 'chat-' + i);
   for (const [text, reopenedCount] of [[source, 12], [patched, 5]]) {
     const atom = (_scope, read) => ({ read });
-    const state = execute(factory(packed('webview/assets/async/182735.7f13786b92.js'), 'RFDv'), {
+    const state = execute(factory(packed(source1106?'webview/assets/async/739301.37a39f26d6.js':'webview/assets/async/182735.7f13786b92.js'), 'RFDv'), {
       zTeN: { un: atom, i1: atom, vP: (_scope, initial) => ({ initial }) },
       DBCl: { aiU: {} }, Nwp9: { m3: (_name, initial) => ({ initial }), Kn: name => ({ name }) },
       V3rO: { nu: noop }, E8Sp: {}, TjTj: {}, nlNF: {}, B3N0: {}, OWtl: {}, Oj9r: {}, d6Ff: {}, mq1u: {}, jcQS: {},
@@ -359,9 +360,10 @@ sourceTest('reopening a project restores the first five chats after Show more', 
       },
       set(key, id, value) { store.set(key.name ? key.name(id) : key, key.name ? value : id); },
     };
-    function folder(id) {
-      const start = 'G[37]!==ek||G[38]!==ep?(j=';
-      const toggle = vm.runInNewContext(between(text, start, ',G[37]=ek').slice(start.length), { ep, eW: state, ek: id });
+    let repairs=0;
+    function folder(id,needsRepair=false) {
+      const start = source1106?'z[37]!==ej||z[38]!==eq||z[39]!==tj||z[40]!==eg?(C=':'G[37]!==ek||G[38]!==ep?(j=';
+      const toggle = vm.runInNewContext(between(text, start, source1106?',z[37]=ej':',G[37]=ek').slice(start.length), source1106?{eg:ep,eW:state,ej:id,eq:needsRepair,tj:()=>{repairs++}}:{ ep, eW: state, ek: id });
       const listKey = 'project:' + id;
       const render = () => ep.get(state.Jk, id) ? null : list({
         items: chats, getKey: key => key, maxItems: 5, expanded: ep.get(state.eP, listKey),
@@ -381,6 +383,11 @@ sourceTest('reopening a project restores the first five chats after Show more', 
     one.toggle();
     assert.deepEqual(visible(one.render()), chats.slice(0, reopenedCount));
     assert.deepEqual(visible(two.render()), chats);
+    if(source1106){
+      const repair=folder('repair',true);
+      repair.toggle();repair.toggle();
+      assert.equal(repairs,2,'Preserve the native project repair callback on both toggles');
+    }
     if (reopenedCount === 5) {
       showMore(one.render()).props.onClick();
       assert.deepEqual(visible(one.render()), chats);

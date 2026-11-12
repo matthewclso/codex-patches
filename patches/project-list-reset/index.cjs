@@ -14,3 +14,9 @@ module.exports = {
       'j=()=>{ep.get(eW.Jk,ek)||(0,eW.wE)(ep,`project:${ek}`,!1),(0,eW.x5)(ep,ek)},G[37]=ek');
   },
 };
+
+module.exports.revisions = [{
+  targetPath: "webview/assets/async/885910.79b4f4977c.js",
+  sourceSha256: "1011c180e813ef95373b33f53ec234baa941d748dd1110f4de4538a42a550feb",
+  apply(source, replace) { return replace(source, "C=()=>{eq&&tj(),(0,eW.x5)(eg,ej)},z[37]=ej", "C=()=>{eg.get(eW.Jk,ej)||(0,eW.wE)(eg,`project:${ej}`,!1),eq&&tj(),(0,eW.x5)(eg,ej)},z[37]=ej"); },
+}];

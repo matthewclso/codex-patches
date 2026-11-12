@@ -25,8 +25,8 @@ function between(text, first, last) {
   assert(start>=0&&end>start,'Missing Webpack source boundaries: '+first);
   return text.slice(start,end);
 }
-function serviceFunction(text) { return between(text,'function({appVersion:e,codexHome:t,marketplaceName:r,browserServicePluginVersion:n,','}({appVersion:t,browserUseTinysky:')+'}'; }
-function serviceSandbox(paths, servicePath, create=options=>options, source1029=false, source1103=false) {
+function serviceFunction(text) { return between(text,text.includes('function({appVersion:e,codexHome:t,marketplaceName:n,browserServicePluginVersion:r,')?'function({appVersion:e,codexHome:t,marketplaceName:n,browserServicePluginVersion:r,':'function({appVersion:e,codexHome:t,marketplaceName:r,browserServicePluginVersion:n,','}({appVersion:t,browserUseTinysky:')+'}'; }
+function serviceSandbox(paths, servicePath, create=options=>options, source1029=false, source1103=false, source1106=false) {
   const sandbox = {sM:{info(){},warning(){}},ec:{QKy:()=>true,vgM:()=>servicePath.slice(0,-'/scripts/browser-service.mjs'.length),ytA:'trusted-services',POg:create},
     e$:{x:{Dev:'dev',resolve:()=> 'release',isInternal:()=>false}},eU:()=>({env:{}}),rF:{kJ:'browser'},eg:{cB6:paths.cB,MV$:paths.MV},
     ea:{tno:'backends',vy_:'tinysky',TsC:'flavor',Y0x:'version',OuO:'identity',b$E:'tools-pipe',$Q0:'verifier'},
@@ -38,6 +38,10 @@ function serviceSandbox(paths, servicePath, create=options=>options, source1029=
   if(source1103){
     const previous={...sandbox};
     for(const [before,after] of Object.entries({sO:'iK',ec:'es',e$:'eY',eU:'e_',rj:'rC',eg:'eu',ea:'er',tZ:'tY',tJ:'t_',tY:'tM',rU:'rV',rH:'rx',r$:'rB',sT:'iJ',sB:'i2',sF:'iq',sj:'i$'}))sandbox[after]=previous[before];
+  }
+  if(source1106){
+    const previous={...sandbox};
+    for(const [before,after] of Object.entries({iK:'sc',es:'ea',eY:'eG',e_:'eM',rC:'nL',eu:'eh',tY:'tD',t_:'tY',tM:'tG',rV:'nq',rx:'n$',rB:'n0',iJ:'sn',i2:'sp',iq:'sd',i$:'su'}))sandbox[after]=previous[before];
   }
   return sandbox;
 }
