@@ -176,6 +176,69 @@
     {
       "name": "source-only-release-payload",
       "status": "passed"
+    },
+    {
+      "name": "hosted-Windows-and-Ubuntu-26.04-WSL2",
+      "status": "passed",
+      "run": "https://github.com/matthewclso/codex-patches/actions/runs/43206276369",
+      "codeCommit": "04253a607050c999377fae3e40eb706f42531c4b",
+      "packageVersion": "26.1106.6628.0",
+      "packageValidation": "passed",
+      "reviewedPackage": true,
+      "checks": [
+        {
+          "name": "windows-toolkit-module-tests",
+          "status": "passed"
+        },
+        {
+          "name": "archive-and-executable-composition",
+          "status": "passed"
+        },
+        {
+          "name": "stock-and-patched-source-behavior",
+          "status": "passed"
+        }
+      ],
+      "wslValidation": "passed",
+      "wslSuite": {
+        "tests": 111,
+        "pass": 92,
+        "fail": 0,
+        "skipped": 19
+      },
+      "stages": [
+        {
+          "name": "wsl-version",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "wsl-update",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "wsl2-import",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "ubuntu-boot",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "node-setup",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "wsl-tests-and-stock-app-server",
+          "exitCode": 0,
+          "timedOut": false
+        }
+      ],
+      "note": "The follow-up commit records public evidence only; patch, runtime, test and CI code remains identical to this successful compatibility run. The optional Chromium case was exercised separately by the local source-derived rendering suite."
     }
   ],
   "patchDecisions": {
@@ -205,12 +268,12 @@
     "number": 26,
     "originalEvidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/43107461252",
     "originalStatus": "failed",
-    "note": "The original Windows module tests and actual WSL2 guest setup passed, but changed source targets blocked composition and caused source/GraphQL checks to fail. Native runtime regressions passed. The original candidate remains unchanged as historical evidence."
+    "note": "The original Windows module tests and actual WSL2 guest setup passed, but changed source targets blocked composition and caused source/GraphQL checks to fail. Native runtime regressions passed. The original candidate remains unchanged as historical evidence.",
+    "resolvedBy": "https://github.com/matthewclso/codex-patches/actions/runs/43206276369"
   },
   "limitations": [
     "No generated app copy was activated; the app was not restarted and saved settings/data were not changed.",
     "Current-build Application Control permission, startup, desktop theme, interactive pets, actual agent Browser/Computer Use, authenticated connector inventory and real-phone reconnect remain pending.",
-    "Existing Application Control and initial theme-mismatch observations remain recorded. Android project-label display remains a separate accepted limitation.",
-    "Local WSL2 passes do not establish a hosted WSL2 pass for this Store build."
+    "Existing Application Control and initial theme-mismatch observations remain recorded. Android project-label display remains a separate accepted limitation."
   ]
 }
