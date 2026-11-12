@@ -68,3 +68,16 @@ module.exports.revisions.push({
   targetPath: 'webview/assets/async/890434.9dbaee449e.js',
   sourceSha256: 'f2e695e1cc13f1d453fac89de447fd14821a1a1d906fbd6d086af314512a660b',
 });
+
+module.exports.revisions.push({
+  targetPath: "webview/assets/async/98815.7ebfedd002.js",
+  sourceSha256: "9f18a43a7f505749aba582ab89c5c1794c07ee2be7ec08c1e7e0578a376ecf46",
+  before: "\"--app-color-background-surface-under\":M.surfaceUnder,",
+  after: "\"--app-color-background-surface-under\":M.theme.surface,\"--app-color-background-shell\":M.theme.surface,",
+  stylesheetBefore: "o.textContent!==i&&(o.textContent=i),i}",
+  stylesheetAfter: "o.textContent!==i&&(o.textContent=i),o.textContent+=\":root[data-codex-window-type=\\\"electron\\\"][data-codex-os=\\\"win32\\\"] :is([data-app-shell-frame],[data-app-shell-page-surface=\\\"true\\\"],.app-shell-left-panel:not([data-app-shell-left-panel-appearance=\\\"content-surface\\\"])){background-color:var(--app-color-background-shell)}\",i}",
+  apply: function(source, replace) {
+    source = replace(source, this.before, this.after);
+    return replace(source, this.stylesheetBefore, this.stylesheetAfter);
+  },
+});

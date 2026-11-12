@@ -221,3 +221,26 @@ module.exports.revisions.push({
   targetPath: ".vite/build/early-bootstrap-480-5def667ddfcd786d.js",
   sourceSha256: "be8eba3b9283d6a9784fa069a019b83a89fd02277cc13e4f7d32d57faf0ada65",
 });
+
+module.exports.revisions.push({
+  targetPath: ".vite/build/early-bootstrap-620-1eb87a1b3aa240b6.js",
+  sourceSha256: "5d08d7246c17ad6c295420a592ed2109bd70a318c63efe4890dcb7c32975ec0c",
+  reconcileBefore: "C=f,n=y,E(t.marketplacePluginDescriptors)};return{reconcileComputerHistoryPluginInstallation:",
+  reconcileAfter: "C=f,n=y,E(t.marketplacePluginDescriptors);if(r.hadReconcileFailure)throw Error(\"Bundled plugin reconciliation incomplete\")};return{reconcileComputerHistoryPluginInstallation:",
+  syncBefore: "function sw(e){let t=(sg.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(()=>",
+  syncAfter: "function sw(e){let t=(sg.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(async()=>{for(let t=0;;t++)try{return await",
+  resumeBefore: "r=n?await sb(t):null,i=n?tr():e.desktopFeatureAvailability",
+  resumeAfter: "r=n?(await sb(t)??await __codexPatchesRecoverRuntime(e).catch(()=>null)):null,i=n?tr():e.desktopFeatureAvailability",
+  failureBefore: "throw ok().warning(\"bundled_plugins_reconcile_failed\",{safe:{hasExternalPluginStateSync:d,reason:n},sensitive:{error:e}}),e",
+  failureAfter: "throw y===c&&(y=null),ok().warning(\"bundled_plugins_reconcile_failed\",{safe:{hasExternalPluginStateSync:d,reason:n},sensitive:{error:e}}),e",
+  focusBefore: "reconcileExternalPluginState:(t=\"focus\")=>",
+  focusAfter: "reconcileExternalPluginState:(t=\"focus\")=>V({force:!1,reason:t}).then(()=>",
+  syncEndBefore: "})(e));return sg.set(e.appServerConnection,t),t}",
+  syncEndAfter: "})(e)}catch(n){if(t>=2||!/timed out|expired while queued|app server.*(?:disconnected|not connected)/i.test(String(n?.message??n)))throw n;await new Promise(e=>setTimeout(e,1e3*(t+1)))}});return sg.set(e.appServerConnection,t),t}var __codexPatchesRuntimeRecovery=new WeakMap;function __codexPatchesRecoverRuntime(e){let t=__codexPatchesRuntimeRecovery.get(e.appServerConnection);if(t!=null&&t.reconcile===sf.get(e.appServerConnection)&&t.sync===sg.get(e.appServerConnection)&&t.features===tr())return t.promise;let n=sw({...e,reloadUserConfig:!0}),r={promise:n,reconcile:sf.get(e.appServerConnection),sync:sg.get(e.appServerConnection),features:tr()};return n.catch(()=>{__codexPatchesRuntimeRecovery.get(e.appServerConnection)===r&&__codexPatchesRuntimeRecovery.delete(e.appServerConnection)}),__codexPatchesRuntimeRecovery.set(e.appServerConnection,r),n}",
+  focusEndBefore: "})(t),reloadBundledPlugins:()=>V(",
+  focusEndAfter: "})(t)),reloadBundledPlugins:()=>V(",
+  apply: function(source, replace) {
+    for (const key of ['sync','syncEnd','resume','failure','focus','focusEnd','reconcile']) source = replace(source, this[key+'Before'], this[key+'After']);
+    return source;
+  },
+});

@@ -121,3 +121,9 @@ module.exports.revisions.push({
   targetPath: ".vite/build/early-bootstrap-480-5def667ddfcd786d.js",
   sourceSha256: "be8eba3b9283d6a9784fa069a019b83a89fd02277cc13e4f7d32d57faf0ada65",
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: ".vite/build/early-bootstrap-620-1eb87a1b3aa240b6.js",
+  sourceSha256: "5d08d7246c17ad6c295420a592ed2109bd70a318c63efe4890dcb7c32975ec0c",
+});
