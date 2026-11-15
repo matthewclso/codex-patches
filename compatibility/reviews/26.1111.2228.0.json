@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "26.1111.2228.0",
+  "cliVersion": "0.169.0-alpha.11.1",
+  "appVersion": "26.1111.21308",
+  "reviewedAt": "2026-11-14",
+  "status": "automated-validation-passed; current-build-interactive-acceptance-pending",
+  "affectedRequirements": [
+    "PET-1",
+    "PET-2",
+    "BROWSER-1",
+    "BROWSER-2",
+    "BROWSER-3",
+    "BROWSER-4",
+    "THEME-1",
+    "PATH-1",
+    "PATH-2",
+    "REMOTE-1",
+    "REMOTE-2",
+    "REMOTE-3",
+    "CONNECTOR-1",
+    "CONNECTOR-2",
+    "RUNTIME-1",
+    "PROJECT-2",
+    "PROJECT-3",
+    "PROJECT-4",
+    "SELECT-1",
+    "SELECT-2",
+    "SELECT-3",
+    "SELECT-4",
+    "CI-3",
+    "CI-4",
+    "VERIFY-1",
+    "VERIFY-2",
+    "VERIFY-3",
+    "VERIFY-4",
+    "SCOPE-3",
+    "LIFECYCLE-3",
+    "LIFECYCLE-4",
+    "SIDEBAR-1"
+  ],
+  "packageVerification": {
+    "msixSignature": "valid",
+    "executableSignature": "valid",
+    "identity": {
+      "name": "OpenAI.Codex",
+      "packageVersion": "26.1111.2228.0",
+      "architecture": "x64",
+      "publisher": "CN=50BDFD77-8903-4850-9FFE-6E8522F64D5B"
+    },
+    "publisher": "matched-pin",
+    "architecture": "x64",
+    "hashes": {
+      "msixSha256": "9af8619e929f00369a47326717f9515205a0e25dd409bc4c29af62c74c1ed898",
+      "archiveSha256": "2551cba1057a05cdc5cf5d75b146fac4092bff4ce77a10c43e3286c88d24c82d",
+      "executableSha256": "cf2ee1ce895df9ee158ee61830d9d0f805c77d9b212ad0e159ae605ae04260c6",
+      "cliLinuxSha256": "c147ac3b289a23d0ecfeef646be5dd2b0cc892bf78f0b215311dc6ad6e85b33e",
+      "cliWindowsSha256": "094d4db493de22025712cc5963854e7654b7c97f4cee795e3e986270a0f4f6b4",
+      "codeModeLinuxSha256": "d2e3745ee96347b8c4c94281ffbf7c94b6a50ec9f9be6eb4b035fc97f1694185",
+      "codeModeWindowsSha256": "ea5052efa8e4659f5eb2c6199090da75df65bbec4b08955e925eef60a64bbd33",
+      "nodeWindowsSha256": "67b13bfcf43036eadcb38749f369cd8e41bf0fe9b1d751dd1aeaac5f8bdd14b8"
+    },
+    "installedVerification": {
+      "packageVersion": "26.1111.2228.0",
+      "msixSignature": "not-run",
+      "publisher": "matched-pin",
+      "executableSignature": "valid",
+      "installedPackageSignature": "Store",
+      "installedPackageStatus": "Ok",
+      "installedPackageContentIntegrity": true
+    },
+    "evidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/43661060056",
+    "note": "All seven locally measured installer hashes and the app version match the official signed MSIX report. Windows separately verified installed Store identity, content integrity and executable signature."
+  },
+  "checks": [
+    {
+      "name": "packed-entry-integrity",
+      "status": "passed",
+      "verifiedPackedEntries": 20050,
+      "emptyEntries": 3
+    },
+    {
+      "name": "unknown-build-install-gate",
+      "status": "passed",
+      "detail": "Before allowlisting, exact-source auditing worked while the pristine archive was rejected by the installation transform."
+    },
+    {
+      "name": "Windows-package-validator",
+      "status": "passed",
+      "reviewedPackage": true,
+      "reviewRequired": false,
+      "sourceSuite": {
+        "tests": 20,
+        "pass": 19,
+        "fail": 0,
+        "skipped": 1
+      },
+      "fullArchiveSelections": 23,
+      "detail": "The existing composition suite checks standalone patches, every shared-entry combination, the complete/default sets and each patch disabled from the complete set. Outputs are deterministic, unrelated entries stay exact, distinct JavaScript outputs parse, and independent/default archive, header and executable pins match."
+    },
+    {
+      "name": "theme-source-and-Chromium",
+      "status": "passed",
+      "suite": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0
+      },
+      "layoutThemeCases": 32,
+      "detail": "Current native palette, document updater and stylesheet writer, with the current root/shell CSS. Reproduces the palette-only frame regression and verifies full patched Windows layouts, light/dark switches and editor contrast. Source-derived rendering; interactive desktop acceptance remains separate."
+    },
+    {
+      "name": "local-Ubuntu-26.04-WSL2-toolkit-and-native-runtime",
+      "status": "passed",
+      "suite": {
+        "tests": 111,
+        "pass": 73,
+        "fail": 0,
+        "skipped": 38
+      },
+      "kernel": "6.18.33.2-microsoft-standard-WSL2",
+      "detail": "Current CLI 0.169.0-alpha.11.1 reproduces stock project-path, unfiltered Remote Control listing, hosted Apps authentication and cache-location failures. Proxy/relay, enrollment/pairing reuse, listing/filtering/pagination/reconnect, connector discovery/errors and membership persistence pass in temporary state. Source and GraphQL checks ran separately."
+    },
+    {
+      "name": "stock-WSL2-app-server",
+      "status": "passed",
+      "observations": [
+        {
+          "method": "initialize",
+          "status": "passed"
+        },
+        {
+          "method": "project/create",
+          "status": "passed"
+        },
+        {
+          "method": "thread/list",
+          "status": "passed",
+          "useStateDbOnly": true
+        },
+        {
+          "method": "account/read",
+          "status": "passed",
+          "authenticated": false
+        }
+      ],
+      "scope": "Bundled stock CLI with temporary home/database; no user credentials."
+    },
+    {
+      "name": "stock-GraphQL-Windows-to-WSL",
+      "status": "passed",
+      "sourceFile": ".vite/build/worker.js",
+      "workerSha256": "210c4cc238f60345f2f98e6b6b7054973778b52ffaf80a6437328ee02193404f",
+      "stockQueryVariablesPreserved": true,
+      "doubleShell": true,
+      "wslExecutableExercised": true,
+      "externalRequests": 0
+    },
+    {
+      "name": "CI-evidence-unit-tests",
+      "status": "passed",
+      "suite": {
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "CLI-inspection",
+      "status": "passed",
+      "selected": 11,
+      "memberships": "disabled"
+    },
+    {
+      "name": "source-only-release-payload",
+      "status": "passed"
+    },
+    {
+      "name": "hosted-Windows-and-Ubuntu-26.04-WSL2",
+      "status": "passed",
+      "run": "https://github.com/matthewclso/codex-patches/actions/runs/43675202623",
+      "codeCommit": "519865ef6b9da7cd5dcc06f4784ea670c99eb618",
+      "packageVersion": "26.1111.2228.0",
+      "packageValidation": "passed",
+      "reviewedPackage": true,
+      "checks": [
+        {
+          "name": "windows-toolkit-module-tests",
+          "status": "passed"
+        },
+        {
+          "name": "archive-and-executable-composition",
+          "status": "passed"
+        },
+        {
+          "name": "stock-and-patched-source-behavior",
+          "status": "passed"
+        }
+      ],
+      "wslValidation": "passed",
+      "wslSuite": {
+        "tests": 111,
+        "pass": 92,
+        "fail": 0,
+        "skipped": 19
+      },
+      "stages": [
+        {
+          "name": "wsl-version",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "wsl-update",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "wsl2-import",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "ubuntu-boot",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "node-setup",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "wsl-tests-and-stock-app-server",
+          "exitCode": 0,
+          "timedOut": false
+        }
+      ],
+      "stockAppServer": "passed",
+      "stockGraphQL": {
+        "sourceFile": ".vite/build/worker.js",
+        "workerSha256": "210c4cc238f60345f2f98e6b6b7054973778b52ffaf80a6437328ee02193404f",
+        "stockQueryVariablesPreserved": true,
+        "doubleShell": true,
+        "wslExecutableExercised": true,
+        "externalRequests": 0
+      },
+      "note": "The follow-up commit records public evidence only; patch, runtime, test and CI code remains identical to this successful compatibility run. The optional Chromium case passed separately in the local source-derived rendering suite."
+    }
+  ],
+  "patchDecisions": {
+    "app": "All eight app patches remain needed. Exact-source revisions and fixtures follow the renamed bundles and native functions. Project memberships remain opt-in.",
+    "pet": "Stock still joins a Windows home with POSIX semantics. The helper is inserted into the current pet-loader module. Actual-source discovery, selection, installation, collision and traversal checks pass across Windows, POSIX and WSL UNC homes.",
+    "browserService": "The upstream generator is now async and verifies the service file. The Windows/WSL path fix covers both trusted-service registration and fs.stat, preserving the native missing-file gate. Tests cover 90 platform/path/backend combinations plus 12 file-verification cases with present and missing services.",
+    "security": "Browser transient recovery preserves native supported-client restrictions, workspace policy and first-party inference checks. Native Work/backend-auth validity, explicit denials, account-switch checks, API-key identities, latest disables, local-only audio and active-turn protection remain covered.",
+    "runtimeRecovery": "Current native reconciliation tracking and the waitForReconcile:false snapshot request remain intact. Source tests cover bounded sync retries, coalesced chat recovery, latest settings, focus retries and partial failures. The fixture executes the native reconciliation tracker.",
+    "sidebar": "Stock retains expansion when a project is closed and reopened. Tests restore five chats, allow Show more again, leave another project expanded, and retain the native repair callback.",
+    "runtime": "All four runtime patches remain needed with bundled CLI 0.169.0-alpha.11.1; native stock-versus-patched scenarios pass.",
+    "fixtures": "Native module factories are registered without executing the current application entry. Async source functions are awaited. Current native dependencies are injected explicitly; no live application or user state is started by the source fixtures.",
+    "retired": "The GraphQL shell guard and pet-home aliases remain retired. Stock query variables and apostrophe arguments survive the Windows Node/wsl.exe boundary without external requests."
+  },
+  "composedApp": {
+    "selectedIds": [
+      "custom-pets",
+      "browser-wsl",
+      "browser-service-path",
+      "browser-feature-recovery",
+      "runtime-sync-recovery",
+      "theme-background",
+      "project-list-reset"
+    ],
+    "archiveSha256": "356c21efd17aff4d8e01b773e3050a5bfb7707ad7a2f4470f6902aa3f2e2c7cb",
+    "headerSha256": "cfc3205c1a00b34a7ffed6a155aa8e52c2cc973fa572ad5dab73273a8bd943cb",
+    "executableSha256": "3b4861eb6504d1eb023174d53f062eb23b26f7bdfc7a6a0f1cbd46fc71329e38"
+  },
+  "proposal": {
+    "number": 27,
+    "originalEvidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/43585066865",
+    "latestEvidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/43661060056",
+    "originalStatus": "failed",
+    "note": "The original candidate and original source failures are retained as historical evidence. The updated code passed the fresh signed-package, Windows and actual hosted Ubuntu WSL2 checks.",
+    "resolvedBy": "https://github.com/matthewclso/codex-patches/actions/runs/43675202623"
+  },
+  "limitations": [
+    "No generated app copy was activated; the app was not restarted and saved settings/data were not changed.",
+    "Current-build Application Control permission, startup, desktop theme, interactive pets, actual agent Browser/Computer Use, authenticated connector inventory and real-phone reconnect remain pending.",
+    "Existing Application Control and initial theme-mismatch observations remain recorded. Android project-label display remains a separate accepted limitation."
+  ]
+}

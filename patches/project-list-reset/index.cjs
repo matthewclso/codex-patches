@@ -20,3 +20,9 @@ module.exports.revisions = [{
   sourceSha256: "1011c180e813ef95373b33f53ec234baa941d748dd1110f4de4538a42a550feb",
   apply(source, replace) { return replace(source, "C=()=>{eq&&tj(),(0,eW.x5)(eg,ej)},z[37]=ej", "C=()=>{eg.get(eW.Jk,ej)||(0,eW.wE)(eg,`project:${ej}`,!1),eq&&tj(),(0,eW.x5)(eg,ej)},z[37]=ej"); },
 }];
+
+module.exports.revisions.push({
+  targetPath: "webview/assets/async/200114.81334159bb.js",
+  sourceSha256: "92205ecf696adf8814a6ba6353c655afbcd8df7bb3193575bcb9d95d9bd5ae20",
+  apply(source, replace) { return replace(source, "x=()=>{eW&&tv(),(0,ez.x5)(es,ex)},K[32]=ex", "x=()=>{es.get(ez.Jk,ex)||(0,ez.wE)(es,`project:${ex}`,!1),eW&&tv(),(0,ez.x5)(es,ex)},K[32]=ex"); },
+});

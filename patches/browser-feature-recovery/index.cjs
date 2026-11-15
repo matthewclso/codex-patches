@@ -175,3 +175,13 @@ module.exports.revisions.push({
   targetPath: "webview/assets/async/739301.37a39f26d6.js",
   sourceSha256: "acc2174e4ed3d2068af26c1731f08e8978c853864aea9c0a917ae9d246885058",
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: "webview/assets/async/907538.0572f09d40.js",
+  sourceSha256: "eba5577e16a50a8106a64a05025fa23d0a589d8b4f775a6fe065ba7d916e6b1c",
+  pendingBefore: "let I=(0,i._U)(s.G,t).isCapable,T=(0,d.Zj)(\"410262010\")",
+  pendingAfter: "let I=(()=>{let e=(0,i._U)(s.G,t);return e.isLoading?null:e.isCapable})(),T=(0,d.Zj)(\"410262010\")",
+  requirementsBefore: "P=y&&(!!A?.isLoading||b.isPending),k=!y||b.allowed",
+  requirementsAfter: "P=y&&(I===null||!!A?.isLoading||b.isPending),k=!y||b.allowed",
+});

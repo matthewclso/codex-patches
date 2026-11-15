@@ -244,3 +244,23 @@ module.exports.revisions.push({
     return source;
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: ".vite/build/early-bootstrap-331-29198f5b57adf59a.js",
+  sourceSha256: "36450d9e7dea1346ba07a11f66f2683126deef87ba710c58c5cc229bf1f536f4",
+  reconcileBefore: "C=g,r=w,T(t.marketplacePluginDescriptors)};return{reconcileComputerHistoryPluginInstallation:",
+  reconcileAfter: "C=g,r=w,T(t.marketplacePluginDescriptors);if(n.hadReconcileFailure)throw Error(\"Bundled plugin reconciliation incomplete\")};return{reconcileComputerHistoryPluginInstallation:",
+  syncBefore: "function ab(e){let t=(ag.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(()=>",
+  syncAfter: "function ab(e){let t=(ag.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(async()=>{for(let t=0;;t++)try{return await",
+  resumeBefore: "n=r?await ay(t,{waitForReconcile:!1}):null,i=r?tQ():e.desktopFeatureAvailability",
+  resumeAfter: "n=r?(await ay(t,{waitForReconcile:!1})??await __codexPatchesRecoverRuntime(e).catch(()=>null)):null,i=r?tQ():e.desktopFeatureAvailability",
+  failureBefore: "throw o8().warning(\"bundled_plugins_reconcile_failed\",{safe:{hasExternalPluginStateSync:c,reason:r},sensitive:{error:e}}),e",
+  failureAfter: "throw w===l&&(w=null),o8().warning(\"bundled_plugins_reconcile_failed\",{safe:{hasExternalPluginStateSync:c,reason:r},sensitive:{error:e}}),e",
+  focusBefore: "reconcileExternalPluginState:(t=\"focus\")=>",
+  focusAfter: "reconcileExternalPluginState:(t=\"focus\")=>R({force:!1,reason:t}).then(()=>",
+  syncEndBefore: "})(e));return ag.set(e.appServerConnection,t),t}",
+  syncEndAfter: "})(e)}catch(n){if(t>=2||!/timed out|expired while queued|app server.*(?:disconnected|not connected)/i.test(String(n?.message??n)))throw n;await new Promise(e=>setTimeout(e,1e3*(t+1)))}});return ag.set(e.appServerConnection,t),t}var __codexPatchesRuntimeRecovery=new WeakMap;function __codexPatchesRecoverRuntime(e){let t=__codexPatchesRuntimeRecovery.get(e.appServerConnection);if(t!=null&&t.reconcile===af.get(e.appServerConnection)&&t.sync===ag.get(e.appServerConnection)&&t.features===tQ())return t.promise;let n=ab({...e,reloadUserConfig:!0}),r={promise:n,reconcile:af.get(e.appServerConnection),sync:ag.get(e.appServerConnection),features:tQ()};return n.catch(()=>{__codexPatchesRuntimeRecovery.get(e.appServerConnection)===r&&__codexPatchesRuntimeRecovery.delete(e.appServerConnection)}),__codexPatchesRuntimeRecovery.set(e.appServerConnection,r),n}",
+  focusEndBefore: "})(t),reloadBundledPlugins:()=>R(",
+  focusEndAfter: "})(t)),reloadBundledPlugins:()=>R(",
+});

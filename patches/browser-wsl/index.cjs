@@ -147,3 +147,9 @@ module.exports.revisions.push({
   targetPath: "webview/assets/async/739301.37a39f26d6.js",
   sourceSha256: "acc2174e4ed3d2068af26c1731f08e8978c853864aea9c0a917ae9d246885058",
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: "webview/assets/async/907538.0572f09d40.js",
+  sourceSha256: "eba5577e16a50a8106a64a05025fa23d0a589d8b4f775a6fe065ba7d916e6b1c",
+});
