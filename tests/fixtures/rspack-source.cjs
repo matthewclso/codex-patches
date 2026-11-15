@@ -35,10 +35,11 @@ function capability(text, query, policy, name, provider) {
     OMIV:{JW:'gate'},ZnQ7:{B:{'workspace-in-app-browser':'policy'}},
   };
   if(text.includes('n("zTeN")')) { imports.zTeN=imports.y5DF; }
-  const api=execute(factory(text,'ChYf'),imports,';t.descriptors=p;');
+  const api=execute(factory(text,'ChYf'),imports,text.includes('h=function(e)')?';t.descriptors=h;':';t.descriptors=p;');
   const raw=api.descriptors['browser.in-app'];
   assert.deepEqual(Array.from(raw.accessPolicies),['workspace-in-app-browser']);
   assert.equal(raw.settings.length,0);assert.equal(raw.statsig.length,0);
+  api.descriptors.clientRestricted={...raw,supportedClients:['extension']};
   api.descriptors.other={...raw,requiresFirstPartyInference:provider!==undefined};
   return JSON.parse(JSON.stringify(api.G({name},{get:(key,host)=>{
     if(key==='features'){assert.equal(host,'local');return query;}
@@ -55,6 +56,7 @@ function browserHook(text, cap) {
     hZax:{Zj:()=>true},GGpr:{$:'requirements'},mMIg:{V:()=>({enabled:true,isLoading:false})},
   };
   if(text.includes('n("zTeN")'))imports.zTeN=imports.y5DF;
+  if(text.includes('n("UOa8")'))imports.UOa8=imports.EOo5;
   return execute(factory(text,'yrds'),imports).I({hostId:'local'});
 }
 function externalBrowser(text) {
@@ -93,20 +95,20 @@ function applyTheme(text,engine) {
 }
 module.exports={paths,factories,factory,execute,capability,browserHook,externalBrowser,theme,updater,applyTheme};
 function workspace(text) { return execute(factory(text,'vw1R'),{}).H; }
-function publisher(archive, source1103=false, source7773=false, source1106=false) {
-  const source=asar.readEntry(archive,source1106?'webview/assets/async/92243.7ae2a0b971.js':source7773?'webview/assets/async/366057.08ca21677c.js':source1103?'webview/assets/async/366057.8dff3ed0b6.js':paths.publisher).toString();
-  assert.equal(asar.sha256(Buffer.from(source)),source1106?'2090b888705be8a3fac914f21b672f27a2c3ce6f854ca1312449c53fbad244d9':source7773?'40a7a2cabfc767584f268a10a4201ccb0655ec3b87bd1e934195a83a3194994c':source1103?'d5e8a2fcbc633f7059f5089a6cc7a9320e8e88e0bc756942faf3209572284418':'0c77555cce0cb92e8d8594c60ff7333af8fb18662a856b719dfa1f05229cf1db');
-  const start=source.indexOf(source1103?'l||ei.isLoading||er.isLoading||':'l||es.isLoading||er.isLoading||'),end=source.indexOf((source1106?'||(tW.O1.dispatchMessage':source1103?'||(tH.O1.dispatchMessage':'||(t0.O1.dispatchMessage')+'("electron-desktop-features-changed"',start);
+function publisher(archive, source1103=false, source7773=false, source1106=false, source1111=false) {
+  const source=asar.readEntry(archive,source1111?'webview/assets/async/757723.3067c948bc.js':source1106?'webview/assets/async/92243.7ae2a0b971.js':source7773?'webview/assets/async/366057.08ca21677c.js':source1103?'webview/assets/async/366057.8dff3ed0b6.js':paths.publisher).toString();
+  assert.equal(asar.sha256(Buffer.from(source)),source1111?'67cc5635a64f200b60e53cbf6b2fe74e4e8f0440c6ab0ccffd6c0056f849f3e4':source1106?'2090b888705be8a3fac914f21b672f27a2c3ce6f854ca1312449c53fbad244d9':source7773?'40a7a2cabfc767584f268a10a4201ccb0655ec3b87bd1e934195a83a3194994c':source1103?'d5e8a2fcbc633f7059f5089a6cc7a9320e8e88e0bc756942faf3209572284418':'0c77555cce0cb92e8d8594c60ff7333af8fb18662a856b719dfa1f05229cf1db');
+  const start=source.indexOf(source1111?'l||er.isLoading||es.isLoading||':source1103?'l||ei.isLoading||er.isLoading||':'l||es.isLoading||er.isLoading||'),end=source.indexOf((source1111?'||(t$.O1.dispatchMessage':source1106?'||(tW.O1.dispatchMessage':source1103?'||(tH.O1.dispatchMessage':'||(t0.O1.dispatchMessage')+'("electron-desktop-features-changed"',start);
   assert(start>=0&&end>start);
   const condition=source.slice(start,end);let published=0;
   for(const pending of [true,false]){
-    vm.runInNewContext(condition+'||publish()',source1106?{l:false,ei:{isLoading:pending},er:{isLoading:false},c:true,es:{isLoading:false},ep:{isLoading:false},ev:{isLoading:false},G:'available',L:{status:'allowed'},eU:{status:'allowed'},eq:{status:'allowed'},publish:()=>published++}:source1103?{l:false,ei:{isLoading:pending},er:{isLoading:false},c:true,es:{isLoading:false},ep:{isLoading:false},ev:{isLoading:false},V:'available',L:{status:'allowed'},eU:{status:'allowed'},eF:{status:'allowed'},publish:()=>published++}:{l:false,es:{isLoading:pending},er:{isLoading:false},c:true,eo:{isLoading:false},eg:{isLoading:false},e_:{isLoading:false},G:'available',L:{status:'allowed'},eF:{status:'allowed'},eq:{status:'allowed'},publish:()=>published++});
+    vm.runInNewContext(condition+'||publish()',source1111?{l:false,er:{isLoading:pending},es:{isLoading:false},c:true,eo:{isLoading:false},em:{isLoading:false},ev:{isLoading:false},B:'available',D:{status:'allowed'},eq:{status:'allowed'},eV:{status:'allowed'},publish:()=>published++}:source1106?{l:false,ei:{isLoading:pending},er:{isLoading:false},c:true,es:{isLoading:false},ep:{isLoading:false},ev:{isLoading:false},G:'available',L:{status:'allowed'},eU:{status:'allowed'},eq:{status:'allowed'},publish:()=>published++}:source1103?{l:false,ei:{isLoading:pending},er:{isLoading:false},c:true,es:{isLoading:false},ep:{isLoading:false},ev:{isLoading:false},V:'available',L:{status:'allowed'},eU:{status:'allowed'},eF:{status:'allowed'},publish:()=>published++}:{l:false,es:{isLoading:pending},er:{isLoading:false},c:true,eo:{isLoading:false},eg:{isLoading:false},e_:{isLoading:false},G:'available',L:{status:'allowed'},eF:{status:'allowed'},eq:{status:'allowed'},publish:()=>published++});
     assert.equal(published,pending?0:1);
   }
-  assert(source.includes(source1103?'inAppBrowserUse:ei.available':'inAppBrowserUse:es.available')&&source.includes(source1103?'inAppBrowserUseAllowed:ei.allowed':'inAppBrowserUseAllowed:es.allowed'));
+  assert(source.includes(source1111?'inAppBrowserUse:er.available':source1103?'inAppBrowserUse:ei.available':'inAppBrowserUse:es.available')&&source.includes(source1111?'inAppBrowserUseAllowed:er.allowed':source1103?'inAppBrowserUseAllowed:ei.allowed':'inAppBrowserUseAllowed:es.allowed'));
 }
-function css(archive, source1103=false, source1106=false) {
-  const text=(source1106?['webview/assets/async/9ec44337a842.css','webview/assets/async/08001bfedda8.css']:source1103?['webview/assets/async/e77f816560c6.css','webview/assets/async/e9cca08fb35b.css']:['webview/assets/async/361a1f04b890.css','webview/assets/async/55fbafee337b.css']).map(path=>asar.readEntry(archive,path).toString()).join('\n');
+function css(archive, source1103=false, source1106=false, source1111=false) {
+  const text=(source1111?['webview/assets/async/66582da7ee6b.css','webview/assets/async/1a537644288e.css']:source1106?['webview/assets/async/9ec44337a842.css','webview/assets/async/08001bfedda8.css']:source1103?['webview/assets/async/e77f816560c6.css','webview/assets/async/e9cca08fb35b.css']:['webview/assets/async/361a1f04b890.css','webview/assets/async/55fbafee337b.css']).map(path=>asar.readEntry(archive,path).toString()).join('\n');
   for(const name of Object.values(classes))assert(text.includes('.'+name),'Re-audit the native shell class '+name);
   return text;
 }

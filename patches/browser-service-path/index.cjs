@@ -120,3 +120,17 @@ module.exports.revisions.push({
   targetPath: ".vite/build/early-bootstrap-620-1eb87a1b3aa240b6.js",
   sourceSha256: "5d08d7246c17ad6c295420a592ed2109bd70a318c63efe4890dcb7c32975ec0c",
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  statBefore: 'S=s&&null!=b&&!await (0,tr.stat)(b)',
+  statAfter: 'S=s&&null!=b&&!await (0,tr.stat)(g&&p.platform==="win32"?(0,e8.MV$)(b,null):b)',
+  apply(source, replace) {
+    source = replace(source, this.before, this.after);
+    return replace(source, this.statBefore, this.statAfter);
+  },
+  before: '{browser:b}',
+  after: '{browser:g&&p.platform==="win32"?(0,e8.MV$)(b,null):b}',
+  targetPath: ".vite/build/early-bootstrap-331-29198f5b57adf59a.js",
+  sourceSha256: "36450d9e7dea1346ba07a11f66f2683126deef87ba710c58c5cc229bf1f536f4",
+});

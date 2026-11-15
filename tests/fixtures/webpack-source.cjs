@@ -7,7 +7,7 @@ const asar = require('../../lib/asar.cjs');
 function webpackRequire(archive) {
   const read = name => asar.readEntry(archive, name).toString();
   const core = read('.vite/build/early-bootstrap.js');
-  const entry = 'var o=r(74456);module.exports=o';
+  const entry = core.includes('var o=r(10478);module.exports=o') ? 'var o=r(10478);module.exports=o' : 'var o=r(74456);module.exports=o';
   assert.equal(core.split(entry).length, 2, 'Re-audit the Webpack entry boundary');
   const module = { exports: {} };
   vm.runInNewContext(core.replace(entry, 'module.exports=r'), { module, require, process, Buffer, TextEncoder, TextDecoder, URL, URLSearchParams, console, setTimeout, clearTimeout });
@@ -25,8 +25,8 @@ function between(text, first, last) {
   assert(start>=0&&end>start,'Missing Webpack source boundaries: '+first);
   return text.slice(start,end);
 }
-function serviceFunction(text) { return between(text,text.includes('function({appVersion:e,codexHome:t,marketplaceName:n,browserServicePluginVersion:r,')?'function({appVersion:e,codexHome:t,marketplaceName:n,browserServicePluginVersion:r,':'function({appVersion:e,codexHome:t,marketplaceName:r,browserServicePluginVersion:n,','}({appVersion:t,browserUseTinysky:')+'}'; }
-function serviceSandbox(paths, servicePath, create=options=>options, source1029=false, source1103=false, source1106=false) {
+function serviceFunction(text) { const asyncPrefix=text.includes('await async function({appVersion:e,codexHome:t,marketplaceName:r,')?'async ':''; return asyncPrefix+between(text,text.includes('function({appVersion:e,codexHome:t,marketplaceName:n,browserServicePluginVersion:r,')?'function({appVersion:e,codexHome:t,marketplaceName:n,browserServicePluginVersion:r,':'function({appVersion:e,codexHome:t,marketplaceName:r,browserServicePluginVersion:n,','}({appVersion:t,browserUseTinysky:')+'}'; }
+function serviceSandbox(paths, servicePath, create=options=>options, source1029=false, source1103=false, source1106=false, source1111=false) {
   const sandbox = {sM:{info(){},warning(){}},ec:{QKy:()=>true,vgM:()=>servicePath.slice(0,-'/scripts/browser-service.mjs'.length),ytA:'trusted-services',POg:create},
     e$:{x:{Dev:'dev',resolve:()=> 'release',isInternal:()=>false}},eU:()=>({env:{}}),rF:{kJ:'browser'},eg:{cB6:paths.cB,MV$:paths.MV},
     ea:{tno:'backends',vy_:'tinysky',TsC:'flavor',Y0x:'version',OuO:'identity',b$E:'tools-pipe',$Q0:'verifier'},
@@ -42,6 +42,10 @@ function serviceSandbox(paths, servicePath, create=options=>options, source1029=
   if(source1106){
     const previous={...sandbox};
     for(const [before,after] of Object.entries({iK:'sc',es:'ea',eY:'eG',e_:'eM',rC:'nL',eu:'eh',tY:'tD',t_:'tY',tM:'tG',rV:'nq',rx:'n$',rB:'n0',iJ:'sn',i2:'sp',iq:'sd',i$:'su'}))sandbox[after]=previous[before];
+  }
+  if(source1111){
+    const previous={...sandbox};
+    return Object.fromEntries(Object.entries({sc:'ac',ea:'e1',eG:'tC',eM:'tS',nL:'nO',eh:'e8',er:'eZ',tD:'rT',tY:'rI',tG:'rx',nq:'nJ',n$:'nT',n0:'nR',sn:'ar',sp:'ap',sd:'ad',su:'au'}).map(([before,after])=>[after,previous[before]]));
   }
   return sandbox;
 }

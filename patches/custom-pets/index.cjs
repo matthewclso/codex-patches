@@ -199,3 +199,17 @@ module.exports.revisions.push({
     return replace(source, "async function s$(", "function codexPetHome(e,t){let n=(0,k.D)({preferWsl:t});return e.sep===\"/\"?(0,tg.cB)(n):n}async function s$(");
   },
 });
+
+module.exports.revisions.push({
+  apply(source, replace) {
+    assert(!source.includes("codexPetHome"), "Pet helper is already present or collides");
+    for (const [before, after] of [
+      ["let n=(0,k.D)({preferWsl:t}),r=await e.platformPath(),", "let r=await e.platformPath(),n=codexPetHome(r,t),"],
+      ["let i=(0,k.D)({preferWsl:n}),a=await e.platformPath();", "let a=await e.platformPath(),i=codexPetHome(a,n);"],
+      ["let a=await e.platformPath(),s=(0,k.D)({preferWsl:r}),", "let a=await e.platformPath(),s=codexPetHome(a,r),"],
+    ]) source = replace(source, before, after);
+    return replace(source, "async function sa(", "function codexPetHome(e,t){let n=(0,k.D)({preferWsl:t});return e.sep===\"/\"?(0,tg.cB)(n):n}async function sa(");
+  },
+  targetPath: ".vite/build/early-bootstrap-631-cdfc1944212b0139.js",
+  sourceSha256: "d48763d1d4067319ace3b52d984e6e79bfb1819e559f6a492358a30b94cf62cf",
+});

@@ -81,3 +81,9 @@ module.exports.revisions.push({
     return replace(source, this.stylesheetBefore, this.stylesheetAfter);
   },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  targetPath: "webview/assets/async/98815.42a3b2f915.js",
+  sourceSha256: "f904246c7d831a4de09e80549b6a306ee9e7e33d10508578763aeeb78cf763aa",
+});
