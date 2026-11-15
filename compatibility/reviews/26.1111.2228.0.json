@@ -176,6 +176,78 @@
     {
       "name": "source-only-release-payload",
       "status": "passed"
+    },
+    {
+      "name": "hosted-Windows-and-Ubuntu-26.04-WSL2",
+      "status": "passed",
+      "run": "https://github.com/matthewclso/codex-patches/actions/runs/43675202623",
+      "codeCommit": "519865ef6b9da7cd5dcc06f4784ea670c99eb618",
+      "packageVersion": "26.1111.2228.0",
+      "packageValidation": "passed",
+      "reviewedPackage": true,
+      "checks": [
+        {
+          "name": "windows-toolkit-module-tests",
+          "status": "passed"
+        },
+        {
+          "name": "archive-and-executable-composition",
+          "status": "passed"
+        },
+        {
+          "name": "stock-and-patched-source-behavior",
+          "status": "passed"
+        }
+      ],
+      "wslValidation": "passed",
+      "wslSuite": {
+        "tests": 111,
+        "pass": 92,
+        "fail": 0,
+        "skipped": 19
+      },
+      "stages": [
+        {
+          "name": "wsl-version",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "wsl-update",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "wsl2-import",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "ubuntu-boot",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "node-setup",
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "wsl-tests-and-stock-app-server",
+          "exitCode": 0,
+          "timedOut": false
+        }
+      ],
+      "stockAppServer": "passed",
+      "stockGraphQL": {
+        "sourceFile": ".vite/build/worker.js",
+        "workerSha256": "210c4cc238f60345f2f98e6b6b7054973778b52ffaf80a6437328ee02193404f",
+        "stockQueryVariablesPreserved": true,
+        "doubleShell": true,
+        "wslExecutableExercised": true,
+        "externalRequests": 0
+      },
+      "note": "The follow-up commit records public evidence only; patch, runtime, test and CI code remains identical to this successful compatibility run. The optional Chromium case passed separately in the local source-derived rendering suite."
     }
   ],
   "patchDecisions": {
@@ -208,7 +280,8 @@
     "originalEvidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/43585066865",
     "latestEvidenceRun": "https://github.com/matthewclso/codex-patches/actions/runs/43661060056",
     "originalStatus": "failed",
-    "note": "Original candidate is preserved unchanged. Hosted Windows module tests and actual WSL2 guest boot/native regressions passed, but changed app source targets and GraphQL fixture boundaries caused composition/source failures. A fresh hosted run will validate the updated branch."
+    "note": "The original candidate and original source failures are retained as historical evidence. The updated code passed the fresh signed-package, Windows and actual hosted Ubuntu WSL2 checks.",
+    "resolvedBy": "https://github.com/matthewclso/codex-patches/actions/runs/43675202623"
   },
   "limitations": [
     "No generated app copy was activated; the app was not restarted and saved settings/data were not changed.",
