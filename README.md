@@ -66,6 +66,8 @@ Copy-Item config.example.json config.local.json
 | [connector-routing](patches/connector-routing/README.md) | Keep native connector authentication working alongside the Remote Control relay. |
 | [primary-runtime-cache](patches/primary-runtime-cache/README.md) | Align the Linux CLI cache with the desktop’s bundled runtime marketplace. |
 
+For reviewed builds that ship the WSL runtime separately, installation fetches the Linux x64 runtime for the exact desktop CLI version from OpenAI. It verifies the reviewed archive and executable hashes before copying those files into the generated deployment. Older supported builds continue to use their bundled Linux files.
+
 The audited build, source hashes, evidence and retired workarounds are in [compatibility/current.json](compatibility/current.json). Runtime injections, drag hooks and old custom Rust CLI binaries are not installed. Unknown builds fail closed; `.\codex-patches.ps1 stock` explicitly opens the signed app.
 
 `project-memberships` requires explicit opt-in, including after updating an older saved configuration. Inspect `repair-projects` first: the native initial synchronization follows recorded desktop assignments and can overwrite a conflicting backend membership. Enabling it also persists future task creation, moves and cleared assignments. Disabling it does not undo memberships already written. See its [module documentation](patches/project-memberships/README.md) before setting it to `enabled` or `auto`.

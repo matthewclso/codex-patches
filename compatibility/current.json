@@ -1605,7 +1605,7 @@
           "targetPath": ".vite/build/early-bootstrap-632-62c641245a52ef0e.js",
           "sourceSha256": "c16675e64dae86bdb09f7720f038a8c2f2beacf0e85bbadd369f407d38662aa4",
           "outputSha256": "62d3ec2c74548d10b02bf156bf1455b9f3eed4a25507fa048f3864cd3eed0df8",
-          "evidence": "Current native functions still need bounded sync retries, coalesced snapshot recovery, failed-signature invalidation and focus retry. Preserve latest explicit disables, API-key/authenticated identities, Work policy denials, account-switch checks, active-turn protection and the native generator\u2019s local-only audio restriction. BROWSER-1/2/3/4, LIFECYCLE-3/4; live acceptance pending.",
+          "evidence": "Current native functions still need bounded sync retries, coalesced snapshot recovery, failed-signature invalidation and focus retry. Preserve latest explicit disables, API-key/authenticated identities, Work policy denials, account-switch checks, active-turn protection and the native generator’s local-only audio restriction. BROWSER-1/2/3/4, LIFECYCLE-3/4; live acceptance pending.",
           "reviewRecord": "compatibility/reviews/26.1029.7803.0.json"
         },
         "theme-background": {
@@ -2160,6 +2160,138 @@
         }
       },
       "msixSha256": "9af8619e929f00369a47326717f9515205a0e25dd409bc4c29af62c74c1ed898"
+    },
+    {
+      "packageVersion": "26.1117.4957.0",
+      "appVersion": "26.1117.41037",
+      "cliVersion": "0.171.0-alpha.13",
+      "archiveSha256": "8a437aad94098770c1bf5fd5385c204e162b62c6d7917f688741d74e05babe90",
+      "executableSha256": "21c2eac7703b43611392234738f669a8af23907585b231ebde54ca3cb104cc82",
+      "cliLinuxSha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+      "cliWindowsSha256": "4069acdd8d101830f63ea5e2775883bfecf8a152ae87ee1b0ef9f14204f850f9",
+      "codeModeLinuxSha256": "0f3217107d529c4206c3ad2f6a96132955b120be32fd7fbd9b5e52ddbcdcc840",
+      "codeModeWindowsSha256": "753d65baafa0cafa62eb7f0a43f934421fc2eb67cc100c6ff0d8f9749a1ac5f6",
+      "nodeWindowsSha256": "61a6b8c1504531724273784db83b4571c03dc9362c2098a557abda13126fe2c0",
+      "headerSha256": "be42dbc4ce8d22052ca312c1ce4e96dbf4053bf3c662558fb3233b61caa24bb3",
+      "executableRelativePath": "ChatGPT.exe",
+      "linuxRuntime": {
+        "archiveSha256": "1887b68a11238013ed357e0c458ae7370c3a406338226fc24810a90e598a1b65",
+        "files": {
+          "codex": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+          "codex-code-mode-host": "0f3217107d529c4206c3ad2f6a96132955b120be32fd7fbd9b5e52ddbcdcc840",
+          "codex-exec-server": "fe39a05e3a46b5ffbcd42874706ec87a4bf75a5970bbacdfbbc8acffaa1520e2",
+          "codex-resources/bwrap": "34fe4eb55a7c5d6bce6028ef0fc6ee6260b15c17c714c140b32bc742a7529b9f",
+          "codex-path/rg": "e62198eb19b136b88c330af83647b5a962cb99b6b1f066758568f12de1974849"
+        }
+      },
+      "auditedAt": "2026-11-22",
+      "acceptance": "Reviewed stock and patched source and native WSL2 probes. Interactive desktop and phone acceptance pending.",
+      "verifiedPackedEntries": 15512,
+      "composedApp": {
+        "selectedIds": [
+          "custom-pets",
+          "browser-wsl",
+          "browser-service-path",
+          "browser-feature-recovery",
+          "runtime-sync-recovery",
+          "theme-background"
+        ],
+        "archiveSha256": "05557671878baf7568bb0aa21f8d35cd6518258b63bfeeeaca3665e4c9b18ffb",
+        "headerSha256": "4c77ddf932cc79f9a58f229258a0310b87cd6339a9102e16ea4cf9ce579de6f5",
+        "executableSha256": "f6e6d7d97235450df1ffc5dfc303dd5d0fc96c023a0632b8667fef6bc29a8a98"
+      },
+      "patches": {
+        "custom-pets": {
+          "status": "needed",
+          "targetPath": ".vite/build/early-bootstrap-7-a5d632ed685e6979.js",
+          "sourceSha256": "0b8d5055f63f62191e36a9ef13fb72a2a23d6ad02b8270ad311c260039eac6ba",
+          "outputSha256": "7059090e5f90534e015662edd12d9d87f7860929421ab9065774383cf6e70034",
+          "evidence": "The Webpack pet loader still joins a Windows home using POSIX paths. Native source functions and filesystem/validation utilities verify discovery, selection, installation, collision suffixes and traversal rejection across Windows, POSIX and WSL UNC homes. PET-1/2.",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "browser-wsl": {
+          "status": "needed",
+          "targetPath": "webview/assets/async/911644.eaf037cac0.js",
+          "sourceSha256": "0d3393b090dc0d1b6134be4ec10bafa0c58c5e3986b2f91ffca559579cd56a5d",
+          "outputSha256": "d32793190d71572250f87148e5bdd06df2e656727d204eda10253adcc0b05dec",
+          "evidence": "The current stock inlined in-app predicate still rejects WSL. All 256 prerequisite combinations change only that rejection; the native external-browser module remains unchanged. BROWSER-1.",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "browser-service-path": {
+          "status": "needed",
+          "targetPath": ".vite/build/early-bootstrap-916-2fd4cc5178eaa3b5.js",
+          "sourceSha256": "c1e3b6391ba975e558b8dd524bf54c7587dd25e5b8e022a58624cbabcee6c736",
+          "outputSha256": "7a6b0467efe85bdbff3ae51f4daad9f16b34f8977a9f5c8b66c6b376e2e40b3a",
+          "evidence": "The native async generator emits a POSIX trusted-service path on Windows and checks that POSIX path with Windows fs.stat. The patch converts both references only under WSL on win32. Actual-source tests cover 90 path/backend combinations and 12 present/missing-file verification cases, preserving the native missing-file gate. BROWSER-2/3.",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "project-memberships": {
+          "status": "needed",
+          "targetPath": ".vite/build/early-bootstrap-916-2fd4cc5178eaa3b5.js",
+          "sourceSha256": "c1e3b6391ba975e558b8dd524bf54c7587dd25e5b8e022a58624cbabcee6c736",
+          "outputSha256": "f2db407ddc0889f18603056db3160cb8653f73ee2e06dc505ab493c3e5c00c82",
+          "evidence": "Native membership gate remains separately controlled by localProjectTaskMembership. Actual-source tests cover explicit migration, shared cwd, new assignments, moves, clearing and backend/host guards; stock CLI tests persist initial/moved/cleared IDs. Android display acceptance remains pending. PROJECT-2/3/4.",
+          "defaultMode": "disabled",
+          "nativeSynchronizerSha256": "e8fd1b2a206cbddf3dc37ba688786e29baecfd6eda2c6c422bbb5ce695f8f723",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "browser-feature-recovery": {
+          "status": "needed",
+          "targetPath": "webview/assets/async/911644.eaf037cac0.js",
+          "sourceSha256": "0d3393b090dc0d1b6134be4ec10bafa0c58c5e3986b2f91ffca559579cd56a5d",
+          "outputSha256": "9241204464a9a3f8c00dbc6f1782f11363dccf6d96d15b8a5f2c6c7249d03815",
+          "evidence": "Current native capability and hook tests preserve confirmed Browser config across transient errors, keep unknown results pending, and enforce explicit denials, workspace policy, supported-client restrictions and first-party inference requirements. The native availability publisher is tested. BROWSER-1/2/3/4; interactive acceptance pending. The native hook and publisher now propagate capability loading directly.",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "runtime-sync-recovery": {
+          "status": "needed",
+          "targetPath": ".vite/build/early-bootstrap-916-2fd4cc5178eaa3b5.js",
+          "sourceSha256": "c1e3b6391ba975e558b8dd524bf54c7587dd25e5b8e022a58624cbabcee6c736",
+          "outputSha256": "dcd2f038e78289aaff8feff71fdd4a135c9e59f1acaa08ac9e8017fd873ee77e",
+          "evidence": "Current native inlined sync/reconciler functions still need bounded retries, coalesced snapshot recovery, failed-signature invalidation and focus retry. Tests preserve native Work authorization, current backend-auth validity and account-switch checks, API-key/authenticated identities, latest disables, final-generator remote audio denial and active turns. BROWSER-1/2/3/4, LIFECYCLE-3/4; live acceptance pending.",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "theme-background": {
+          "status": "needed",
+          "targetPath": "webview/assets/async/972521.8b15fff44b.js",
+          "sourceSha256": "8c2860c6ffde31b72f4fd43246773d3ec26bceb17eabfc2e4459658b197a1368",
+          "outputSha256": "c4be88db74889d7ad05402221a4ad325c73a73876068770b91d45af302aaeb80",
+          "evidence": "THEME-1: current stock theme still derives a different sidebar/native-window background and leaves Windows frames exposed to native material. Current-source palette/stylesheet checks and 32 Chromium layout/theme cases use the current stylesheet and application-menu layout, preserve contrast/opacity preferences, and verify the corrected scoped frame rule. Earlier live mismatch and Application Control block remain recorded; current desktop acceptance is pending.",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "project-list-reset": {
+          "status": "retired",
+          "evidence": "On this stock build the native folder toggle clears the per-project expansion when collapsing. Source regression verifies five chats on reopening, Show more again and independence across two folders."
+        }
+      },
+      "runtimePatches": {
+        "wsl-project-paths": {
+          "status": "needed",
+          "evidence": "Current stock CLI and patched adapter were tested in isolated Ubuntu 26.04 WSL2. See the build review.",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "remote-fast-list": {
+          "status": "needed",
+          "evidence": "Current stock CLI and patched adapter were tested in isolated Ubuntu 26.04 WSL2. See the build review.",
+          "nativeMockWitnesses": {
+            "stateDbWitnesses": 2,
+            "stockProjectFiltered": 1,
+            "stockUnfiltered": 0,
+            "relayedUnfiltered": 2
+          },
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "connector-routing": {
+          "status": "needed",
+          "evidence": "Current stock CLI and patched adapter were tested in isolated Ubuntu 26.04 WSL2. See the build review.",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        },
+        "primary-runtime-cache": {
+          "status": "needed",
+          "evidence": "Current stock CLI and patched adapter were tested in isolated Ubuntu 26.04 WSL2. See the build review.",
+          "reviewRecord": "compatibility/reviews/26.1111.2228.0.json"
+        }
+      }
     }
   ],
   "retired": [

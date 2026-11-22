@@ -185,3 +185,14 @@ module.exports.revisions.push({
   requirementsBefore: "P=y&&(!!A?.isLoading||b.isPending),k=!y||b.allowed",
   requirementsAfter: "P=y&&(I===null||!!A?.isLoading||b.isPending),k=!y||b.allowed",
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  // The current native hook already includes capability loading in its loading flag.
+  apply(source, replace) {
+    for (const key of ['policy', 'capability']) source = replace(source, this[key + 'Before'], this[key + 'After']);
+    return source;
+  },
+  targetPath: "webview/assets/async/911644.eaf037cac0.js",
+  sourceSha256: "0d3393b090dc0d1b6134be4ec10bafa0c58c5e3986b2f91ffca559579cd56a5d",
+});

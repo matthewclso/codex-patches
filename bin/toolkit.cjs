@@ -20,7 +20,7 @@ function main(argv) {
     }
     return {supported:true,build,selection:resolveSelection(config,build)};
   }
-  if(command==='build') return buildCopy({source:opts.source,destination:opts.destination,config:JSON.parse(fs.readFileSync(opts.config,'utf8').replace(/^\uFEFF/,'')),packageFullName:opts['package-full-name'],packageFamilyName:opts['package-family-name'],toolkitRoot:path.resolve(__dirname,'..')});
+  if(command==='build') return buildCopy({source:opts.source,destination:opts.destination,config:JSON.parse(fs.readFileSync(opts.config,'utf8').replace(/^\uFEFF/,'')),packageFullName:opts['package-full-name'],packageFamilyName:opts['package-family-name'],linuxRuntime:opts['linux-runtime'],toolkitRoot:path.resolve(__dirname,'..')});
   if(command==='verify') { const {receipt,...report}=verifyCopy(opts.directory,{full:opts.full==='true'});return report; }
   throw new Error('Commands: inspect --source=... --config=...; build --source=... --destination=... --config=... --package-full-name=... --package-family-name=...; verify --directory=... [--full=true]');
 }

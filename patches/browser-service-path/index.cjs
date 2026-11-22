@@ -134,3 +134,12 @@ module.exports.revisions.push({
   targetPath: ".vite/build/early-bootstrap-331-29198f5b57adf59a.js",
   sourceSha256: "36450d9e7dea1346ba07a11f66f2683126deef87ba710c58c5cc229bf1f536f4",
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  statBefore: "S=s&&null!=b&&!await (0,tA.stat)(b).then(e=>e.isFile(),()=>!1)",
+  statAfter: "S=s&&null!=b&&!await (0,tA.stat)(g&&p.platform===\"win32\"?(0,tC.MV$)(b,null):b).then(e=>e.isFile(),()=>!1)",
+  after: "{browser:g&&p.platform===\"win32\"?(0,tC.MV$)(b,null):b}",
+  targetPath: ".vite/build/early-bootstrap-916-2fd4cc5178eaa3b5.js",
+  sourceSha256: "c1e3b6391ba975e558b8dd524bf54c7587dd25e5b8e022a58624cbabcee6c736",
+});

@@ -264,3 +264,23 @@ module.exports.revisions.push({
   focusEndBefore: "})(t),reloadBundledPlugins:()=>R(",
   focusEndAfter: "})(t)),reloadBundledPlugins:()=>R(",
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  syncBefore: "function a9(e){let t=(a3.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(()=>",
+  syncAfter: "function a9(e){let t=(a3.get(e.appServerConnection)??Promise.resolve()).catch(()=>{}).then(async()=>{for(let t=0;;t++)try{return await",
+  syncEndBefore: "})(e));return a3.set(e.appServerConnection,t),t}",
+  syncEndAfter: "})(e)}catch(n){if(t>=2||!/timed out|expired while queued|app server.*(?:disconnected|not connected)/i.test(String(n?.message??n)))throw n;await new Promise(e=>setTimeout(e,1e3*(t+1)))}});return a3.set(e.appServerConnection,t),t}var __codexPatchesRuntimeRecovery=new WeakMap;function __codexPatchesRecoverRuntime(e){let t=__codexPatchesRuntimeRecovery.get(e.appServerConnection);if(t!=null&&t.reconcile===a4.get(e.appServerConnection)&&t.sync===a3.get(e.appServerConnection)&&t.features===rw())return t.promise;let n=a9({...e,reloadUserConfig:!0}),r={promise:n,reconcile:a4.get(e.appServerConnection),sync:a3.get(e.appServerConnection),features:rw()};return n.catch(()=>{__codexPatchesRuntimeRecovery.get(e.appServerConnection)===r&&__codexPatchesRuntimeRecovery.delete(e.appServerConnection)}),__codexPatchesRuntimeRecovery.set(e.appServerConnection,r),n}",
+  resumeBefore: "n=r?await a6(t,{waitForReconcile:!1}):null,i=r?rw():e.desktopFeatureAvailability",
+  resumeAfter: "n=r?(await a6(t,{waitForReconcile:!1})??await __codexPatchesRecoverRuntime(e).catch(()=>null)):null,i=r?rw():e.desktopFeatureAvailability",
+  failureBefore: "throw lJ().warning(\"bundled_plugins_reconcile_failed\",{safe:{hasExternalPluginStateSync:c,reason:r},sensitive:{error:e}}),e",
+  failureAfter: "throw y===l&&(y=null),lJ().warning(\"bundled_plugins_reconcile_failed\",{safe:{hasExternalPluginStateSync:c,reason:r},sensitive:{error:e}}),e",
+  focusBefore: "reconcileExternalPluginState:(t=\"focus\")=>",
+  focusAfter: "reconcileExternalPluginState:(t=\"focus\")=>E({force:!1,reason:t}).then(()=>",
+  focusEndBefore: "})(t),reloadBundledPlugins:()=>E(",
+  focusEndAfter: "})(t)),reloadBundledPlugins:()=>E(",
+  reconcileBefore: "C=f,r=y,_(t.marketplacePluginDescriptors)};return{reconcileComputerHistoryPluginInstallation:",
+  reconcileAfter: "C=f,r=y,_(t.marketplacePluginDescriptors);if(n.hadReconcileFailure)throw Error(\"Bundled plugin reconciliation incomplete\")};return{reconcileComputerHistoryPluginInstallation:",
+  targetPath: ".vite/build/early-bootstrap-916-2fd4cc5178eaa3b5.js",
+  sourceSha256: "c1e3b6391ba975e558b8dd524bf54c7587dd25e5b8e022a58624cbabcee6c736",
+});

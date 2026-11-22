@@ -135,3 +135,11 @@ module.exports.revisions.push({
   after: 'L.setThreadAssignmentsEnabled(!0)',
   apply(source, replace) { return replace(source, this.before, this.after); },
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  before: "O.setThreadAssignmentsEnabled(rw().localProjectTaskMembership)",
+  after: "O.setThreadAssignmentsEnabled(!0)",
+  targetPath: ".vite/build/early-bootstrap-916-2fd4cc5178eaa3b5.js",
+  sourceSha256: "c1e3b6391ba975e558b8dd524bf54c7587dd25e5b8e022a58624cbabcee6c736",
+});

@@ -28,3 +28,7 @@ The backend proxy independently passes the canonical POSIX home to the stock
 Linux CLI. The old pet-specific junction workaround is excluded; there is no
 home-alias code to install. Full desktop startup remains a separate acceptance
 check for the toolkit's native-home environment.
+
+## Sidebar project chat list reset
+
+Codex Windows `26.1117.4957.0` clears the expanded chat list when collapsing a project folder. The stock-source test expands two projects, closes and reopens one, verifies the initial five chats in order, and uses **Show more** again. The other project stays expanded. The patch remains available for older reviewed builds that need it. SIDEBAR-1 and SELECT-4.
