@@ -67,3 +67,26 @@ test('package acceptance requires every installer runtime pin and version to mat
     assert.equal(matchesReviewedPackage(build, changed), false, key);
   }
 });
+
+test('separately distributed WSL runtime must match the reviewed archive and all extracted files', () => {
+  const { linuxRuntimePaths } = require('../../lib/deployment.cjs');
+  const base = require('../../compatibility/current.json').builds[0];
+  const linuxRuntime = { archiveSha256: 'a'.repeat(64), files: Object.fromEntries(linuxRuntimePaths.map(file => [file, 'b'.repeat(64)])) };
+  const build = { ...base, linuxRuntime };
+  const report = {
+    identity: { packageVersion: build.packageVersion },
+    versions: { appVersion: build.appVersion, cliVersion: build.cliVersion },
+    files: { executableRelativePath: build.executableRelativePath }, hashes: { ...base },
+    linuxRuntime: structuredClone(linuxRuntime),
+  };
+  assert.equal(matchesReviewedPackage(build, report), true);
+  for (const file of linuxRuntimePaths) {
+    const changed = structuredClone(report);
+    changed.linuxRuntime.files[file] = 'c'.repeat(64);
+    assert.equal(matchesReviewedPackage(build, changed), false, file);
+  }
+  report.linuxRuntime.archiveSha256 = 'c'.repeat(64);
+  assert.equal(matchesReviewedPackage(build, report), false);
+  delete report.linuxRuntime;
+  assert.equal(matchesReviewedPackage(build, report), false);
+});

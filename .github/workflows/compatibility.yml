@@ -42,6 +42,7 @@ jobs:
         continue-on-error: true
         shell: pwsh
         env:
+          CODEX_LINUX_RUNTIME: ${{ steps.package.outputs.linux_runtime }}
           CODEX_APP_DIRECTORY: ${{ steps.package.outputs.app_directory }}
           CODEX_PACKAGE_REPORT: ${{ steps.package.outputs.package_report }}
           CODEX_CI_WINDOWS_TEST_OUTCOME: ${{ steps.windows_tests.outcome }}
@@ -52,11 +53,12 @@ jobs:
         shell: pwsh
         env:
           STOCK_LINUX_CLI: ${{ steps.package.outputs.linux_cli }}
+          STOCK_ARCHIVE: ${{ steps.package.outputs.stock_archive }}
           STOCK_EXECUTABLE: ${{ steps.package.outputs.stock_executable }}
           STOCK_WINDOWS_NODE: ${{ steps.package.outputs.stock_windows_node }}
         run: |
           $nodeVersion = (node --version).TrimStart('v')
-          ./scripts/ci/Test-WslCi.ps1 -Repository "$env:GITHUB_WORKSPACE" -StockLinuxCli "$env:STOCK_LINUX_CLI" -StockDesktopExecutable "$env:STOCK_EXECUTABLE" -StockWindowsNode "$env:STOCK_WINDOWS_NODE" -OutputDirectory "$env:RUNNER_TEMP/codex-reports" -NodeVersion $nodeVersion
+          ./scripts/ci/Test-WslCi.ps1 -Repository "$env:GITHUB_WORKSPACE" -StockLinuxCli "$env:STOCK_LINUX_CLI" -StockArchive "$env:STOCK_ARCHIVE" -StockDesktopExecutable "$env:STOCK_EXECUTABLE" -StockWindowsNode "$env:STOCK_WINDOWS_NODE" -OutputDirectory "$env:RUNNER_TEMP/codex-reports" -NodeVersion $nodeVersion
       - name: Record evidence summary
         if: always()
         shell: pwsh

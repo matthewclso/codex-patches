@@ -6,6 +6,7 @@ const { spawnSync } = require('node:child_process');
 const { auditArchive, listPatches } = require('../../lib/app-patches.cjs');
 const { sha256, updateExecutableIntegrity } = require('../../lib/asar.cjs');
 const { readJson } = require('./evidence.cjs');
+const { linuxRuntimePaths } = require('../../lib/deployment.cjs');
 const compatibility = require('../../compatibility/current.json');
 function argument(name) { const index = process.argv.indexOf(name); if (index < 0 || !process.argv[index + 1]) throw new Error('Missing argument: ' + name); return process.argv[index + 1]; }
 function candidatePatches(patches) {
@@ -20,6 +21,10 @@ function matchesReviewedPackage(build, packageReport) {
       build.executableRelativePath !== packageReport.files.executableRelativePath.replaceAll('\\', '/')) return false;
   // These are the same runtime binaries required by the installer. Archive
   // composition alone must not accept changed stock executables or runtimes.
+  const runtime = packageReport.linuxRuntime;
+  if (Boolean(build.linuxRuntime) !== Boolean(runtime) || (runtime &&
+    (build.linuxRuntime.archiveSha256 !== runtime.archiveSha256 ||
+      !linuxRuntimePaths.every(file => build.linuxRuntime.files[file] && build.linuxRuntime.files[file] === runtime.files[file])))) return false;
   return ['archiveSha256', 'executableSha256', 'cliLinuxSha256', 'cliWindowsSha256',
     'codeModeLinuxSha256', 'codeModeWindowsSha256', 'nodeWindowsSha256']
     .every(key => build[key] && build[key] === packageReport.hashes[key]);
@@ -35,7 +40,7 @@ function isVerifiedPackageSource(packageReport) {
     verification.installedPackageSignature === 'Store' && verification.installedPackageStatus === 'Ok' &&
     verification.installedPackageContentIntegrity === true;
 }
-function validate(appDirectory, packageReport, outDirectory) {
+function validate(appDirectory, packageReport, outDirectory, linuxRuntime) {
   fs.mkdirSync(outDirectory, { recursive: true });
   const report = { schemaVersion: 1, status: 'failed', reviewRequired: true,
     observedAt: new Date().toISOString(), package: packageReport, checks: [] };
@@ -53,9 +58,15 @@ function validate(appDirectory, packageReport, outDirectory) {
     const archive = fs.readFileSync(archivePath), executable = fs.readFileSync(exePath);
     assert.equal(sha256(archive), packageReport.hashes.archiveSha256);
     assert.equal(sha256(executable), packageReport.hashes.executableSha256);
+    assert.equal(Boolean(linuxRuntime), Boolean(packageReport.linuxRuntime), 'Missing separate Linux runtime evidence');
+    if (linuxRuntime) for (const file of linuxRuntimePaths) {
+      const hash = packageReport.linuxRuntime.files[file];
+      assert.match(hash, /^[a-f0-9]{64}$/);
+      assert.equal(sha256(fs.readFileSync(path.join(linuxRuntime, file))), hash);
+    }
     for (const [filename, key] of [['codex', 'cliLinuxSha256'], ['codex.exe', 'cliWindowsSha256'],
       ['codex-code-mode-host', 'codeModeLinuxSha256'], ['codex-code-mode-host.exe', 'codeModeWindowsSha256'], ['cua_node/bin/node.exe', 'nodeWindowsSha256']])
-      assert.equal(sha256(fs.readFileSync(path.join(appDirectory, 'resources', filename))), packageReport.hashes[key]);
+      assert.equal(sha256(fs.readFileSync(path.join(linuxRuntime && ['codex', 'codex-code-mode-host'].includes(filename) ? linuxRuntime : path.join(appDirectory, 'resources'), filename))), packageReport.hashes[key]);
     const reviewed = compatibility.builds.find(b => b.archiveSha256 === sha256(archive));
     const audit = auditArchive(archive, listPatches().filter(p => !reviewed || reviewed.patches[p.id]?.status === 'needed').map(p => p.id));
     report.audit = audit.report;
@@ -95,6 +106,7 @@ function validate(appDirectory, packageReport, outDirectory) {
       codeModeLinuxSha256: packageReport.hashes.codeModeLinuxSha256,
       codeModeWindowsSha256: packageReport.hashes.codeModeWindowsSha256,
       nodeWindowsSha256: packageReport.hashes.nodeWindowsSha256,
+      ...(packageReport.linuxRuntime && { linuxRuntime: packageReport.linuxRuntime }),
       acceptance: 'candidate; source behavior checked; desktop and WSL acceptance require review',
       runtimePatches: supported && known?.runtimePatches ? structuredClone(known.runtimePatches) :
         Object.fromEntries(Object.keys(compatibility.builds[0]?.runtimePatches || {}).map(id => [id, {
@@ -107,7 +119,7 @@ function validate(appDirectory, packageReport, outDirectory) {
 }
 if (require.main === module) {
   try {
-    const report = validate(argument('--app-dir'), readJson(argument('--package-report')), argument('--out'));
+    const report = validate(argument('--app-dir'), readJson(argument('--package-report')), argument('--out'), process.env.CODEX_LINUX_RUNTIME);
     console.log(`Package compatibility: ${report.status}; supported registry unchanged.`);
     if (report.status === 'failed') process.exitCode = 1;
   } catch (error) { console.error(error.message); process.exitCode = 1; }

@@ -46,12 +46,21 @@ $linuxCli = Join-Path $appDirectory 'resources\codex'
 $linuxCodeMode = Join-Path $appDirectory 'resources\codex-code-mode-host'
 $windowsCodeMode = Join-Path $appDirectory 'resources\codex-code-mode-host.exe'
 $windowsNode = Join-Path $appDirectory 'resources\cua_node\bin\node.exe'
-foreach ($runtimeFile in @($windowsCli, $linuxCli, $linuxCodeMode, $windowsCodeMode, $windowsNode)) {
+foreach ($runtimeFile in @($windowsCli, $windowsCodeMode, $windowsNode)) {
     if (-not (Test-Path $runtimeFile)) { throw "The official package is missing a stock CLI/Code Mode runtime: $runtimeFile" }
 }
 $cliOutput = (& $windowsCli --version 2>&1 | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or $cliOutput -notmatch '(?<version>\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)') { throw 'Unable to establish bundled stock CLI version.' }
 $cliVersion = $Matches.version
+$linuxRuntime = $null
+$downloadedRuntime = $null
+if (-not (Test-Path -LiteralPath $linuxCli) -and -not (Test-Path -LiteralPath $linuxCodeMode)) {
+    . (Join-Path $PSScriptRoot '..\Get-WslRuntime.ps1')
+    $downloadedRuntime = Get-OfficialWslRuntime -CliVersion $cliVersion -Directory (Join-Path $OutputDirectory 'linux-runtime')
+    $linuxRuntime = $downloadedRuntime.Metadata
+    $linuxCli = Join-Path $downloadedRuntime.Directory 'codex'
+    $linuxCodeMode = Join-Path $downloadedRuntime.Directory 'codex-code-mode-host'
+}
 $appVersion = (& node (Join-Path $PSScriptRoot 'inspect-app-version.cjs') $archivePaths[0].FullName | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or $appVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'Unable to establish internal Codex app version from its archive.' }
 $report = [ordered]@{
@@ -73,12 +82,15 @@ $report = [ordered]@{
     files = [ordered]@{ executableRelativePath = [IO.Path]::GetRelativePath($appDirectory, $executable) }
     verification = [ordered]@{ msixSignature = 'valid'; executableSignature = 'valid'; identity = 'verified'; publisher = 'matched-pin'; architecture = 'x64' }
 }
+if ($linuxRuntime) { $report.linuxRuntime = $linuxRuntime }
 $report | ConvertTo-Json -Depth 8 | Set-Content $reportPath -Encoding utf8
 if ($env:GITHUB_OUTPUT) {
     "app_directory=$appDirectory" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
     "package_report=$reportPath" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
     "package_version=$($identity.Version)" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
     "linux_cli=$linuxCli" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
+    "stock_archive=$($archivePaths[0].FullName)" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
+    "linux_runtime=$($downloadedRuntime.Directory)" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
     "stock_executable=$executable" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
     "stock_windows_node=$windowsNode" | Add-Content $env:GITHUB_OUTPUT -Encoding utf8
 }

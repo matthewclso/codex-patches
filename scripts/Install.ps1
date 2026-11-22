@@ -86,7 +86,21 @@ os.chdir(sys.argv[1]);subprocess.run([sys.argv[2],sys.argv[3],'ci','--omit=dev',
     $id = "$($package.Version)-$([Guid]::NewGuid().ToString('N').Substring(0,12))"
     $deployment = Join-Path $versions $id
     Write-Host "Building an independent app copy for $($package.Version)..."
-    Invoke-Native $node @((Join-Path $repo 'bin\toolkit.cjs'),'build',"--source=$(Join-Path $package.InstallLocation 'app')","--destination=$deployment","--config=$selectionPath","--package-full-name=$($package.PackageFullName)","--package-family-name=$($package.PackageFamilyName)") | Out-Null
+    $buildArguments = @((Join-Path $repo 'bin\toolkit.cjs'),'build',"--source=$(Join-Path $package.InstallLocation 'app')","--destination=$deployment","--config=$selectionPath","--package-full-name=$($package.PackageFullName)","--package-family-name=$($package.PackageFamilyName)")
+    $stagedRuntime = $null
+    try {
+        if ($inspection.build.linuxRuntime) {
+            . (Join-Path $PSScriptRoot 'Get-WslRuntime.ps1')
+            $stagedRuntime = Join-Path $InstallRoot ("runtime-staging-" + [Guid]::NewGuid())
+            $runtimeFiles = Get-OfficialWslRuntime -CliVersion $inspection.build.cliVersion -Directory $stagedRuntime -ExpectedArchiveSha256 $inspection.build.linuxRuntime.archiveSha256
+            $buildArguments += "--linux-runtime=$($runtimeFiles.Directory)"
+        }
+        Invoke-Native $node $buildArguments | Out-Null
+    } finally {
+        if ($stagedRuntime -and (Test-Path -LiteralPath $stagedRuntime)) {
+            Remove-Item -LiteralPath $stagedRuntime -Recurse -Force
+        }
+    }
     $receipt = Read-JsonFile (Join-Path $deployment 'receipt.json')
     $selected = @($receipt.selection.selected)
     $deploymentLinux = Get-WslPath $deployment
@@ -108,7 +122,9 @@ p=pathlib.Path(sys.argv[1]);p.parent.mkdir(parents=True,exist_ok=True);p.parent.
 if p.exists():raise SystemExit('Deployment runtime already exists')
 fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
 with os.fdopen(fd,'wb') as f:f.write(base64.b64decode(sys.argv[2]))
-for name in ('codex','codex-code-mode-host'):pathlib.Path(sys.argv[3]+'/app/resources/'+name).chmod(0o755)
+for name in ('codex','codex-code-mode-host','codex-exec-server','codex-resources/bwrap','codex-path/rg'):
+ binary=pathlib.Path(sys.argv[3]+'/app/resources/'+name)
+ if binary.is_file():binary.chmod(0o755)
 pathlib.Path(sys.argv[3]+'/toolkit/patches/wsl-project-paths/proxy.py').chmod(0o755)
 '@ @($runtimeConfigPath,$payload,$deploymentLinux) | Out-Null
     if ($ImportRelayState) {

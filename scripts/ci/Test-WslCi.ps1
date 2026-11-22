@@ -2,6 +2,7 @@
 param(
     [Parameter(Mandatory)][string]$Repository,
     [Parameter(Mandatory)][string]$StockLinuxCli,
+    [Parameter(Mandatory)][string]$StockArchive,
     [Parameter(Mandatory)][string]$StockDesktopExecutable,
     [Parameter(Mandatory)][string]$StockWindowsNode,
     [Parameter(Mandatory)][string]$OutputDirectory,
@@ -98,6 +99,7 @@ try {
     if ($boot.exitCode -ne 0) { Unsupported 'WSL2 guest could not boot on the hosted runner. This is not patch acceptance.'; return }
     if ($boot.output -notmatch 'VERSION_ID="26\.04"' -or $boot.output -notmatch '(?i)microsoft.*wsl2') { throw 'Booted guest did not identify as Ubuntu 26.04 on a WSL2 kernel.' }
     $linuxRepository = LinuxPath (Resolve-Path $Repository).Path
+    $linuxArchive = LinuxPath (Resolve-Path $StockArchive).Path
     $linuxCli = LinuxPath (Resolve-Path $StockLinuxCli).Path
     $linuxExe = LinuxPath (Resolve-Path $StockDesktopExecutable).Path
     $linuxWindowsNode = LinuxPath (Resolve-Path $StockWindowsNode).Path
@@ -109,9 +111,9 @@ try {
     Stage 'node-setup' $nodeSetup
     if ($nodeSetup.exitCode -ne 0) { throw 'Verified Node runtime installation in WSL failed.' }
     # Paths are passed as positional arguments, not interpolated into shell source.
-    $testScript = 'set -eu; export PATH="$1:$PATH"; cd "$2"; export CODEX_PATCHES_STOCK_LINUX_CLI="$3"; export CODEX_RELAY_TEST_BINARY="$3"; export CODEX_SOURCE_ASAR="$(dirname "$3")/app.asar"; export CODEX_PATCHES_TEST_ASAR="$CODEX_SOURCE_ASAR"; export CODEX_SOURCE_EXE="$5"; export CODEX_AUDIT_UNKNOWN=1; npm ci --ignore-scripts; npm test; node --test scripts/ci/*.test.cjs; node scripts/ci/probe-app-server.cjs --cli "$3" --out "$4"; node tools/audit-graphql.cjs "$CODEX_SOURCE_ASAR" "$7" "$6" > "$(dirname "$4")/graphql-windows-boundary.json"'
+    $testScript = 'set -eu; export PATH="$1:$PATH"; cd "$2"; export CODEX_PATCHES_STOCK_LINUX_CLI="$3"; export CODEX_RELAY_TEST_BINARY="$3"; export CODEX_SOURCE_ASAR="$8"; export CODEX_PATCHES_TEST_ASAR="$CODEX_SOURCE_ASAR"; export CODEX_SOURCE_EXE="$5"; export CODEX_AUDIT_UNKNOWN=1; npm ci --ignore-scripts; npm test; node --test scripts/ci/*.test.cjs; node scripts/ci/probe-app-server.cjs --cli "$3" --out "$4"; node tools/audit-graphql.cjs "$CODEX_SOURCE_ASAR" "$7" "$6" > "$(dirname "$4")/graphql-windows-boundary.json"'
     $linuxReport = LinuxPath $OutputDirectory
-    $tests = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--exec', 'sh', '-c', $testScript, 'ci-tests', "/opt/node-v$NodeVersion-linux-x64/bin", $linuxRepository, $linuxCli, "$linuxReport/app-server.json", $linuxExe, $linuxWindowsNode, $Distribution) 600
+    $tests = Invoke-Captured 'wsl.exe' @('-d', $Distribution, '-u', 'root', '--exec', 'sh', '-c', $testScript, 'ci-tests', "/opt/node-v$NodeVersion-linux-x64/bin", $linuxRepository, $linuxCli, "$linuxReport/app-server.json", $linuxExe, $linuxWindowsNode, $Distribution, $linuxArchive) 600
     Stage 'wsl-tests-and-stock-app-server' $tests
     if ($tests.exitCode -ne 0) { throw 'One or more WSL tests or stock app-server probes failed.' }
     $report.status = 'passed'; $report.reason = 'Ubuntu 26.04 WSL2 boot, repository tests, and stock app-server RPC probe passed.'

@@ -213,3 +213,17 @@ module.exports.revisions.push({
   targetPath: ".vite/build/early-bootstrap-631-cdfc1944212b0139.js",
   sourceSha256: "d48763d1d4067319ace3b52d984e6e79bfb1819e559f6a492358a30b94cf62cf",
 });
+
+module.exports.revisions.push({
+  ...module.exports.revisions.at(-1),
+  apply(source, replace) {
+    for (const [before, after] of [
+      ['let r=(0,R.D)({preferWsl:t}),n=await e.platformPath(),i=n.join(r,"pets")', 'let n=await e.platformPath(),r=codexPetHome(n,t),i=n.join(r,"pets")'],
+      ['let i=(0,R.D)({preferWsl:r}),a=await e.platformPath();return await il(', 'let a=await e.platformPath(),i=codexPetHome(a,r);return await il('],
+      ['let a=await e.platformPath(),o=(0,R.D)({preferWsl:n}),s=a.join(o,"pets")', 'let a=await e.platformPath(),o=codexPetHome(a,n),s=a.join(o,"pets")'],
+    ]) source = replace(source, before, after);
+    return replace(source, 'async function ir({appServerClient:', 'function codexPetHome(e,t){let n=(0,R.D)({preferWsl:t});return e.sep==="/"?(0,C.cB6)(n):n}async function ir({appServerClient:');
+  },
+  targetPath: ".vite/build/early-bootstrap-7-a5d632ed685e6979.js",
+  sourceSha256: "0b8d5055f63f62191e36a9ef13fb72a2a23d6ad02b8270ad311c260039eac6ba",
+});

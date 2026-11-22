@@ -108,3 +108,33 @@ test('generated snapshot is independent and detects app or runtime tampering', (
     assert.throws(() => deployment.verifyCopy(f.destination, { full: true }), /file set changed/);
   } finally { f.cleanup(); }
 });
+
+test('downloaded Linux runtime must match reviewed bytes and is covered by the deployment receipt', () => {
+  const f = fixture();
+  try {
+    const linuxRuntime = path.join(f.root, 'linux-runtime');
+    f.build.linuxRuntime = { files: {} };
+    for (const relative of deployment.linuxRuntimePaths) {
+      const file = path.join(linuxRuntime, relative);
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, relative);
+      f.build.linuxRuntime.files[relative] = deployment.hashFile(file);
+    }
+    for (const name of ['codex', 'codex-code-mode-host']) fs.unlinkSync(path.join(f.source, 'resources', name));
+    const options = { source: f.source, destination: f.destination, config: config(), toolkitRoot: f.toolkit };
+    assert.equal(deployment.identify(f.source).build, f.build);
+    assert.throws(() => deployment.buildCopy(options), /Expected the reviewed Linux runtime/);
+    const helper = path.join(linuxRuntime, 'codex-exec-server');
+    fs.writeFileSync(helper, 'changed');
+    assert.throws(() => deployment.buildCopy({ ...options, linuxRuntime }), /Unreviewed Linux runtime file: codex-exec-server/);
+    assert.equal(fs.existsSync(f.destination), false);
+    fs.writeFileSync(helper, 'codex-exec-server');
+    deployment.buildCopy({ ...options, linuxRuntime });
+    assert.equal(deployment.verifyCopy(f.destination, { full: true }).valid, true);
+    fs.writeFileSync(path.join(f.destination, 'app/resources/codex-exec-server'), 'changed');
+    assert.throws(() => deployment.verifyCopy(f.destination), /Generated app changed: resources\/codex-exec-server/);
+    assert.equal(fs.existsSync(path.join(f.source, 'resources/codex-exec-server')), false);
+  } finally {
+    f.cleanup();
+  }
+});
